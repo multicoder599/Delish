@@ -2,1341 +2,1044 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Delish Dish — Admin</title>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@500;600;700&display=swap" rel="stylesheet">
 <style>
-:root{--bg:#0b0f19;--bg-elevated:#111827;--glass:rgba(255,255,255,.04);--glass-border:rgba(255,255,255,.08);--primary:#f59e0b;--primary-glow:rgba(245,158,11,.25);--accent:#3b82f6;--accent-glow:rgba(59,130,246,.25);--danger:#ef4444;--green:#10b981;--purple:#8b5cf6;--text:#f1f5f9;--text-muted:#94a3b8;--text-dim:#64748b;--radius:16px;--radius-sm:10px;--shadow:0 8px 32px rgba(0,0,0,.4);--transition:all .3s cubic-bezier(.4,0,.2,1)}
+:root{
+  --bg:#f4f5f7; --surface:#ffffff; --sidebar:#111827;
+  --border:#e5e7eb; --border-strong:#d1d5db;
+  --text:#111827; --muted:#6b7280; --faint:#9ca3af;
+  --brand:#ea580c; --brand-dark:#c2410c; --brand-soft:#fff4ec;
+  --green:#059669; --green-soft:#ecfdf5; --red:#dc2626; --red-soft:#fef2f2;
+  --blue:#2563eb; --blue-soft:#eff6ff; --amber:#d97706; --amber-soft:#fffbeb;
+  --purple:#7c3aed; --purple-soft:#f5f3ff;
+  --r-lg:16px; --r-md:11px; --r-sm:8px;
+  --shadow:0 1px 3px rgba(16,24,40,.08),0 1px 2px rgba(16,24,40,.04);
+  --shadow-lg:0 12px 32px -8px rgba(16,24,40,.18);
+  --tr:all .18s ease;
+}
 *{box-sizing:border-box;margin:0;padding:0}
-body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--text);overflow-x:hidden;min-height:100vh}
-::-webkit-scrollbar{width:5px;height:5px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:rgba(255,255,255,.1);border-radius:10px}
-@keyframes fadeIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
-@keyframes scaleIn{from{opacity:0;transform:scale(.92)}to{opacity:1;transform:scale(1)}}
-@keyframes slideInLeft{from{opacity:0;transform:translateX(-20px)}to{opacity:1;transform:translateX(0)}}
-@keyframes countUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+body{font-family:'Plus Jakarta Sans',system-ui,sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+.num{font-family:'IBM Plex Mono',monospace}
+button,input,select{font-family:inherit}
+::-webkit-scrollbar{width:6px;height:6px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:#d1d5db;border-radius:10px}
+@keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
 @keyframes toastIn{from{transform:translateX(120%);opacity:0}to{transform:translateX(0);opacity:1}}
 @keyframes toastOut{from{transform:translateX(0);opacity:1}to{transform:translateX(120%);opacity:0}}
-.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);backdrop-filter:blur(12px);z-index:3000;align-items:center;justify-content:center;animation:fadeIn .2s ease;padding:16px}
-.modal-box{background:var(--bg-elevated);border:1px solid var(--glass-border);border-radius:var(--radius);padding:28px;width:100%;max-width:420px;box-shadow:var(--shadow);animation:scaleIn .3s cubic-bezier(.34,1.56,.64,1);max-height:90vh;overflow-y:auto}
-.modal-box h3{font-size:19px;font-weight:800;margin-bottom:16px}
-.modal-icon{width:56px;height:56px;margin:0 auto 16px;border-radius:50%;display:flex;align-items:center;justify-content:center}
-.modal-icon.success{background:rgba(16,185,129,.15);color:var(--green)}
-.modal-icon.error{background:rgba(239,68,68,.15);color:var(--danger)}
-.modal-icon.warning{background:rgba(245,158,11,.15);color:var(--primary)}
-.modal-btn{width:100%;padding:13px;border:none;border-radius:var(--radius-sm);font-weight:800;font-size:15px;cursor:pointer;transition:var(--transition);font-family:inherit}
-.modal-btn:hover{transform:translateY(-1px);filter:brightness(1.1)}
-.modal-btn.success{background:var(--green);color:#000}
-.modal-btn.error{background:var(--danger);color:#fff}
-.modal-btn.warning{background:var(--primary);color:#000}
-.modal-btn.ghost{background:var(--glass);color:var(--text);border:1px solid var(--glass-border);margin-top:8px}
-.toast-container{position:fixed;top:24px;right:24px;z-index:5000;display:flex;flex-direction:column;gap:10px;pointer-events:none}
-.toast{background:var(--bg-elevated);border:1px solid var(--glass-border);border-radius:var(--radius-sm);padding:14px 20px;box-shadow:var(--shadow);display:flex;align-items:center;gap:12px;animation:toastIn .4s cubic-bezier(.34,1.56,.64,1) forwards;font-weight:600;font-size:14px;max-width:360px;pointer-events:all}
-.toast.hiding{animation:toastOut .3s ease forwards}
-.toast-success{border-left:3px solid var(--green)}
-.toast-error{border-left:3px solid var(--danger)}
-.toast-warning{border-left:3px solid var(--primary)}
-.toast-avatar{width:36px;height:36px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:800;color:#fff;flex-shrink:0}
-#login-screen{display:flex;height:100vh;width:100vw;align-items:center;justify-content:center;background:radial-gradient(ellipse at 50% 0%,#1e293b 0%,var(--bg) 70%);position:relative;overflow:hidden}
-#login-screen::before{content:'';position:absolute;width:600px;height:600px;background:radial-gradient(circle,var(--accent-glow) 0%,transparent 70%);top:-200px;right:-200px;pointer-events:none}
-.login-box{background:rgba(17,24,39,.7);backdrop-filter:blur(20px);border:1px solid var(--glass-border);padding:48px 40px;border-radius:var(--radius);width:100%;max-width:400px;box-shadow:var(--shadow);position:relative;z-index:1;animation:scaleIn .5s ease}
-.login-logo{width:64px;height:64px;background:linear-gradient(135deg,var(--accent),#2563eb);border-radius:var(--radius);display:flex;align-items:center;justify-content:center;margin:0 auto 24px;box-shadow:0 8px 32px var(--accent-glow)}
-.login-box h2{font-size:26px;font-weight:800;margin-bottom:4px;letter-spacing:-.5px}
-.login-box .subtitle{color:var(--text-muted);font-size:14px;margin-bottom:28px}
-.input-group{margin-bottom:18px}
-.input-group label{display:block;font-size:12px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px}
-.input-group input{width:100%;padding:14px 16px;background:rgba(0,0,0,.3);border:1px solid var(--glass-border);border-radius:var(--radius-sm);color:var(--text);font-size:15px;font-family:inherit;transition:var(--transition);outline:none}
-.input-group input:focus{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-glow)}
-.login-box button{width:100%;padding:16px;background:linear-gradient(135deg,var(--accent),#2563eb);color:#fff;border:none;border-radius:var(--radius-sm);cursor:pointer;font-size:16px;font-weight:800;transition:var(--transition);margin-top:8px;box-shadow:0 4px 20px var(--accent-glow);font-family:inherit}
-.login-box button:hover{transform:translateY(-2px)}
-#admin-screen{display:none;min-height:100vh;flex-direction:row}
-.sidebar-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:999}
-.sidebar{width:270px;background:var(--bg-elevated);border-right:1px solid var(--glass-border);display:flex;flex-direction:column;padding:24px 16px;z-index:1000;animation:slideInLeft .4s ease}
-.sidebar-brand{display:flex;align-items:center;gap:12px;padding:0 12px 24px;border-bottom:1px solid var(--glass-border);margin-bottom:16px}
-.brand-icon{width:40px;height:40px;background:linear-gradient(135deg,var(--accent),#2563eb);border-radius:10px;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 16px var(--accent-glow)}
-.brand-text h3{font-size:16px;font-weight:800;letter-spacing:-.3px}
-.brand-text span{font-size:11px;color:var(--text-dim);font-weight:500}
-.nav-item{padding:12px 14px;margin:2px 0;border-radius:var(--radius-sm);cursor:pointer;font-size:14px;font-weight:600;display:flex;align-items:center;gap:12px;color:var(--text-muted);transition:var(--transition);border:1px solid transparent;white-space:nowrap}
-.nav-item:hover{background:var(--glass);color:var(--text)}
-.nav-item.active{background:linear-gradient(90deg,rgba(59,130,246,.15),transparent);color:var(--accent);border-color:rgba(59,130,246,.2)}
-.nav-item svg{width:20px;height:20px;opacity:.8}
-.nav-item.active svg{opacity:1}
-.btn-logout{margin-top:auto;padding:12px;background:rgba(239,68,68,.1);color:var(--danger);border:1px solid rgba(239,68,68,.2);border-radius:var(--radius-sm);cursor:pointer;font-weight:700;font-size:14px;display:flex;align-items:center;justify-content:center;gap:8px;transition:var(--transition);font-family:inherit}
-.btn-logout:hover{background:rgba(239,68,68,.2)}
-.main-content{flex:1;display:flex;flex-direction:column;min-height:100vh;overflow:hidden}
-.mobile-header{display:none;background:var(--bg-elevated);padding:16px 20px;border-bottom:1px solid var(--glass-border);align-items:center;justify-content:space-between;z-index:10}
-.hamburger-btn{background:none;border:none;color:var(--text);cursor:pointer;padding:4px}
-.content-scroll{padding:28px;overflow-y:auto;flex:1}
-.section{display:none;animation:fadeIn .3s ease}
-.section.active{display:block}
-.page-header{margin-bottom:24px;display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:12px}
-.page-header h2{font-size:24px;font-weight:800;margin-bottom:4px;letter-spacing:-.5px}
-.page-header p{color:var(--text-dim);font-size:14px}
-.date-picker{background:var(--bg-elevated);border:1px solid var(--glass-border);border-radius:var(--radius-sm);padding:10px 14px;color:var(--text);font-family:inherit;font-size:14px;outline:none}
-.date-picker:focus{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-glow)}
-.metrics-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:16px;margin-bottom:24px}
-.metric-card{background:var(--bg-elevated);border:1px solid var(--glass-border);border-radius:var(--radius);padding:22px;position:relative;overflow:hidden;transition:var(--transition)}
-.metric-card:hover{transform:translateY(-2px);border-color:rgba(255,255,255,.15)}
-.metric-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;border-radius:var(--radius) var(--radius) 0 0}
-.metric-card.blue::before{background:linear-gradient(90deg,var(--accent),#60a5fa)}
-.metric-card.red::before{background:linear-gradient(90deg,var(--danger),#f87171)}
-.metric-card.purple::before{background:linear-gradient(90deg,var(--purple),#a78bfa)}
-.metric-card.green::before{background:linear-gradient(90deg,var(--green),#34d399)}
-.metric-card.orange::before{background:linear-gradient(90deg,var(--primary),#fbbf24)}
-.metric-card.teal::before{background:linear-gradient(90deg,#14b8a6,#2dd4bf)}
-.metric-card h3{font-size:11px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:12px}
-.metric-card .value{font-size:26px;font-weight:800;font-family:'JetBrains Mono',monospace;letter-spacing:-1px}
-.metric-card.blue .value{color:var(--accent)}
-.metric-card.red .value{color:var(--danger)}
-.metric-card.purple .value{color:var(--purple)}
-.metric-card.green .value{color:var(--green)}
-.metric-card.orange .value{color:var(--primary)}
-.metric-card.teal .value{color:#2dd4bf}
-.metric-card .subtitle{font-size:12px;color:var(--text-dim);margin-top:4px;font-weight:500}
-.pl-row{display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-bottom:1px solid var(--glass-border);font-size:14px}
-.pl-row:last-child{border-bottom:none}
-.pl-row .pl-label{color:var(--text-muted);font-weight:600}
-.pl-row .pl-value{font-family:'JetBrains Mono',monospace;font-weight:700}
-.pl-total{border-top:2px solid var(--glass-border);margin-top:8px;padding-top:14px}
-.pl-total .pl-label{font-weight:800;color:var(--text);font-size:15px}
-.pl-total .pl-value{font-size:22px}
-.table-card{background:var(--bg-elevated);border:1px solid var(--glass-border);border-radius:var(--radius);padding:24px;margin-bottom:24px;overflow-x:auto}
-.table-card h3{font-size:16px;font-weight:700;margin-bottom:16px;display:flex;align-items:center;gap:10px}
-.data-table{width:100%;border-collapse:separate;border-spacing:0;min-width:600px}
-.data-table th{text-align:left;padding:12px 14px;font-size:11px;font-weight:700;color:var(--text-dim);text-transform:uppercase;letter-spacing:.5px;border-bottom:1px solid var(--glass-border);white-space:nowrap;background:rgba(0,0,0,.2)}
-.data-table td{padding:13px 14px;border-bottom:1px solid var(--glass-border);font-size:14px}
-.data-table tr:last-child td{border-bottom:none}
-.data-table tbody tr{transition:.2s}
-.data-table tbody tr:hover{background:var(--glass)}
-.badge{display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:20px;font-size:11px;font-weight:700;text-transform:uppercase}
-.badge-active{background:rgba(16,185,129,.15);color:var(--green)}
-.badge-suspended{background:rgba(239,68,68,.15);color:var(--danger)}
-.badge-cash{background:rgba(59,130,246,.15);color:var(--accent)}
-.badge-mpesa{background:rgba(16,185,129,.15);color:var(--green)}
-.badge-split{background:rgba(139,92,246,.15);color:var(--purple)}
-.btn{padding:8px 14px;border:none;border-radius:var(--radius-sm);cursor:pointer;font-weight:700;font-size:12px;transition:var(--transition);display:inline-flex;align-items:center;gap:6px;font-family:inherit;white-space:nowrap}
+
+/* LOGIN */
+.login-screen{position:fixed;inset:0;background:linear-gradient(135deg,#111827 0%,#1f2937 55%,#172554 100%);display:flex;align-items:center;justify-content:center;z-index:100;padding:16px}
+.login-card{background:#fff;border-radius:24px;padding:44px 40px;width:100%;max-width:400px;box-shadow:0 32px 80px rgba(0,0,0,.45);animation:fadeUp .4s ease}
+.login-badge{width:64px;height:64px;border-radius:18px;background:linear-gradient(135deg,var(--blue),#3b82f6);display:flex;align-items:center;justify-content:center;margin:0 auto 20px;box-shadow:0 8px 24px rgba(37,99,235,.35);font-size:30px}
+.login-card h1{font-size:24px;font-weight:800;text-align:center;letter-spacing:-.5px}
+.login-card .sub{text-align:center;color:var(--muted);font-size:13.5px;margin:6px 0 28px}
+.field{margin-bottom:16px}
+.field label{display:block;font-size:12px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.6px;margin-bottom:6px}
+.field input,.field select{width:100%;padding:13px 15px;background:#f9fafb;border:1.5px solid var(--border);border-radius:var(--r-md);font-size:14.5px;outline:none;transition:var(--tr);color:var(--text)}
+.field input:focus,.field select:focus{border-color:var(--blue);box-shadow:0 0 0 4px rgba(37,99,235,.12);background:#fff}
+.btn{display:inline-flex;align-items:center;gap:7px;padding:10px 16px;border:none;border-radius:var(--r-md);font-weight:800;font-size:13px;cursor:pointer;transition:var(--tr);white-space:nowrap}
 .btn:hover{transform:translateY(-1px)}
-.btn-primary{background:var(--accent);color:#fff;box-shadow:0 4px 16px var(--accent-glow)}
-.btn-edit{background:rgba(245,158,11,.15);color:var(--primary);border:1px solid rgba(245,158,11,.2)}
-.btn-edit:hover{background:rgba(245,158,11,.25)}
-.btn-suspend{background:rgba(249,115,22,.15);color:#f97316;border:1px solid rgba(249,115,22,.2)}
-.btn-activate{background:rgba(16,185,129,.15);color:var(--green);border:1px solid rgba(16,185,129,.2)}
-.btn-delete{background:rgba(239,68,68,.15);color:var(--danger);border:1px solid rgba(239,68,68,.2)}
-.btn-delete:hover{background:rgba(239,68,68,.25)}
-.btn-save{background:rgba(16,185,129,.15);color:var(--green);border:1px solid rgba(16,185,129,.2)}
-.btn-save:hover{background:rgba(16,185,129,.25)}
-.btn-ghost{background:var(--glass);color:var(--text-muted);border:1px solid var(--glass-border)}
-.btn-ghost:hover{background:rgba(255,255,255,.08);color:var(--text)}
-.form-card{background:var(--bg-elevated);border:1px solid var(--glass-border);border-radius:var(--radius);padding:24px;margin-bottom:24px}
-.form-card h3{font-size:16px;font-weight:700;margin-bottom:20px}
-.form-row{display:flex;gap:16px;margin-bottom:16px;align-items:flex-end;flex-wrap:wrap}
-.form-group{flex:1;min-width:150px}
-.form-group label{display:block;font-size:12px;font-weight:600;color:var(--text-muted);margin-bottom:6px;text-transform:uppercase;letter-spacing:.5px}
-.form-group input,.form-group select{width:100%;padding:12px;background:var(--bg);border:1px solid var(--glass-border);border-radius:var(--radius-sm);color:var(--text);font-size:14px;outline:none;transition:var(--transition);font-family:inherit}
-.form-group input:focus,.form-group select:focus{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-glow)}
-.search-box{position:relative;max-width:350px;margin-bottom:16px}
-.search-box input{width:100%;padding:12px 16px 12px 44px;background:var(--bg);border:1px solid var(--glass-border);border-radius:var(--radius-sm);color:var(--text);font-size:14px;outline:none;font-family:inherit}
-.search-box input:focus{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-glow)}
-.search-box svg{position:absolute;left:16px;top:50%;transform:translateY(-50%);width:16px;height:16px;color:var(--text-dim)}
-.inv-input{width:100px;padding:8px;background:var(--bg);border:1px solid var(--glass-border);border-radius:6px;color:var(--text);font-size:13px;outline:none;font-family:'JetBrains Mono',monospace;transition:var(--transition)}
-.inv-input:focus{border-color:var(--accent)}
-.inv-input.qty{width:70px}
-.name-input{width:100%;min-width:140px;padding:8px 10px;background:var(--bg);border:1px solid var(--glass-border);border-radius:6px;color:var(--text);font-size:13px;outline:none;font-family:inherit;font-weight:600}
-.name-input:focus{border-color:var(--accent)}
-.stock-take-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:12px;max-height:50vh;overflow-y:auto;padding:4px}
-.take-item{background:var(--bg);border:1px solid var(--glass-border);border-radius:var(--radius-sm);padding:12px 14px}
-.take-item .take-name{font-size:13px;font-weight:700;margin-bottom:8px;display:flex;justify-content:space-between}
-.take-item .take-name small{color:var(--text-dim);font-weight:500}
-.take-item input{width:100%;padding:9px;background:var(--bg-elevated);border:1px solid var(--glass-border);border-radius:6px;color:var(--text);font-size:15px;font-weight:700;outline:none;font-family:'JetBrains Mono',monospace;text-align:center}
-.take-item input:focus{border-color:var(--accent)}
-.tabs-inline{display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap}
-.tab-inline-btn{padding:9px 18px;background:var(--glass);border:1px solid var(--glass-border);color:var(--text-muted);border-radius:30px;cursor:pointer;font-weight:700;font-size:13px;transition:var(--transition);font-family:inherit}
-.tab-inline-btn:hover{background:rgba(255,255,255,.08);color:var(--text)}
-.tab-inline-btn.active{background:var(--accent);color:#fff;border-color:var(--accent)}
-@media(max-width:768px){
-    .mobile-header{display:flex}
-    .sidebar{position:fixed;left:-270px;height:100vh;transition:.3s ease}
-    .sidebar.open{left:0}
-    .sidebar-overlay.open{display:block}
-    .content-scroll{padding:16px}
-    .form-row{flex-direction:column;align-items:stretch}
-    .metric-card .value{font-size:22px}
-    .toast-container{top:auto;bottom:16px;right:16px;left:16px}
-    .toast{max-width:100%}
-    .page-header{flex-direction:column}
+.btn-blue{background:var(--blue);color:#fff;box-shadow:0 4px 14px rgba(37,99,235,.3)}
+.btn-green{background:var(--green);color:#fff;box-shadow:0 4px 14px rgba(5,150,105,.3)}
+.btn-red{background:var(--red-soft);color:var(--red);border:1.5px solid #fecaca}
+.btn-red:hover{background:#fee2e2}
+.btn-orange{background:var(--brand);color:#fff;box-shadow:0 4px 14px rgba(234,88,12,.3)}
+.btn-ghost{background:#fff;border:1.5px solid var(--border);color:var(--muted)}
+.btn-ghost:hover{background:#f9fafb;color:var(--text)}
+.btn-block{width:100%;padding:14px;font-size:15px;justify-content:center}
+
+/* SHELL */
+.app{display:none;min-height:100vh}
+.app.on{display:flex}
+.sidebar{width:232px;background:var(--sidebar);display:flex;flex-direction:column;padding:20px 12px;position:sticky;top:0;height:100vh;flex-shrink:0}
+.sb-brand{display:flex;align-items:center;gap:10px;padding:4px 10px 20px;border-bottom:1px solid rgba(255,255,255,.08);margin-bottom:14px}
+.sb-badge{width:38px;height:38px;border-radius:11px;background:linear-gradient(135deg,var(--blue),#3b82f6);display:flex;align-items:center;justify-content:center;font-size:19px;flex-shrink:0}
+.sb-brand b{color:#fff;font-size:15px;display:block;line-height:1.15}
+.sb-brand span{color:#9ca3af;font-size:10.5px;font-weight:600;letter-spacing:.4px;text-transform:uppercase}
+.sb-nav{display:flex;flex-direction:column;gap:4px;flex:1}
+.sb-item{display:flex;align-items:center;gap:11px;padding:10.5px 12px;border-radius:var(--r-md);color:#9ca3af;font-size:13px;font-weight:700;cursor:pointer;transition:var(--tr);border:none;background:none;text-align:left}
+.sb-item:hover{background:#1f2937;color:#e5e7eb}
+.sb-item.active{background:rgba(37,99,235,.18);color:#93c5fd}
+.sb-item svg{width:18px;height:18px;flex-shrink:0}
+.sb-logout{margin-top:auto;padding:11px;background:rgba(220,38,38,.14);color:#f87171;border:none;border-radius:var(--r-md);font-weight:700;font-size:13px;cursor:pointer;transition:var(--tr);display:flex;align-items:center;justify-content:center;gap:8px}
+.sb-logout:hover{background:rgba(220,38,38,.28);color:#fff}
+
+.main{flex:1;min-width:0;padding:26px 30px;max-width:1400px}
+.view{display:none;animation:fadeUp .3s ease}
+.view.on{display:block}
+.vh{display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:14px;margin-bottom:22px}
+.vh h2{font-size:22px;font-weight:800;letter-spacing:-.4px}
+.vh p{color:var(--muted);font-size:13.5px;margin-top:3px}
+.date-inp{padding:10px 14px;background:#fff;border:1.5px solid var(--border);border-radius:var(--r-md);font-size:14px;outline:none;color:var(--text)}
+.date-inp:focus{border-color:var(--blue);box-shadow:0 0 0 4px rgba(37,99,235,.1)}
+
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(185px,1fr));gap:14px;margin-bottom:20px}
+.card{background:#fff;border:1px solid var(--border);border-radius:var(--r-lg);padding:19px;box-shadow:var(--shadow);position:relative;overflow:hidden}
+.card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px}
+.card.g::before{background:linear-gradient(90deg,var(--green),#34d399)}
+.card.b::before{background:linear-gradient(90deg,var(--blue),#60a5fa)}
+.card.o::before{background:linear-gradient(90deg,var(--brand),#fb923c)}
+.card.p::before{background:linear-gradient(90deg,var(--purple),#a78bfa)}
+.card.r::before{background:linear-gradient(90deg,var(--red),#f87171)}
+.card.t::before{background:linear-gradient(90deg,#0d9488,#2dd4bf)}
+.card h5{font-size:11px;font-weight:800;color:var(--faint);text-transform:uppercase;letter-spacing:.6px;margin-bottom:9px}
+.card .v{font-size:25px;font-weight:800;letter-spacing:-1px}
+.card.g .v{color:var(--green)} .card.b .v{color:var(--blue)} .card.o .v{color:var(--brand)} .card.p .v{color:var(--purple)} .card.r .v{color:var(--red)} .card.t .v{color:#0d9488}
+.card .s{font-size:11.5px;color:var(--faint);margin-top:4px;font-weight:600}
+
+.panel{background:#fff;border:1px solid var(--border);border-radius:var(--r-lg);box-shadow:var(--shadow);overflow:hidden;margin-bottom:20px}
+.panel-head{padding:15px 20px;border-bottom:1px solid var(--border);font-weight:800;font-size:14.5px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.panel-head .t{display:flex;align-items:center;gap:8px}
+.tbl-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse}
+th{text-align:left;padding:11px 15px;font-size:10.5px;font-weight:800;color:var(--faint);text-transform:uppercase;letter-spacing:.6px;background:#fafafa;border-bottom:1px solid var(--border);white-space:nowrap}
+td{padding:12px 15px;border-bottom:1px solid #f3f4f6;font-size:13.5px}
+tr:last-child td{border-bottom:none}
+tbody tr:hover{background:#fafafa}
+.chip{display:inline-flex;padding:4px 11px;border-radius:999px;font-size:10.5px;font-weight:800;text-transform:uppercase;letter-spacing:.4px}
+.chip.g{background:var(--green-soft);color:var(--green)} .chip.b{background:var(--blue-soft);color:var(--blue)}
+.chip.o{background:var(--brand-soft);color:var(--brand-dark)} .chip.r{background:var(--red-soft);color:var(--red)} .chip.p{background:var(--purple-soft);color:var(--purple)}
+.plr{display:flex;justify-content:space-between;padding:12px 2px;border-bottom:1px solid #f3f4f6;font-size:14px}
+.plr:last-child{border:none}
+.plr .l{color:var(--muted);font-weight:700;font-size:13px}
+.plr .v{font-weight:700}
+.pl-total{border-top:2px solid var(--border);margin-top:6px;padding-top:14px}
+.pl-total .l{color:var(--text);font-size:14.5px;font-weight:800}
+.pl-total .v{font-size:23px;font-weight:800}
+
+.inp{padding:10px 12px;background:#f9fafb;border:1.5px solid var(--border);border-radius:var(--r-sm);font-size:13.5px;outline:none;color:var(--text);transition:var(--tr);width:100%}
+.inp:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(37,99,235,.1);background:#fff}
+.inp.num{font-family:'IBM Plex Mono',monospace;font-weight:600}
+.inp.w-s{width:86px}
+.inp.w-m{width:110px}
+.frm{display:grid;gap:12px;padding:18px 20px}
+.frm-row{display:flex;gap:12px;flex-wrap:wrap;align-items:flex-end}
+.frm-row .fg{flex:1;min-width:140px}
+.fg label{display:block;font-size:11px;font-weight:800;color:var(--faint);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px}
+.search{position:relative;max-width:320px}
+.search input{width:100%;padding:10px 12px 10px 38px;background:#f9fafb;border:1.5px solid var(--border);border-radius:var(--r-md);font-size:13.5px;outline:none;color:var(--text)}
+.search input:focus{border-color:var(--blue)}
+.search svg{position:absolute;left:12px;top:50%;transform:translateY(-50%);width:16px;height:16px;color:var(--faint)}
+.preset-row{display:flex;gap:8px;flex-wrap:wrap}
+.preset{padding:9px 16px;background:#f3f4f6;border:1.5px solid var(--border);border-radius:999px;font-size:12.5px;font-weight:800;color:var(--muted);cursor:pointer;transition:var(--tr)}
+.preset:hover{border-color:var(--blue);color:var(--blue)}
+.preset.on{background:var(--blue);border-color:var(--blue);color:#fff}
+
+.take-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(215px,1fr));gap:11px;max-height:48vh;overflow-y:auto;padding:2px}
+.take-item{background:#f9fafb;border:1.5px solid var(--border);border-radius:var(--r-md);padding:12px 14px}
+.take-item .n{font-size:13px;font-weight:700;margin-bottom:8px;display:flex;justify-content:space-between}
+.take-item .n small{color:var(--faint);font-weight:600}
+.take-item input{width:100%;padding:9px;background:#fff;border:1.5px solid var(--border);border-radius:var(--r-sm);font-size:15px;font-weight:700;outline:none;text-align:center}
+.take-item input:focus{border-color:var(--blue)}
+
+.overlay{position:fixed;inset:0;background:rgba(17,24,39,.55);backdrop-filter:blur(5px);z-index:200;display:none;align-items:center;justify-content:center;padding:16px}
+.overlay.open{display:flex}
+.sheet{background:#fff;border-radius:20px;padding:26px;width:100%;max-width:560px;box-shadow:var(--shadow-lg);animation:fadeUp .25s ease;max-height:90vh;overflow-y:auto}
+.sheet h3{font-size:18px;font-weight:800;margin-bottom:4px}
+.sheet .sub{color:var(--muted);font-size:13px;margin-bottom:16px}
+.sheet-actions{display:flex;gap:10px;margin-top:16px}
+
+.toasts{position:fixed;top:18px;right:18px;z-index:500;display:flex;flex-direction:column;gap:9px;pointer-events:none}
+.toast{background:#111827;color:#fff;border-radius:var(--r-md);padding:13px 18px;display:flex;align-items:center;gap:11px;font-weight:700;font-size:13.5px;box-shadow:var(--shadow-lg);animation:toastIn .3s ease;max-width:340px;pointer-events:all}
+.toast.hide{animation:toastOut .25s ease forwards}
+.toast .dot{width:9px;height:9px;border-radius:50%;flex-shrink:0}
+.mini{padding:7px 11px;font-size:11.5px;border-radius:7px}
+
+@media(max-width:900px){
+  .app.on{flex-direction:column}
+  .sidebar{width:100%;flex-direction:row;padding:10px 12px;align-items:center;gap:6px;overflow-x:auto;height:auto;position:sticky}
+  .sb-brand{border:none;margin:0;padding:0 10px 0 0}
+  .sb-nav{flex-direction:row}
+  .sb-item{white-space:nowrap}
+  .sb-logout{display:none}
+  .main{padding:18px 16px}
 }
 </style>
 </head>
 <body>
 
-<div class="toast-container" id="toast-container"></div>
+<div class="toasts" id="toasts"></div>
 
-<div id="custom-modal" class="modal-overlay">
-    <div class="modal-box">
-        <div id="modal-icon" class="modal-icon warning"></div>
-        <h3 id="modal-title" style="text-align:center;">Notice</h3>
-        <p id="modal-message" style="color:var(--text-muted);font-size:14px;text-align:center;margin:8px 0 20px;line-height:1.5;">Message</p>
-        <button id="modal-close-btn" class="modal-btn warning" onclick="closeModal()">OK</button>
-    </div>
+<!-- LOGIN -->
+<div class="login-screen" id="loginScreen">
+  <div class="login-card">
+    <div class="login-badge">🍽️</div>
+    <h1>Delish Dish</h1>
+    <p class="sub">Admin Dashboard</p>
+    <div class="field"><label>Username</label><input type="text" id="loginUser" placeholder="admin" autocomplete="off"></div>
+    <div class="field"><label>PIN</label><input type="password" id="loginPin" placeholder="••••"></div>
+    <button class="btn btn-blue btn-block" onclick="doLogin()">Sign In</button>
+  </div>
 </div>
 
-<div id="stocktake-modal" class="modal-overlay">
-    <div class="modal-box" style="max-width:640px;">
-        <h3 id="st-title">Record Stock Take</h3>
-        <p id="st-sub" style="color:var(--text-muted);font-size:13px;margin-bottom:16px;">Enter the counted quantity for each item.</p>
-        <div class="stock-take-grid" id="st-grid"></div>
-        <div style="margin-top:16px;display:flex;gap:10px;">
-            <button class="modal-btn success" onclick="submitStockTake()">Save Stock Take</button>
-            <button class="modal-btn ghost" style="margin-top:0;" onclick="closeStockTake()">Cancel</button>
-        </div>
+<!-- APP -->
+<div class="app" id="app">
+  <div class="sidebar">
+    <div class="sb-brand">
+      <div class="sb-badge">🍽️</div>
+      <div><b>Delish Dish</b><span>Admin</span></div>
     </div>
+    <nav class="sb-nav" id="sbNav"></nav>
+    <button class="sb-logout" onclick="doLogout()">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+      Logout
+    </button>
+  </div>
+
+  <div class="main">
+
+    <!-- DASHBOARD -->
+    <div class="view on" id="v-dash">
+      <div class="vh"><div><h2>Profit &amp; Loss</h2><p id="dashSub">Today's financial summary</p></div><input type="date" class="date-inp" id="dashDate" onchange="loadDash()"></div>
+      <div class="cards" id="dashCards"></div>
+      <div style="display:grid;grid-template-columns:1fr;gap:20px">
+        <div class="panel" style="max-width:520px">
+          <div class="panel-head"><span class="t">📊 P&amp;L Breakdown</span></div>
+          <div style="padding:8px 20px 14px" id="plBox"></div>
+        </div>
+      </div>
+      <div class="panel">
+        <div class="panel-head"><span class="t">🧾 Itemized Orders</span></div>
+        <div class="tbl-wrap"><table><thead><tr><th>Order</th><th>Waiter</th><th>Table</th><th>Items</th><th>Cost</th><th>Revenue</th><th>Profit</th></tr></thead><tbody id="dashRows"></tbody></table></div>
+      </div>
+    </div>
+
+    <!-- WAITERS -->
+    <div class="view" id="v-waiters">
+      <div class="vh"><div><h2>Waiter Sales</h2><p>Individual performance per waiter</p></div><input type="date" class="date-inp" id="wDate" onchange="loadWaiters()"></div>
+      <div class="cards" id="wCards"></div>
+      <div class="panel">
+        <div class="panel-head"><span class="t">👥 Per-Waiter Breakdown</span></div>
+        <div class="tbl-wrap"><table><thead><tr><th>Waiter</th><th>Orders</th><th>Items</th><th>Cash</th><th>M-Pesa</th><th>Revenue</th><th>Est. Profit</th></tr></thead><tbody id="wRows"></tbody></table></div>
+      </div>
+    </div>
+
+    <!-- PAYMENTS -->
+    <div class="view" id="v-pay">
+      <div class="vh"><div><h2>M-Pesa &amp; Cash</h2><p>Collections by payment channel (manual till payments)</p></div><input type="date" class="date-inp" id="pDate" onchange="loadPay()"></div>
+      <div class="cards" id="pCards"></div>
+      <div class="panel">
+        <div class="panel-head"><span class="t" style="color:var(--green)">📱 M-Pesa Payments</span></div>
+        <div class="tbl-wrap"><table><thead><tr><th>Time</th><th>Reference</th><th>Waiter</th><th>Amount</th></tr></thead><tbody id="mpRows"></tbody></table></div>
+      </div>
+      <div class="panel">
+        <div class="panel-head"><span class="t" style="color:var(--blue)">💵 Cash Payments</span></div>
+        <div class="tbl-wrap"><table><thead><tr><th>Time</th><th>Order</th><th>Waiter</th><th>Table</th><th>Received</th><th>Change</th><th>Net Cash</th></tr></thead><tbody id="cashRows"></tbody></table></div>
+      </div>
+    </div>
+
+    <!-- STOCK -->
+    <div class="view" id="v-stock">
+      <div class="vh"><div><h2>Stock Control</h2><p>Opening &amp; closing stock takes, restocking, live inventory</p></div></div>
+      <div class="panel">
+        <div class="panel-head"><span class="t">📦 Stock Takes</span>
+          <span style="display:flex;gap:9px">
+            <button class="btn btn-blue" onclick="openTake('opening')">⏰ Record Opening Stock</button>
+            <button class="btn btn-green" onclick="openTake('closing')">🌙 Record Closing Stock</button>
+          </span>
+        </div>
+        <div class="tbl-wrap"><table><thead><tr><th>Date &amp; Time</th><th>Type</th><th>Taken By</th><th>Items</th><th>Value (Cost)</th></tr></thead><tbody id="takeRows"></tbody></table></div>
+      </div>
+      <div class="panel">
+        <div class="panel-head"><span class="t">📋 Live Inventory</span>
+          <div class="search"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg><input type="text" id="stockQ" placeholder="Search item..." oninput="renderStock()"></div>
+        </div>
+        <div class="tbl-wrap"><table><thead><tr><th>Item</th><th>Category</th><th>Stock</th><th>Cost/Unit</th><th>Stock Value</th><th>Restock</th><th></th></tr></thead><tbody id="stockRows"></tbody></table></div>
+      </div>
+    </div>
+
+    <!-- SPOILAGE -->
+    <div class="view" id="v-spoil">
+      <div class="vh"><div><h2>Spoilage &amp; Wastage</h2><p>Record spoiled food — deducts stock and hits P&amp;L</p></div></div>
+      <div class="cards" id="spCards"></div>
+      <div class="panel">
+        <div class="panel-head"><span class="t" style="color:var(--red)">⚠️ Record Spoilage</span></div>
+        <div class="frm-row frm">
+          <div class="fg" style="flex:2"><label>Item</label><select class="inp" id="spItem"></select></div>
+          <div class="fg"><label>Qty Spoilt</label><input type="number" class="inp num" id="spQty" min="1" placeholder="0"></div>
+          <div class="fg" style="flex:2"><label>Reason</label><input type="text" class="inp" id="spReason" placeholder="e.g. Expired, dropped, burnt"></div>
+          <button class="btn btn-red" onclick="addSpoilage()">Record Loss</button>
+        </div>
+      </div>
+      <div class="panel">
+        <div class="panel-head"><span class="t">Spoilage Log</span></div>
+        <div class="tbl-wrap"><table><thead><tr><th>Date</th><th>Item</th><th>Qty</th><th>Reason</th><th>Loss (Cost)</th><th>By</th><th></th></tr></thead><tbody id="spRows"></tbody></table></div>
+      </div>
+    </div>
+
+    <!-- MENU -->
+    <div class="view" id="v-menu">
+      <div class="vh"><div><h2>Menu &amp; Prices</h2><p>Adjust names, prices, food cost and stock levels</p></div><button class="btn btn-ghost" onclick="seedMenu()">✨ Load Default Delish Menu</button></div>
+      <div class="panel">
+        <div class="panel-head"><span class="t">➕ Add Menu Item</span></div>
+        <div class="frm-row frm">
+          <div class="fg" style="flex:2"><label>Name</label><input type="text" class="inp" id="nmName" placeholder="e.g. Pilau"></div>
+          <div class="fg"><label>Category</label><select class="inp" id="nmType"><option value="meals">Meals</option><option value="drinks">Drinks</option><option value="snacks">Snacks</option></select></div>
+          <div class="fg"><label>Sell Price</label><input type="number" class="inp num" id="nmPrice" placeholder="0"></div>
+          <div class="fg"><label>Food Cost</label><input type="number" class="inp num" id="nmCost" placeholder="0"></div>
+          <div class="fg"><label>Stock</label><input type="number" class="inp num" id="nmStock" placeholder="0"></div>
+          <button class="btn btn-blue" onclick="addItem()">Add Item</button>
+        </div>
+      </div>
+      <div class="panel">
+        <div class="panel-head"><span class="t">Full Menu</span>
+          <div class="search"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg><input type="text" id="menuQ" placeholder="Search item..." oninput="renderMenu()"></div>
+        </div>
+        <div class="tbl-wrap"><table><thead><tr><th>Item</th><th>Category</th><th>Stock</th><th>Food Cost</th><th>Sell Price</th><th>Margin</th><th></th></tr></thead><tbody id="menuRows"></tbody></table></div>
+      </div>
+    </div>
+
+    <!-- EXPENSES -->
+    <div class="view" id="v-exp">
+      <div class="vh"><div><h2>Expenses</h2><p>Rent, supplies, fuel — anything that reduces profit</p></div></div>
+      <div class="panel">
+        <div class="panel-head"><span class="t">💸 Record Expense</span></div>
+        <div class="frm-row frm">
+          <div class="fg" style="flex:2"><label>Description</label><input type="text" class="inp" id="exDesc" placeholder="e.g. Charcoal, vegetables, rent"></div>
+          <div class="fg"><label>Amount (KES)</label><input type="number" class="inp num" id="exAmt" placeholder="0.00"></div>
+          <button class="btn btn-orange" onclick="addExpense()">Record</button>
+        </div>
+      </div>
+      <div class="panel">
+        <div class="panel-head"><span class="t">Expense History</span></div>
+        <div class="tbl-wrap"><table><thead><tr><th>Date</th><th>Description</th><th>Amount</th><th>By</th><th></th></tr></thead><tbody id="exRows"></tbody></table></div>
+      </div>
+    </div>
+
+    <!-- STATEMENTS -->
+    <div class="view" id="v-rep">
+      <div class="vh"><div><h2>Statements &amp; Reports</h2><p>Daily, weekly or monthly statements + product performance</p></div></div>
+      <div class="panel">
+        <div class="panel-head"><span class="t">📅 Report Period</span></div>
+        <div class="frm">
+          <div class="frm-row">
+            <div class="fg"><label>From</label><input type="date" class="inp" id="rpFrom"></div>
+            <div class="fg"><label>To</label><input type="date" class="inp" id="rpTo"></div>
+            <div class="fg"><label>Group By</label><select class="inp" id="rpGroup"><option value="day">Day</option><option value="week">Week</option><option value="month">Month</option></select></div>
+            <button class="btn btn-blue" onclick="runReport()">Generate</button>
+          </div>
+          <div class="preset-row" id="rpPresets">
+            <button class="preset" data-p="today" onclick="presetRange('today')">Today</button>
+            <button class="preset" data-p="yesterday" onclick="presetRange('yesterday')">Yesterday</button>
+            <button class="preset" data-p="week" onclick="presetRange('week')">This Week</button>
+            <button class="preset" data-p="lastweek" onclick="presetRange('lastweek')">Last Week</button>
+            <button class="preset" data-p="month" onclick="presetRange('month')">This Month</button>
+            <button class="preset" data-p="lastmonth" onclick="presetRange('lastmonth')">Last Month</button>
+          </div>
+        </div>
+      </div>
+      <div class="cards" id="rpCards"></div>
+      <div class="panel">
+        <div class="panel-head"><span class="t">📄 Sales Statement — <span class="num" id="rpRangeLbl" style="font-weight:600"></span></span></div>
+        <div class="tbl-wrap"><table><thead><tr><th>Period</th><th>Orders</th><th>Items</th><th>Cash</th><th>M-Pesa</th><th>Revenue</th><th>Cost</th><th>Profit</th></tr></thead><tbody id="rpRows"></tbody></table></div>
+      </div>
+      <div class="panel">
+        <div class="panel-head"><span class="t">🏆 Product Performance — <span class="num" id="rpProdLbl" style="font-weight:600"></span></span>
+          <span style="display:flex;gap:8px">
+            <button class="preset on" id="sortMost" onclick="setSort('most')">Most Sold</button>
+            <button class="preset" id="sortLeast" onclick="setSort('least')">Least Sold</button>
+          </span>
+        </div>
+        <div class="tbl-wrap"><table><thead><tr><th>#</th><th>Product</th><th>Qty Sold</th><th>Revenue</th><th>Food Cost</th><th>Profit</th></tr></thead><tbody id="rpProdRows"></tbody></table></div>
+      </div>
+    </div>
+
+    <!-- STAFF -->
+    <div class="view" id="v-staff">
+      <div class="vh"><div><h2>Staff Management</h2><p>Waiter and admin accounts</p></div></div>
+      <div class="panel">
+        <div class="panel-head"><span class="t">➕ Create Account</span></div>
+        <div class="frm-row frm">
+          <div class="fg"><label>Username</label><input type="text" class="inp" id="nuName" placeholder="e.g. mary"></div>
+          <div class="fg"><label>Role</label><select class="inp" id="nuRole"><option value="waiter">Waiter</option><option value="admin">Admin</option></select></div>
+          <div class="fg"><label>PIN</label><input type="password" class="inp" id="nuPin" placeholder="****"></div>
+          <button class="btn btn-blue" onclick="addUser()">Create</button>
+        </div>
+      </div>
+      <div class="panel">
+        <div class="panel-head"><span class="t">Team</span></div>
+        <div class="tbl-wrap"><table><thead><tr><th>Username</th><th>Role</th><th>Status</th><th>Actions</th></tr></thead><tbody id="staffRows"></tbody></table></div>
+      </div>
+    </div>
+
+  </div>
 </div>
 
-<div id="login-screen">
-    <div class="login-box">
-        <div class="login-logo">
-            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2"></path><path d="M7 2v20"></path><path d="M21 15V2a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3z"></path><path d="M21 15v7"></path></svg>
-        </div>
-        <h2>Delish Dish</h2>
-        <p class="subtitle">Admin Dashboard</p>
-        <div class="input-group"><label>Username</label><input type="text" id="username" placeholder="admin" autocomplete="off"></div>
-        <div class="input-group"><label>Password / PIN</label><input type="password" id="pin" placeholder="••••"></div>
-        <button onclick="attemptLogin()">Secure Log In</button>
+<!-- STOCK TAKE MODAL -->
+<div class="overlay" id="takeOverlay">
+  <div class="sheet">
+    <h3 id="takeTitle">Record Stock Take</h3>
+    <p class="sub">Enter the physical count for each item. Values use buying cost.</p>
+    <div class="take-grid" id="takeGrid"></div>
+    <div class="sheet-actions">
+      <button class="btn btn-green" style="flex:1;justify-content:center" onclick="submitTake()">Save Stock Take</button>
+      <button class="btn btn-ghost" onclick="closeTake()">Cancel</button>
     </div>
-</div>
-
-<div id="admin-screen">
-    <div class="sidebar-overlay" id="sidebar-overlay" onclick="toggleSidebar()"></div>
-    <div class="sidebar" id="sidebar">
-        <div class="sidebar-brand">
-            <div class="brand-icon">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2"></path><path d="M7 2v20"></path><path d="M21 15V2a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3z"></path><path d="M21 15v7"></path></svg>
-            </div>
-            <div class="brand-text"><h3>Delish Dish</h3><span>Admin Portal</span></div>
-        </div>
-        <div class="nav-item active" onclick="switchTab('dashboard')" id="nav-dashboard">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.21 15.89A10 10 0 1 1 8 2.83"></path><path d="M22 12A10 10 0 0 0 12 2v10z"></path></svg>
-            P&amp;L Dashboard
-        </div>
-        <div class="nav-item" onclick="switchTab('waiters')" id="nav-waiters">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
-            Waiter Sales
-        </div>
-        <div class="nav-item" onclick="switchTab('payments')" id="nav-payments">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"></rect><line x1="2" y1="10" x2="22" y2="10"></line></svg>
-            M-Pesa &amp; Cash
-        </div>
-        <div class="nav-item" onclick="switchTab('stock')" id="nav-stock">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="5" rx="9" ry="3"></ellipse><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"></path><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"></path></svg>
-            Stock Control
-        </div>
-        <div class="nav-item" onclick="switchTab('spoilage')" id="nav-spoilage">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
-            Spoilage
-        </div>
-        <div class="nav-item" onclick="switchTab('menu')" id="nav-menu">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
-            Menu &amp; Prices
-        </div>
-        <div class="nav-item" onclick="switchTab('expenses')" id="nav-expenses">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"></line><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
-            Expenses
-        </div>
-        <div class="nav-item" onclick="switchTab('reports')" id="nav-reports">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line></svg>
-            Statements
-        </div>
-        <div class="nav-item" onclick="switchTab('staff')" id="nav-staff">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="8.5" cy="7" r="4"></circle></svg>
-            Staff
-        </div>
-        <button class="btn-logout" onclick="logout()">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
-            Log Out
-        </button>
-    </div>
-
-    <div class="main-content">
-        <div class="mobile-header">
-            <h2 style="margin:0;font-size:18px;font-weight:800;">Delish Dish Admin</h2>
-            <button class="hamburger-btn" onclick="toggleSidebar()">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
-            </button>
-        </div>
-        <div class="content-scroll">
-
-            <!-- ============ DASHBOARD / P&L ============ -->
-            <div id="section-dashboard" class="section active">
-                <div class="page-header">
-                    <div><h2>Profit &amp; Loss</h2><p id="dash-date-label">Today's financial summary</p></div>
-                    <input type="date" class="date-picker" id="dash-date" onchange="loadDashboard()">
-                </div>
-                <div class="metrics-grid" id="dash-metrics"></div>
-                <div class="table-card" style="max-width:560px;">
-                    <h3>
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"></line><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
-                        P&amp;L Breakdown
-                    </h3>
-                    <div id="pl-breakdown"></div>
-                </div>
-                <div class="table-card">
-                    <h3>
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"></line><line x1="8" y1="12" x2="21" y2="12"></line><line x1="8" y1="18" x2="21" y2="18"></line><line x1="3" y1="6" x2="3.01" y2="6"></line><line x1="3" y1="12" x2="3.01" y2="12"></line><line x1="3" y1="18" x2="3.01" y2="18"></line></svg>
-                        Itemized Orders
-                    </h3>
-                    <div style="overflow-x:auto;">
-                        <table class="data-table">
-                            <thead><tr><th>Order &amp; Time</th><th>Waiter</th><th>Table</th><th>Items</th><th>Cost</th><th>Revenue</th><th>Profit</th></tr></thead>
-                            <tbody id="dash-orders-tbody"></tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-
-            <!-- ============ WAITER SALES ============ -->
-            <div id="section-waiters" class="section">
-                <div class="page-header">
-                    <div><h2>Waiter Sales Performance</h2><p>Individual sales tracked per waiter</p></div>
-                    <input type="date" class="date-picker" id="waiter-date" onchange="loadWaiterSales()">
-                </div>
-                <div class="metrics-grid" id="waiter-metrics"></div>
-                <div class="table-card">
-                    <h3>
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle></svg>
-                        Per-Waiter Breakdown
-                    </h3>
-                    <div style="overflow-x:auto;">
-                        <table class="data-table">
-                            <thead><tr><th>Waiter</th><th>Orders</th><th>Items Sold</th><th>Cash Collected</th><th>M-Pesa Collected</th><th>Total Revenue</th><th>Est. Profit</th></tr></thead>
-                            <tbody id="waiters-tbody"></tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-
-            <!-- ============ PAYMENTS ============ -->
-            <div id="section-payments" class="section">
-                <div class="page-header">
-                    <div><h2>M-Pesa &amp; Cash Collections</h2><p>Payment channels listed separately</p></div>
-                    <input type="date" class="date-picker" id="pay-date" onchange="loadPayments()">
-                </div>
-                <div class="metrics-grid" id="pay-metrics"></div>
-                <div class="table-card">
-                    <h3 style="color:var(--green);">
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"></rect><line x1="2" y1="10" x2="22" y2="10"></line></svg>
-                        M-Pesa Transactions
-                    </h3>
-                    <div style="overflow-x:auto;">
-                        <table class="data-table">
-                            <thead><tr><th>Time</th><th>Receipt</th><th>Phone</th><th>Waiter</th><th>Amount</th></tr></thead>
-                            <tbody id="mpesa-tbody"></tbody>
-                        </table>
-                    </div>
-                </div>
-                <div class="table-card">
-                    <h3 style="color:var(--accent);">
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="20" height="12" rx="2"></rect><circle cx="12" cy="12" r="2"></circle></svg>
-                        Cash Payments
-                    </h3>
-                    <div style="overflow-x:auto;">
-                        <table class="data-table">
-                            <thead><tr><th>Time</th><th>Order</th><th>Waiter</th><th>Table</th><th>Cash Received</th><th>Change Given</th><th>Net Cash</th></tr></thead>
-                            <tbody id="cash-tbody"></tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-
-            <!-- ============ STOCK ============ -->
-            <div id="section-stock" class="section">
-                <div class="page-header">
-                    <div><h2>Stock Control</h2><p>Opening &amp; closing stock, restocking and live inventory</p></div>
-                </div>
-                <div class="form-card" style="display:flex;gap:12px;flex-wrap:wrap;align-items:center;">
-                    <button class="btn btn-primary" onclick="openStockTake('opening')">
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
-                        Record Opening Stock
-                    </button>
-                    <button class="btn btn-save" onclick="openStockTake('closing')">
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21.21 15.89A10 10 0 1 1 8 2.83"></path><path d="M22 12A10 10 0 0 0 12 2v10z"></path></svg>
-                        Record Closing Stock
-                    </button>
-                    <span style="font-size:12px;color:var(--text-dim);">Takes a physical count of every item. Values are at buying cost.</span>
-                </div>
-                <div class="table-card">
-                    <h3>
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="1 4 1 10 7 10"></polyline><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"></path></svg>
-                        Stock Take History
-                    </h3>
-                    <div style="overflow-x:auto;">
-                        <table class="data-table">
-                            <thead><tr><th>Date &amp; Time</th><th>Type</th><th>Taken By</th><th>Items Counted</th><th>Stock Value (Cost)</th></tr></thead>
-                            <tbody id="stocktakes-tbody"></tbody>
-                        </table>
-                    </div>
-                </div>
-                <div class="table-card">
-                    <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;margin-bottom:16px;">
-                        <h3 style="margin:0;">
-                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="5" rx="9" ry="3"></ellipse><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"></path><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"></path></svg>
-                            Live Inventory
-                        </h3>
-                        <div class="search-box" style="margin:0;">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
-                            <input type="text" id="stock-search" placeholder="Search item..." oninput="renderStockTable()">
-                        </div>
-                    </div>
-                    <div style="overflow-x:auto;">
-                        <table class="data-table">
-                            <thead><tr><th>Item</th><th>Category</th><th>Stock</th><th>Cost/Unit</th><th>Stock Value</th><th>Restock (+Qty)</th><th>Action</th></tr></thead>
-                            <tbody id="stock-tbody"></tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-
-            <!-- ============ SPOILAGE ============ -->
-            <div id="section-spoilage" class="section">
-                <div class="page-header">
-                    <div><h2>Spoilt / Wastage</h2><p>Record spoiled food — deducts from stock and hits P&amp;L</p></div>
-                </div>
-                <div class="metrics-grid" id="spoilage-metrics"></div>
-                <div class="form-card" style="background:linear-gradient(135deg,rgba(239,68,68,.08),transparent);border-color:rgba(239,68,68,.15);">
-                    <h3>
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
-                        Record Spoilage
-                    </h3>
-                    <div class="form-row">
-                        <div class="form-group" style="flex:2;"><label>Item</label><select id="spoil-item"></select></div>
-                        <div class="form-group"><label>Quantity Spoilt</label><input type="number" id="spoil-qty" placeholder="0" min="1"></div>
-                        <div class="form-group" style="flex:2;"><label>Reason</label><input type="text" id="spoil-reason" placeholder="e.g. Expired, dropped, burnt"></div>
-                        <button class="btn btn-delete" style="height:42px;margin-bottom:2px;" onclick="recordSpoilage()">Record Loss</button>
-                    </div>
-                </div>
-                <div class="table-card">
-                    <h3>Spoilage Log</h3>
-                    <div style="overflow-x:auto;">
-                        <table class="data-table">
-                            <thead><tr><th>Date &amp; Time</th><th>Item</th><th>Qty</th><th>Reason</th><th>Loss (Cost)</th><th>Recorded By</th><th></th></tr></thead>
-                            <tbody id="spoilage-tbody"></tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-
-            <!-- ============ MENU & PRICES ============ -->
-            <div id="section-menu" class="section">
-                <div class="page-header">
-                    <div><h2>Menu &amp; Prices</h2><p>Adjust names, selling prices, food cost and stock</p></div>
-                    <button class="btn btn-ghost" onclick="seedMenu()">Load Default Delish Menu</button>
-                </div>
-                <div class="form-card">
-                    <h3>
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
-                        Add New Menu Item
-                    </h3>
-                    <div class="form-row">
-                        <div class="form-group" style="flex:2;"><label>Name</label><input type="text" id="new-item-name" placeholder="e.g. Pilau"></div>
-                        <div class="form-group"><label>Category</label>
-                            <select id="new-item-type"><option value="meals">Meals</option><option value="drinks">Drinks</option><option value="snacks">Snacks</option></select>
-                        </div>
-                        <div class="form-group"><label>Selling Price</label><input type="number" id="new-item-price" placeholder="0"></div>
-                        <div class="form-group"><label>Food Cost (BP)</label><input type="number" id="new-item-cost" placeholder="0"></div>
-                        <div class="form-group"><label>Stock</label><input type="number" id="new-item-stock" placeholder="0"></div>
-                        <button class="btn btn-primary" style="height:42px;margin-bottom:2px;" onclick="addMenuItem()">Add Item</button>
-                    </div>
-                </div>
-                <div class="table-card">
-                    <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;margin-bottom:16px;">
-                        <h3 style="margin:0;">Full Menu</h3>
-                        <div class="search-box" style="margin:0;">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
-                            <input type="text" id="menu-search" placeholder="Search item..." oninput="renderMenuTable()">
-                        </div>
-                    </div>
-                    <div style="overflow-x:auto;">
-                        <table class="data-table">
-                            <thead><tr><th>Item</th><th>Category</th><th>Stock</th><th>Food Cost (BP)</th><th>Selling Price</th><th>Margin</th><th>Action</th></tr></thead>
-                            <tbody id="menu-tbody"></tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-
-            <!-- ============ EXPENSES ============ -->
-            <div id="section-expenses" class="section">
-                <div class="page-header">
-                    <div><h2>Business Expenses</h2><p>Rent, supplies, fuel — anything that reduces profit</p></div>
-                </div>
-                <div class="form-card" style="background:linear-gradient(135deg,rgba(245,158,11,.08),transparent);border-color:rgba(245,158,11,.15);">
-                    <h3>Record New Expense</h3>
-                    <div class="form-row">
-                        <div class="form-group" style="flex:2;"><label>Description</label><input type="text" id="new-expense-desc" placeholder="e.g. Charcoal, rent, vegetables"></div>
-                        <div class="form-group"><label>Amount (KES)</label><input type="number" id="new-expense-amount" placeholder="0.00"></div>
-                        <button class="btn btn-primary" style="height:42px;margin-bottom:2px;" onclick="addExpense()">Record</button>
-                    </div>
-                </div>
-                <div class="table-card">
-                    <h3>Expense History</h3>
-                    <div style="overflow-x:auto;">
-                        <table class="data-table">
-                            <thead><tr><th>Date</th><th>Description</th><th>Amount</th><th>Logged By</th><th></th></tr></thead>
-                            <tbody id="expenses-tbody"></tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-
-            <!-- ============ STATEMENTS / REPORTS ============ -->
-            <div id="section-reports" class="section">
-                <div class="page-header">
-                    <div><h2>Statements &amp; Reports</h2><p>Filter any period — daily, weekly or monthly statements, and product performance</p></div>
-                </div>
-                <div class="form-card">
-                    <h3>Report Period</h3>
-                    <div class="form-row">
-                        <div class="form-group"><label>From</label><input type="date" id="rep-from"></div>
-                        <div class="form-group"><label>To</label><input type="date" id="rep-to"></div>
-                        <div class="form-group"><label>Group Statement By</label>
-                            <select id="rep-group">
-                                <option value="day">Day (daily statement)</option>
-                                <option value="week">Week (weekly statement)</option>
-                                <option value="month">Month (monthly statement)</option>
-                            </select>
-                        </div>
-                        <button class="btn btn-primary" style="height:42px;margin-bottom:2px;" onclick="runReport()">Generate Statement</button>
-                    </div>
-                    <div class="tabs-inline" style="margin-bottom:0;">
-                        <button class="tab-inline-btn" onclick="presetRange('today', this)">Today</button>
-                        <button class="tab-inline-btn" onclick="presetRange('yesterday', this)">Yesterday</button>
-                        <button class="tab-inline-btn" onclick="presetRange('week', this)">This Week</button>
-                        <button class="tab-inline-btn" onclick="presetRange('lastweek', this)">Last Week</button>
-                        <button class="tab-inline-btn" onclick="presetRange('month', this)">This Month</button>
-                        <button class="tab-inline-btn" onclick="presetRange('lastmonth', this)">Last Month</button>
-                    </div>
-                </div>
-                <div class="metrics-grid" id="rep-metrics"></div>
-                <div class="table-card">
-                    <h3>
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline></svg>
-                        Sales Statement — <span id="rep-range-label"></span>
-                    </h3>
-                    <div style="overflow-x:auto;">
-                        <table class="data-table">
-                            <thead><tr><th>Period</th><th>Orders</th><th>Items Sold</th><th>Cash</th><th>M-Pesa</th><th>Revenue</th><th>Food Cost</th><th>Profit</th></tr></thead>
-                            <tbody id="rep-tbody"></tbody>
-                        </table>
-                    </div>
-                </div>
-                <div class="table-card">
-                    <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;margin-bottom:16px;">
-                        <h3 style="margin:0;">
-                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline><polyline points="17 6 23 6 23 12"></polyline></svg>
-                            Product Performance — <span id="rep-prod-label"></span>
-                        </h3>
-                        <div class="tabs-inline" style="margin-bottom:0;">
-                            <button class="tab-inline-btn active" id="rep-sort-most" onclick="setProdSort('most')">Most Sold</button>
-                            <button class="tab-inline-btn" id="rep-sort-least" onclick="setProdSort('least')">Least Sold</button>
-                        </div>
-                    </div>
-                    <div style="overflow-x:auto;">
-                        <table class="data-table">
-                            <thead><tr><th style="width:50px;">#</th><th>Product</th><th>Qty Sold</th><th>Revenue</th><th>Food Cost</th><th>Profit</th></tr></thead>
-                            <tbody id="rep-prod-tbody"></tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-
-            <!-- ============ STAFF ============ -->
-            <div id="section-staff" class="section">
-                <div class="page-header">
-                    <div><h2>Staff Management</h2><p>Waiter and admin accounts</p></div>
-                </div>
-                <div class="form-card">
-                    <h3>Create Account</h3>
-                    <div class="form-row">
-                        <div class="form-group"><label>Username</label><input type="text" id="new-user-name" placeholder="e.g. mary"></div>
-                        <div class="form-group"><label>Role</label>
-                            <select id="new-user-role"><option value="waiter">Waiter</option><option value="admin">Admin</option></select>
-                        </div>
-                        <div class="form-group"><label>PIN</label><input type="password" id="new-user-pin" placeholder="****"></div>
-                        <button class="btn btn-primary" style="height:42px;margin-bottom:2px;" onclick="addUser()">Create</button>
-                    </div>
-                </div>
-                <div class="table-card">
-                    <div style="overflow-x:auto;">
-                        <table class="data-table">
-                            <thead><tr><th>Username</th><th>Role</th><th>Status</th><th>Actions</th></tr></thead>
-                            <tbody id="users-tbody"></tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-
-        </div>
-    </div>
+  </div>
 </div>
 
 <script>
-const API_URL = "http://169.58.58.133:4027";
+const API_URL = 'http://169.58.58.133:4027';
+const KES = n => 'KES ' + (n || 0).toLocaleString('en-KE', { minimumFractionDigits: 2 });
+const N = n => (n || 0).toLocaleString('en-KE', { minimumFractionDigits: 2 });
 
-let allProducts = [];
-let currentStockTakeType = 'opening';
+let menu = [];
+let takeType = 'opening';
+let rpProdData = [];
+let rpSort = 'most';
 
-function fmt(n) { return 'KES ' + (n || 0).toLocaleString('en-KE', {minimumFractionDigits: 2}); }
-function num(n) { return (n || 0).toLocaleString('en-KE', {minimumFractionDigits: 2}); }
+const NAV = [
+  ['dash', '📊', 'P&L Dashboard'], ['waiters', '👥', 'Waiter Sales'], ['pay', '💳', 'M-Pesa & Cash'],
+  ['stock', '📦', 'Stock Control'], ['spoil', '⚠️', 'Spoilage'], ['menu', '🍽️', 'Menu & Prices'],
+  ['exp', '💸', 'Expenses'], ['rep', '📈', 'Statements'], ['staff', '🔐', 'Staff']
+];
 
-function showToast(message, type = 'info') {
-    const container = document.getElementById('toast-container');
-    const toast = document.createElement('div');
-    toast.className = 'toast toast-' + type;
-    const bg = type === 'success' ? 'var(--green)' : type === 'error' ? 'var(--danger)' : 'var(--primary)';
-    const txt = type === 'success' ? '✓' : type === 'error' ? '!' : '?';
-    toast.innerHTML = '<div class="toast-avatar" style="background:' + bg + ';">' + txt + '</div><span>' + message + '</span>';
-    container.appendChild(toast);
-    setTimeout(() => { toast.classList.add('hiding'); setTimeout(() => toast.remove(), 300); }, 4000);
+function toast(msg, type) {
+  const t = document.createElement('div');
+  t.className = 'toast';
+  const c = type === 'err' ? '#ef4444' : type === 'warn' ? '#f59e0b' : '#10b981';
+  t.innerHTML = '<span class="dot" style="background:' + c + '"></span>' + msg;
+  document.getElementById('toasts').appendChild(t);
+  setTimeout(() => { t.classList.add('hide'); setTimeout(() => t.remove(), 250); }, 3500);
 }
 
-function showModal(title, message, type = 'warning') {
-    const modal = document.getElementById('custom-modal');
-    const iconDiv = document.getElementById('modal-icon');
-    const btn = document.getElementById('modal-close-btn');
-    document.getElementById('modal-title').innerText = title;
-    document.getElementById('modal-message').innerText = message;
-    iconDiv.className = 'modal-icon ' + type;
-    btn.className = 'modal-btn ' + type;
-    modal.style.display = 'flex';
+function card(color, title, val, sub) {
+  return '<div class="card ' + color + '"><h5>' + title + '</h5><div class="v num">' + val + '</div>' + (sub ? '<div class="s">' + sub + '</div>' : '') + '</div>';
 }
-function closeModal() { document.getElementById('custom-modal').style.display = 'none'; }
-function toggleSidebar() {
-    document.getElementById('sidebar').classList.toggle('open');
-    document.getElementById('sidebar-overlay').classList.toggle('open');
+function chip(html, cls) { return '<span class="chip ' + cls + '">' + html + '</span>'; }
+
+/* ===== NAV ===== */
+function buildNav() {
+  document.getElementById('sbNav').innerHTML = NAV.map(([k, ic, l]) =>
+    '<button class="sb-item" id="nav-' + k + '" onclick="go(\'' + k + '\')">' + ic + ' ' + l + '</button>').join('');
 }
 
-// ============ AUTH ============
-document.addEventListener("DOMContentLoaded", () => {
-    const today = new Date().toISOString().substring(0, 10);
-    ['dash-date', 'waiter-date', 'pay-date'].forEach(id => document.getElementById(id).value = today);
-    if (localStorage.getItem('delish_admin_logged_in') === 'true') {
-        document.getElementById('login-screen').style.display = 'none';
-        document.getElementById('admin-screen').style.display = 'flex';
-        loadAll();
-    }
+function go(k) {
+  document.querySelectorAll('.sb-item').forEach(b => b.classList.remove('active'));
+  document.getElementById('nav-' + k).classList.add('active');
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('on'));
+  document.getElementById('v-' + k).classList.add('on');
+  window.scrollTo(0, 0);
+  if (k === 'dash') loadDash();
+  if (k === 'waiters') loadWaiters();
+  if (k === 'pay') loadPay();
+  if (k === 'stock') loadStockView();
+  if (k === 'spoil') loadSpoilage();
+  if (k === 'menu') renderMenu();
+  if (k === 'exp') loadExpenses();
+  if (k === 'rep') { initReportDates(); runReport(); }
+  if (k === 'staff') loadStaff();
+}
+
+/* ===== AUTH ===== */
+document.addEventListener('DOMContentLoaded', () => {
+  buildNav();
+  const t = new Date().toISOString().substring(0, 10);
+  ['dashDate', 'wDate', 'pDate'].forEach(id => document.getElementById(id).value = t);
+  if (localStorage.getItem('dd_admin_auth') === '1') enterApp();
 });
 
-async function attemptLogin() {
-    const username = document.getElementById('username').value;
-    const pin = document.getElementById('pin').value;
-    try {
-        const response = await fetch(API_URL + '/api/login', {
-            method: 'POST', headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ username, pin, attemptedRole: 'admin' })
-        });
-        const data = await response.json();
-        if (data.success) {
-            localStorage.setItem('delish_admin_logged_in', 'true');
-            document.getElementById('login-screen').style.display = 'none';
-            document.getElementById('admin-screen').style.display = 'flex';
-            loadAll();
-        } else showModal("Login Failed", data.message, "error");
-    } catch (error) { showModal("Connection Error", "Could not connect to server.", "error"); }
-}
-
-function logout() { localStorage.removeItem('delish_admin_logged_in'); location.reload(); }
-
-function switchTab(tabName) {
-    document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
-    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-    document.getElementById('section-' + tabName).classList.add('active');
-    document.getElementById('nav-' + tabName).classList.add('active');
-    document.getElementById('sidebar').classList.remove('open');
-    document.getElementById('sidebar-overlay').classList.remove('open');
-    if (tabName === 'dashboard') loadDashboard();
-    if (tabName === 'waiters') loadWaiterSales();
-    if (tabName === 'payments') loadPayments();
-    if (tabName === 'stock') loadStockSection();
-    if (tabName === 'spoilage') loadSpoilage();
-    if (tabName === 'menu') { fetchProducts(); }
-    if (tabName === 'expenses') fetchExpenses();
-    if (tabName === 'staff') fetchUsers();
-    if (tabName === 'reports') { initReportDates(); runReport(); }
-}
-
-async function loadAll() {
-    await fetchProducts();
-    await loadDashboard();
-    loadSpoilageSelect();
-}
-
-async function fetchProducts() {
-    try {
-        const response = await fetch(API_URL + '/api/products');
-        const data = await response.json();
-        if (data.success) {
-            allProducts = data.products;
-            renderStockTable();
-            renderMenuTable();
-            loadSpoilageSelect();
-        }
-    } catch (e) { console.error(e); }
-}
-
-// ============ DASHBOARD / P&L ============
-async function loadDashboard() {
-    const date = document.getElementById('dash-date').value;
-    document.getElementById('dash-date-label').innerText = 'Summary for ' + (date || 'today');
-    try {
-        const [salesRes, plRes] = await Promise.all([
-            fetch(API_URL + '/api/sales/today?date=' + date),
-            fetch(API_URL + '/api/pl/' + date)
-        ]);
-        const sales = await salesRes.json();
-        const pl = await plRes.json();
-
-        if (sales.success) {
-            const m = document.getElementById('dash-metrics');
-            m.innerHTML =
-                metricCard('blue', 'Gross Revenue', fmt(sales.totalSales), sales.orderCount + ' orders') +
-                metricCard('teal', 'Cash Collected', fmt(sales.cashSales)) +
-                metricCard('green', 'M-Pesa Collected', fmt(sales.mpesaSales)) +
-                metricCard('purple', 'Gross Profit', fmt(sales.grossProfit), 'after food cost') +
-                metricCard('red', 'Spoilage Loss', fmt(pl.spoilageCost)) +
-                metricCard('orange', 'Net Profit', fmt(pl.netProfit), 'after expenses &amp; spoilage');
-
-            const tb = document.getElementById('dash-orders-tbody');
-            tb.innerHTML = '';
-            if (!sales.orders.length) {
-                tb.innerHTML = '<tr><td colspan="7" style="text-align:center;color:var(--text-dim);padding:24px;">No orders this day.</td></tr>';
-            } else {
-                sales.orders.forEach(order => {
-                    const timeStr = new Date(order.createdAt).toLocaleTimeString('en-US', {hour:'2-digit', minute:'2-digit'});
-                    const itemsStr = order.items.map(i => i.quantity + 'x ' + i.name).join(', ');
-                    const profit = (order.total_amount || 0) - (order.total_cost || 0);
-                    const tr = document.createElement('tr');
-                    tr.innerHTML =
-                        '<td><strong style="font-family:\'JetBrains Mono\',monospace;">#' + order._id.substring(0,6).toUpperCase() + '</strong><br><small style="color:var(--text-dim);">' + timeStr + '</small></td>' +
-                        '<td style="text-transform:uppercase;color:var(--text-muted);font-size:12px;font-weight:700;">' + order.served_by + '</td>' +
-                        '<td style="color:var(--text-muted);">' + (order.table_number || 'Counter') + '</td>' +
-                        '<td style="font-size:12px;color:var(--text-muted);max-width:200px;">' + itemsStr + '</td>' +
-                        '<td style="color:var(--danger);font-family:\'JetBrains Mono\',monospace;">' + fmt(order.total_cost || 0) + '</td>' +
-                        '<td style="color:var(--green);font-weight:700;font-family:\'JetBrains Mono\',monospace;">' + fmt(order.total_amount) + '</td>' +
-                        '<td style="color:var(--purple);font-weight:700;font-family:\'JetBrains Mono\',monospace;">' + fmt(profit) + '</td>';
-                    tb.appendChild(tr);
-                });
-            }
-        }
-
-        if (pl.success) {
-            document.getElementById('pl-breakdown').innerHTML =
-                plRow('Sales Revenue', fmt(pl.revenue), 'var(--green)') +
-                plRow('Food Cost (COGS)', '− ' + fmt(pl.cogs), 'var(--danger)') +
-                plRow('Gross Profit', fmt(pl.grossProfit), 'var(--purple)') +
-                plRow('Expenses', '− ' + fmt(pl.expenses), 'var(--danger)') +
-                plRow('Spoilage Loss', '− ' + fmt(pl.spoilageCost), 'var(--danger)') +
-                plTotal('NET PROFIT', fmt(pl.netProfit), pl.netProfit >= 0 ? 'var(--green)' : 'var(--danger)');
-        }
-    } catch (e) { console.error(e); }
-}
-
-function metricCard(color, title, value, subtitle) {
-    return '<div class="metric-card ' + color + '"><h3>' + title + '</h3><div class="value">' + value + '</div>' +
-        (subtitle ? '<div class="subtitle">' + subtitle + '</div>' : '') + '</div>';
-}
-function plRow(label, value, color) {
-    return '<div class="pl-row"><span class="pl-label">' + label + '</span><span class="pl-value" style="color:' + color + '">' + value + '</span></div>';
-}
-function plTotal(label, value, color) {
-    return '<div class="pl-row pl-total"><span class="pl-label">' + label + '</span><span class="pl-value" style="color:' + color + '">' + value + '</span></div>';
-}
-
-// ============ WAITER SALES ============
-async function loadWaiterSales() {
-    const date = document.getElementById('waiter-date').value;
-    try {
-        const res = await fetch(API_URL + '/api/sales/today?date=' + date);
-        const data = await res.json();
-        if (!data.success) return;
-        document.getElementById('waiter-metrics').innerHTML =
-            metricCard('blue', 'Total Revenue', fmt(data.totalSales)) +
-            metricCard('green', 'M-Pesa', fmt(data.mpesaSales)) +
-            metricCard('teal', 'Cash', fmt(data.cashSales)) +
-            metricCard('orange', 'Active Waiters', String(data.waiters.length));
-        const tbody = document.getElementById('waiters-tbody');
-        tbody.innerHTML = '';
-        if (!data.waiters.length) {
-            tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;color:var(--text-dim);padding:24px;">No waiter sales this day.</td></tr>';
-            return;
-        }
-        data.waiters.forEach(w => {
-            const profit = w.revenue - w.cost;
-            const tr = document.createElement('tr');
-            tr.innerHTML =
-                '<td><strong style="text-transform:uppercase;">' + w.waiter + '</strong></td>' +
-                '<td style="font-family:\'JetBrains Mono\',monospace;">' + w.orders + '</td>' +
-                '<td style="font-family:\'JetBrains Mono\',monospace;">' + w.items + '</td>' +
-                '<td style="color:var(--accent);font-family:\'JetBrains Mono\',monospace;">' + fmt(w.cash) + '</td>' +
-                '<td style="color:var(--green);font-family:\'JetBrains Mono\',monospace;">' + fmt(w.mpesa) + '</td>' +
-                '<td style="color:var(--primary);font-weight:700;font-family:\'JetBrains Mono\',monospace;">' + fmt(w.revenue) + '</td>' +
-                '<td style="color:var(--purple);font-weight:700;font-family:\'JetBrains Mono\',monospace;">' + fmt(profit) + '</td>';
-            tbody.appendChild(tr);
-        });
-    } catch (e) { console.error(e); }
-}
-
-// ============ PAYMENTS ============
-async function loadPayments() {
-    const date = document.getElementById('pay-date').value;
-    try {
-        const [salesRes, txRes] = await Promise.all([
-            fetch(API_URL + '/api/sales/today?date=' + date),
-            fetch(API_URL + '/api/transactions/today?date=' + date)
-        ]);
-        const sales = await salesRes.json();
-        const txs = await txRes.json();
-        if (sales.success) {
-            document.getElementById('pay-metrics').innerHTML =
-                metricCard('blue', 'Total Collections', fmt(sales.totalSales)) +
-                metricCard('teal', 'Cash', fmt(sales.cashSales)) +
-                metricCard('green', 'M-Pesa', fmt(sales.mpesaSales)) +
-                metricCard('purple', 'Split Payments', String(sales.orders.filter(o => o.payment_method === 'split').length) + ' orders');
-        }
-        const mtb = document.getElementById('mpesa-tbody');
-        mtb.innerHTML = '';
-        if (txs.success) {
-            if (!txs.transactions.length) {
-                mtb.innerHTML = '<tr><td colspan="5" style="text-align:center;color:var(--text-dim);padding:24px;">No M-Pesa transactions.</td></tr>';
-            } else {
-                txs.transactions.forEach(tx => {
-                    const timeStr = new Date(tx.createdAt).toLocaleTimeString('en-US', {hour:'2-digit', minute:'2-digit'});
-                    const tr = document.createElement('tr');
-                    tr.innerHTML = '<td style="color:var(--text-dim);">' + timeStr + '</td>' +
-                        '<td style="font-family:\'JetBrains Mono\',monospace;font-weight:700;color:var(--green);">' + tx.receipt + '</td>' +
-                        '<td style="color:var(--text-muted);">' + (tx.phone || 'N/A') + '</td>' +
-                        '<td style="text-transform:uppercase;color:var(--text-muted);font-size:12px;">' + (tx.waiter || '—') + '</td>' +
-                        '<td style="color:var(--green);font-weight:700;font-family:\'JetBrains Mono\',monospace;">' + fmt(tx.amount) + '</td>';
-                    mtb.appendChild(tr);
-                });
-            }
-        }
-        const ctb = document.getElementById('cash-tbody');
-        ctb.innerHTML = '';
-        if (sales.success) {
-            const cashOrders = sales.orders.filter(o => o.payment_method === 'cash' || o.payment_method === 'split');
-            if (!cashOrders.length) {
-                ctb.innerHTML = '<tr><td colspan="7" style="text-align:center;color:var(--text-dim);padding:24px;">No cash payments.</td></tr>';
-            } else {
-                cashOrders.forEach(o => {
-                    const timeStr = new Date(o.createdAt).toLocaleTimeString('en-US', {hour:'2-digit', minute:'2-digit'});
-                    const cashIn = o.payment_method === 'split' ? (o.total_amount - (o.mpesa_amount || 0)) : (o.cash_tendered || o.total_amount);
-                    const change = o.cash_change || 0;
-                    const tr = document.createElement('tr');
-                    tr.innerHTML = '<td style="color:var(--text-dim);">' + timeStr + '</td>' +
-                        '<td style="font-family:\'JetBrains Mono\',monospace;">#' + o._id.substring(0,6).toUpperCase() + '</td>' +
-                        '<td style="text-transform:uppercase;color:var(--text-muted);font-size:12px;">' + o.served_by + '</td>' +
-                        '<td style="color:var(--text-muted);">' + (o.table_number || 'Counter') + '</td>' +
-                        '<td style="font-family:\'JetBrains Mono\',monospace;">' + fmt(o.cash_tendered || cashIn) + '</td>' +
-                        '<td style="color:var(--danger);font-family:\'JetBrains Mono\',monospace;">' + fmt(change) + '</td>' +
-                        '<td style="color:var(--accent);font-weight:700;font-family:\'JetBrains Mono\',monospace;">' + fmt(cashIn - change) + '</td>';
-                    ctb.appendChild(tr);
-                });
-            }
-        }
-    } catch (e) { console.error(e); }
-}
-
-// ============ STOCK ============
-function loadStockSection() {
-    fetchProducts();
-    fetchStockTakes();
-}
-
-async function fetchStockTakes() {
-    try {
-        const res = await fetch(API_URL + '/api/stock-takes');
-        const data = await res.json();
-        const tbody = document.getElementById('stocktakes-tbody');
-        tbody.innerHTML = '';
-        if (!data.success || !data.takes.length) {
-            tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:var(--text-dim);padding:24px;">No stock takes recorded yet.</td></tr>';
-            return;
-        }
-        data.takes.forEach(t => {
-            const d = new Date(t.date);
-            const tr = document.createElement('tr');
-            tr.innerHTML = '<td style="color:var(--text-dim);">' + d.toLocaleString('en-GB') + '</td>' +
-                '<td><span class="badge ' + (t.type === 'opening' ? 'badge-cash' : 'badge-active') + '">' + t.type + '</span></td>' +
-                '<td style="text-transform:uppercase;color:var(--text-muted);font-size:12px;">' + t.taken_by + '</td>' +
-                '<td style="font-family:\'JetBrains Mono\',monospace;">' + t.items.length + '</td>' +
-                '<td style="color:' + (t.type === 'opening' ? 'var(--accent)' : 'var(--green)') + ';font-weight:700;font-family:\'JetBrains Mono\',monospace;">' + fmt(t.total_value) + '</td>';
-            tbody.appendChild(tr);
-        });
-    } catch (e) { console.error(e); }
-}
-
-function openStockTake(type) {
-    currentStockTakeType = type;
-    document.getElementById('st-title').innerText = 'Record ' + (type === 'opening' ? 'Opening' : 'Closing') + ' Stock';
-    document.getElementById('st-sub').innerText = 'Enter the physical count for each item. Value shown at buying cost.';
-    const grid = document.getElementById('st-grid');
-    grid.innerHTML = '';
-    allProducts.forEach(p => {
-        const div = document.createElement('div');
-        div.className = 'take-item';
-        div.innerHTML = '<div class="take-name"><span>' + p.name + '</span><small>' + (p.stock || 0) + ' in sys</small></div>' +
-            '<input type="number" min="0" id="take-' + p._id + '" value="' + (p.stock || 0) + '" placeholder="0">';
-        grid.appendChild(div);
+async function doLogin() {
+  const u = document.getElementById('loginUser').value.trim();
+  const p = document.getElementById('loginPin').value;
+  if (!u || !p) return toast('Enter username and PIN', 'warn');
+  try {
+    const r = await fetch(API_URL + '/api/login', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ username: u, pin: p, attemptedRole: 'admin' })
     });
-    document.getElementById('stocktake-modal').style.display = 'flex';
-}
-function closeStockTake() { document.getElementById('stocktake-modal').style.display = 'none'; }
-
-async function submitStockTake() {
-    const items = allProducts.map(p => ({ product_id: p._id, qty: parseFloat(document.getElementById('take-' + p._id).value) || 0 }));
-    try {
-        const res = await fetch(API_URL + '/api/stock-takes', {
-            method: 'POST', headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ type: currentStockTakeType, taken_by: 'Admin', items })
-        });
-        const data = await res.json();
-        if (data.success) {
-            showModal('Stock Take Saved', (currentStockTakeType === 'opening' ? 'Opening' : 'Closing') + ' stock recorded at ' + fmt(data.take.total_value) + ' (cost value).', 'success');
-            closeStockTake();
-            fetchStockTakes();
-        } else showModal('Error', data.message, 'error');
-    } catch (e) { showModal('Error', 'Server connection failed.', 'error'); }
+    const d = await r.json();
+    if (d.success) {
+      localStorage.setItem('dd_admin_auth', '1');
+      enterApp();
+    } else toast(d.message || 'Login failed', 'err');
+  } catch (e) { toast('Cannot reach server', 'err'); }
 }
 
-function renderStockTable() {
-    const q = (document.getElementById('stock-search').value || '').toLowerCase();
-    const tbody = document.getElementById('stock-tbody');
-    tbody.innerHTML = '';
-    const filtered = allProducts.filter(p => p.name.toLowerCase().includes(q));
-    if (!filtered.length) {
-        tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;color:var(--text-dim);padding:24px;">No items found.</td></tr>';
-        return;
-    }
-    filtered.forEach(p => {
-        const low = (p.stock || 0) < 10;
+function enterApp() {
+  document.getElementById('loginScreen').style.display = 'none';
+  document.getElementById('app').classList.add('on');
+  loadMenu().then(() => { loadDash(); });
+}
+
+function doLogout() { localStorage.removeItem('dd_admin_auth'); location.reload(); }
+
+async function loadMenu() {
+  try {
+    const r = await fetch(API_URL + '/api/products');
+    const d = await r.json();
+    if (d.success) { menu = d.products; renderStock(); renderMenu(); fillSpoilSelect(); }
+  } catch (e) { console.error(e); }
+}
+
+/* ===== DASHBOARD ===== */
+async function loadDash() {
+  const date = document.getElementById('dashDate').value;
+  document.getElementById('dashSub').textContent = 'Summary for ' + date;
+  try {
+    const [sRes, pRes] = await Promise.all([
+      fetch(API_URL + '/api/sales/today?date=' + date),
+      fetch(API_URL + '/api/pl/' + date)
+    ]);
+    const s = await sRes.json(); const p = await pRes.json();
+    if (s.success) {
+      document.getElementById('dashCards').innerHTML =
+        card('b', 'Gross Revenue', KES(s.totalSales), s.orderCount + ' orders') +
+        card('t', 'Cash Collected', KES(s.cashSales)) +
+        card('g', 'M-Pesa Collected', KES(s.mpesaSales)) +
+        card('p', 'Gross Profit', KES(s.grossProfit), 'after food cost') +
+        card('r', 'Spoilage Loss', KES(p.success ? p.spoilageCost : 0)) +
+        card('o', 'Net Profit', KES(p.success ? p.netProfit : 0), 'after expenses & spoilage');
+      const tb = document.getElementById('dashRows');
+      tb.innerHTML = '';
+      if (!s.orders.length) tb.innerHTML = '<tr><td colspan="7" style="text-align:center;color:var(--faint);padding:22px;font-weight:600">No orders this day</td></tr>';
+      s.orders.forEach(o => {
         const tr = document.createElement('tr');
-        tr.innerHTML = '<td><strong>' + p.name + '</strong></td>' +
-            '<td style="text-transform:capitalize;color:var(--text-muted);">' + p.type + '</td>' +
-            '<td style="font-weight:700;color:' + (low ? 'var(--danger)' : 'var(--green)') + ';font-family:\'JetBrains Mono\',monospace;font-size:16px;">' + (p.stock || 0) + '</td>' +
-            '<td style="font-family:\'JetBrains Mono\',monospace;">' + fmt(p.buying_price || 0) + '</td>' +
-            '<td style="font-family:\'JetBrains Mono\',monospace;">' + fmt((p.stock || 0) * (p.buying_price || 0)) + '</td>' +
-            '<td><input type="number" class="inv-input qty" id="restock-' + p._id + '" placeholder="+Qty" min="1"></td>' +
-            '<td><button class="btn btn-save" onclick="restockItem(\'' + p._id + '\')">Add Stock</button></td>';
-        tbody.appendChild(tr);
+        const profit = (o.total_amount || 0) - (o.total_cost || 0);
+        tr.innerHTML = '<td><b class="num">#' + o._id.substring(0, 6).toUpperCase() + '</b><br><small style="color:var(--faint)">' + new Date(o.createdAt).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }) + '</small></td>' +
+          '<td style="text-transform:uppercase;font-weight:700;font-size:12px;color:var(--muted)">' + o.served_by + '</td>' +
+          '<td>' + (o.table_number || 'Counter') + '</td>' +
+          '<td style="font-size:12px;color:var(--muted);max-width:210px">' + o.items.map(i => i.quantity + 'x ' + i.name).join(', ') + '</td>' +
+          '<td class="num" style="color:var(--red)">' + KES(o.total_cost || 0) + '</td>' +
+          '<td class="num" style="color:var(--green);font-weight:700">' + KES(o.total_amount) + '</td>' +
+          '<td class="num" style="color:var(--purple);font-weight:700">' + KES(profit) + '</td>';
+        tb.appendChild(tr);
+      });
+    }
+    if (p.success) {
+      const plr = (l, v, c) => '<div class="plr"><span class="l">' + l + '</span><span class="v num" style="color:' + c + '">' + v + '</span></div>';
+      document.getElementById('plBox').innerHTML =
+        plr('Sales Revenue', KES(p.revenue), 'var(--green)') +
+        plr('Food Cost (COGS)', '− ' + KES(p.cogs), 'var(--red)') +
+        plr('Gross Profit', KES(p.grossProfit), 'var(--purple)') +
+        plr('Expenses', '− ' + KES(p.expenses), 'var(--red)') +
+        plr('Spoilage Loss', '− ' + KES(p.spoilageCost), 'var(--red)') +
+        '<div class="plr pl-total"><span class="l">NET PROFIT</span><span class="v num" style="color:' + (p.netProfit >= 0 ? 'var(--green)' : 'var(--red)') + '">' + KES(p.netProfit) + '</span></div>';
+    }
+  } catch (e) { console.error(e); }
+}
+
+/* ===== WAITERS ===== */
+async function loadWaiters() {
+  const date = document.getElementById('wDate').value;
+  try {
+    const r = await fetch(API_URL + '/api/sales/today?date=' + date);
+    const d = await r.json();
+    if (!d.success) return;
+    document.getElementById('wCards').innerHTML =
+      card('b', 'Total Revenue', KES(d.totalSales)) + card('g', 'M-Pesa', KES(d.mpesaSales)) +
+      card('t', 'Cash', KES(d.cashSales)) + card('o', 'Active Waiters', d.waiters.length);
+    const tb = document.getElementById('wRows');
+    tb.innerHTML = '';
+    if (!d.waiters.length) { tb.innerHTML = '<tr><td colspan="7" style="text-align:center;color:var(--faint);padding:22px;font-weight:600">No waiter sales this day</td></tr>'; return; }
+    d.waiters.forEach(w => {
+      const tr = document.createElement('tr');
+      tr.innerHTML = '<td style="text-transform:uppercase;font-weight:800">' + w.waiter + '</td>' +
+        '<td class="num">' + w.orders + '</td><td class="num">' + w.items + '</td>' +
+        '<td class="num" style="color:var(--blue)">' + KES(w.cash) + '</td>' +
+        '<td class="num" style="color:var(--green)">' + KES(w.mpesa) + '</td>' +
+        '<td class="num" style="color:var(--brand);font-weight:700">' + KES(w.revenue) + '</td>' +
+        '<td class="num" style="color:var(--purple);font-weight:700">' + KES(w.revenue - w.cost) + '</td>';
+      tb.appendChild(tr);
     });
+  } catch (e) { console.error(e); }
 }
 
-async function restockItem(id) {
-    const qty = parseFloat(document.getElementById('restock-' + id).value);
-    if (!qty || qty <= 0) return showToast('Enter quantity to add.', 'warning');
-    try {
-        const res = await fetch(API_URL + '/api/products/' + id, {
-            method: 'PATCH', headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ addedStock: qty, recordedBy: 'Admin' })
-        });
-        const data = await res.json();
-        if (data.success) { showToast('Stock added: ' + data.product.name, 'success'); fetchProducts(); }
-    } catch (e) { console.error(e); }
+/* ===== PAYMENTS ===== */
+function payChip(m) {
+  if (m === 'mpesa') return chip('M-Pesa', 'g');
+  if (m === 'split') return chip('Split', 'p');
+  return chip('Cash', 'b');
 }
 
-// ============ SPOILAGE ============
-function loadSpoilageSelect() {
-    const sel = document.getElementById('spoil-item');
-    if (!sel) return;
-    sel.innerHTML = allProducts.map(p => '<option value="' + p._id + '">' + p.name + ' (' + (p.stock || 0) + ' left)</option>').join('');
+async function loadPay() {
+  const date = document.getElementById('pDate').value;
+  try {
+    const [sRes, tRes] = await Promise.all([
+      fetch(API_URL + '/api/sales/today?date=' + date),
+      fetch(API_URL + '/api/transactions/today?date=' + date)
+    ]);
+    const s = await sRes.json(); const tx = await tRes.json();
+    if (s.success) {
+      const splits = s.orders.filter(o => o.payment_method === 'split').length;
+      document.getElementById('pCards').innerHTML =
+        card('b', 'Total Collections', KES(s.totalSales)) + card('t', 'Cash', KES(s.cashSales)) +
+        card('g', 'M-Pesa', KES(s.mpesaSales)) + card('p', 'Split Orders', splits);
+    }
+    const mtb = document.getElementById('mpRows');
+    mtb.innerHTML = '';
+    if (tx.success) {
+      if (!tx.transactions.length) mtb.innerHTML = '<tr><td colspan="4" style="text-align:center;color:var(--faint);padding:22px;font-weight:600">No M-Pesa payments this day</td></tr>';
+      tx.transactions.forEach(t => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = '<td style="color:var(--faint)">' + new Date(t.createdAt).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }) + '</td>' +
+          '<td class="num" style="color:var(--green);font-weight:700">' + (t.receipt || 'M-PESA') + '</td>' +
+          '<td style="text-transform:uppercase;font-size:12px;font-weight:700;color:var(--muted)">' + (t.waiter || '—') + '</td>' +
+          '<td class="num" style="color:var(--green);font-weight:700">' + KES(t.amount) + '</td>';
+        mtb.appendChild(tr);
+      });
+    }
+    const ctb = document.getElementById('cashRows');
+    ctb.innerHTML = '';
+    if (s.success) {
+      const cashOrders = s.orders.filter(o => o.payment_method === 'cash');
+      if (!cashOrders.length) ctb.innerHTML = '<tr><td colspan="7" style="text-align:center;color:var(--faint);padding:22px;font-weight:600">No cash payments this day</td></tr>';
+      cashOrders.forEach(o => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = '<td style="color:var(--faint)">' + new Date(o.createdAt).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }) + '</td>' +
+          '<td class="num">#' + o._id.substring(0, 6).toUpperCase() + '</td>' +
+          '<td style="text-transform:uppercase;font-size:12px;font-weight:700;color:var(--muted)">' + o.served_by + '</td>' +
+          '<td>' + (o.table_number || 'Counter') + '</td>' +
+          '<td class="num">' + KES(o.cash_tendered || o.total_amount) + '</td>' +
+          '<td class="num" style="color:var(--red)">' + KES(o.cash_change || 0) + '</td>' +
+          '<td class="num" style="color:var(--blue);font-weight:700">' + KES((o.cash_tendered || o.total_amount) - (o.cash_change || 0)) + '</td>';
+        ctb.appendChild(tr);
+      });
+    }
+  } catch (e) { console.error(e); }
+}
+
+/* ===== STOCK ===== */
+function loadStockView() { loadMenu().then(loadTakes); }
+
+async function loadTakes() {
+  try {
+    const r = await fetch(API_URL + '/api/stock-takes');
+    const d = await r.json();
+    const tb = document.getElementById('takeRows');
+    tb.innerHTML = '';
+    if (!d.success || !d.takes.length) { tb.innerHTML = '<tr><td colspan="5" style="text-align:center;color:var(--faint);padding:22px;font-weight:600">No stock takes recorded yet</td></tr>'; return; }
+    d.takes.forEach(t => {
+      const tr = document.createElement('tr');
+      tr.innerHTML = '<td style="color:var(--faint)">' + new Date(t.date).toLocaleString('en-GB') + '</td>' +
+        '<td>' + chip(t.type === 'opening' ? '⏰ Opening' : '🌙 Closing', t.type === 'opening' ? 'b' : 'g') + '</td>' +
+        '<td style="text-transform:uppercase;font-size:12px;font-weight:700;color:var(--muted)">' + t.taken_by + '</td>' +
+        '<td class="num">' + t.items.length + '</td>' +
+        '<td class="num" style="font-weight:700;color:' + (t.type === 'opening' ? 'var(--blue)' : 'var(--green)') + '">' + KES(t.total_value) + '</td>';
+      tb.appendChild(tr);
+    });
+  } catch (e) { console.error(e); }
+}
+
+function openTake(type) {
+  takeType = type;
+  document.getElementById('takeTitle').textContent = 'Record ' + (type === 'opening' ? 'Opening' : 'Closing') + ' Stock';
+  const g = document.getElementById('takeGrid');
+  g.innerHTML = '';
+  menu.forEach(p => {
+    const div = document.createElement('div');
+    div.className = 'take-item';
+    div.innerHTML = '<div class="n"><span>' + p.name + '</span><small>' + (p.stock || 0) + ' in sys</small></div>' +
+      '<input type="number" min="0" id="tk-' + p._id + '" value="' + (p.stock || 0) + '">';
+    g.appendChild(div);
+  });
+  document.getElementById('takeOverlay').classList.add('open');
+}
+function closeTake() { document.getElementById('takeOverlay').classList.remove('open'); }
+
+async function submitTake() {
+  const items = menu.map(p => ({ product_id: p._id, qty: parseFloat(document.getElementById('tk-' + p._id).value) || 0 }));
+  try {
+    const r = await fetch(API_URL + '/api/stock-takes', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ type: takeType, taken_by: 'Admin', items })
+    });
+    const d = await r.json();
+    if (d.success) { toast((takeType === 'opening' ? 'Opening' : 'Closing') + ' stock saved: ' + KES(d.take.total_value), 'ok'); closeTake(); loadTakes(); }
+    else toast(d.message || 'Failed', 'err');
+  } catch (e) { toast('Server error', 'err'); }
+}
+
+function renderStock() {
+  const q = (document.getElementById('stockQ').value || '').toLowerCase();
+  const tb = document.getElementById('stockRows');
+  tb.innerHTML = '';
+  const items = menu.filter(p => p.name.toLowerCase().includes(q));
+  if (!items.length) { tb.innerHTML = '<tr><td colspan="7" style="text-align:center;color:var(--faint);padding:22px;font-weight:600">No items</td></tr>'; return; }
+  items.forEach(p => {
+    const low = (p.stock || 0) < 10;
+    const tr = document.createElement('tr');
+    tr.innerHTML = '<td style="font-weight:700">' + p.name + '</td>' +
+      '<td style="text-transform:capitalize;color:var(--muted)">' + p.type + '</td>' +
+      '<td class="num" style="font-weight:800;font-size:15px;color:' + (low ? 'var(--red)' : 'var(--green)') + '">' + (p.stock || 0) + '</td>' +
+      '<td class="num">' + KES(p.buying_price || 0) + '</td>' +
+      '<td class="num">' + KES((p.stock || 0) * (p.buying_price || 0)) + '</td>' +
+      '<td><input type="number" class="inp num w-s" id="rs-' + p._id + '" placeholder="+Qty" min="1"></td>' +
+      '<td><button class="btn btn-green mini" onclick="restock(\'' + p._id + '\')">Add</button></td>';
+    tb.appendChild(tr);
+  });
+}
+
+async function restock(id) {
+  const qty = parseFloat(document.getElementById('rs-' + id).value);
+  if (!qty || qty <= 0) return toast('Enter quantity to add', 'warn');
+  try {
+    const r = await fetch(API_URL + '/api/products/' + id, {
+      method: 'PATCH', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ addedStock: qty, recordedBy: 'Admin' })
+    });
+    const d = await r.json();
+    if (d.success) { toast(d.product.name + ': +' + qty + ' stock', 'ok'); loadMenu().then(loadTakes); }
+  } catch (e) { console.error(e); }
+}
+
+/* ===== SPOILAGE ===== */
+function fillSpoilSelect() {
+  document.getElementById('spItem').innerHTML = menu.map(p =>
+    '<option value="' + p._id + '">' + p.name + ' (' + (p.stock || 0) + ' left)</option>').join('');
 }
 
 async function loadSpoilage() {
-    loadSpoilageSelect();
-    try {
-        const res = await fetch(API_URL + '/api/spoilage');
-        const data = await res.json();
-        document.getElementById('spoilage-metrics').innerHTML =
-            metricCard('red', "Today's Spoilage Loss", fmt(data.todayCost)) +
-            metricCard('orange', 'Records Today', String(data.today.length)) +
-            metricCard('purple', 'All-Time Records', String(data.all.length));
-        const tbody = document.getElementById('spoilage-tbody');
-        tbody.innerHTML = '';
-        if (!data.all.length) {
-            tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;color:var(--text-dim);padding:24px;">No spoilage recorded.</td></tr>';
-            return;
-        }
-        data.all.forEach(s => {
-            const tr = document.createElement('tr');
-            tr.innerHTML = '<td style="color:var(--text-dim);">' + new Date(s.date).toLocaleString('en-GB') + '</td>' +
-                '<td><strong>' + s.item_name + '</strong></td>' +
-                '<td style="color:var(--danger);font-family:\'JetBrains Mono\',monospace;">−' + s.qty + '</td>' +
-                '<td style="color:var(--text-muted);">' + (s.reason || '—') + '</td>' +
-                '<td style="color:var(--danger);font-weight:700;font-family:\'JetBrains Mono\',monospace;">' + fmt(s.value) + '</td>' +
-                '<td style="text-transform:uppercase;color:var(--text-muted);font-size:12px;">' + (s.recorded_by || 'Admin') + '</td>' +
-                '<td><button class="btn btn-delete" onclick="deleteSpoilage(\'' + s._id + '\')">×</button></td>';
-            tbody.appendChild(tr);
-        });
-    } catch (e) { console.error(e); }
-}
-
-async function recordSpoilage() {
-    const product_id = document.getElementById('spoil-item').value;
-    const qty = parseFloat(document.getElementById('spoil-qty').value);
-    const reason = document.getElementById('spoil-reason').value;
-    if (!product_id) return showToast('Select an item.', 'warning');
-    if (!qty || qty <= 0) return showToast('Enter quantity spoilt.', 'warning');
-    try {
-        const res = await fetch(API_URL + '/api/spoilage', {
-            method: 'POST', headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ product_id, qty, reason, recorded_by: 'Admin' })
-        });
-        const data = await res.json();
-        if (data.success) {
-            showToast('Spoilage recorded.', 'success');
-            document.getElementById('spoil-qty').value = '';
-            document.getElementById('spoil-reason').value = '';
-            fetchProducts();
-            loadSpoilage();
-        } else showModal('Error', data.message, 'error');
-    } catch (e) { showModal('Error', 'Server connection failed.', 'error'); }
-}
-
-async function deleteSpoilage(id) {
-    if (!confirm('Delete this record? (Stock is NOT restored)')) return;
-    try {
-        await fetch(API_URL + '/api/spock-logs/' + id, { method: 'DELETE' });
-        loadSpoilage();
-    } catch (e) { console.error(e); }
-}
-
-// ============ MENU & PRICES ============
-function renderMenuTable() {
-    const q = (document.getElementById('menu-search').value || '').toLowerCase();
-    const tbody = document.getElementById('menu-tbody');
-    tbody.innerHTML = '';
-    const filtered = allProducts.filter(p => p.name.toLowerCase().includes(q));
-    if (!filtered.length) {
-        tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;color:var(--text-dim);padding:24px;">No items found. Add menu items above or load the default Delish menu.</td></tr>';
-        return;
-    }
-    filtered.forEach(p => {
-        const margin = p.buying_price > 0 ? Math.round(((p.price - p.buying_price) / p.buying_price) * 100) : 0;
-        const safeName = p.name.replace(/'/g, "\\'");
-        const tr = document.createElement('tr');
-        tr.innerHTML = '<td><input type="text" class="name-input" id="mname-' + p._id + '" value="' + safeName + '"></td>' +
-            '<td style="text-transform:capitalize;color:var(--text-muted);">' + p.type + '</td>' +
-            '<td><input type="number" class="inv-input qty" id="mstock-' + p._id + '" value="' + (p.stock || 0) + '"></td>' +
-            '<td><input type="number" class="inv-input" id="mbuy-' + p._id + '" value="' + (p.buying_price || 0) + '"></td>' +
-            '<td><input type="number" class="inv-input" id="msell-' + p._id + '" value="' + (p.price || 0) + '" style="' + (!p.price ? 'border-color:var(--danger);' : '') + '"></td>' +
-            '<td style="color:var(--purple);font-weight:700;font-family:\'JetBrains Mono\',monospace;">' + margin + '%</td>' +
-            '<td style="white-space:nowrap;"><button class="btn btn-save" onclick="updateMenuItem(\'' + p._id + '\')">Save</button> ' +
-            '<button class="btn btn-delete" onclick="deleteMenuItem(\'' + p._id + '\', \'' + safeName + '\')">×</button></td>';
-        tbody.appendChild(tr);
+  fillSpoilSelect();
+  try {
+    const r = await fetch(API_URL + '/api/spoilage');
+    const d = await r.json();
+    document.getElementById('spCards').innerHTML =
+      card('r', "Today's Loss", KES(d.todayCost)) + card('o', 'Records Today', d.today.length) + card('p', 'All-Time Records', d.all.length);
+    const tb = document.getElementById('spRows');
+    tb.innerHTML = '';
+    if (!d.all.length) { tb.innerHTML = '<tr><td colspan="7" style="text-align:center;color:var(--faint);padding:22px;font-weight:600">No spoilage recorded</td></tr>'; return; }
+    d.all.forEach(s => {
+      const tr = document.createElement('tr');
+      tr.innerHTML = '<td style="color:var(--faint)">' + new Date(s.date).toLocaleString('en-GB') + '</td>' +
+        '<td style="font-weight:700">' + s.item_name + '</td>' +
+        '<td class="num" style="color:var(--red);font-weight:700">−' + s.qty + '</td>' +
+        '<td style="color:var(--muted)">' + (s.reason || '—') + '</td>' +
+        '<td class="num" style="color:var(--red);font-weight:700">' + KES(s.value) + '</td>' +
+        '<td style="text-transform:uppercase;font-size:12px;font-weight:700;color:var(--muted)">' + (s.recorded_by || 'Admin') + '</td>' +
+        '<td><button class="btn btn-red mini" onclick="delSpoilage(\'' + s._id + '\')">×</button></td>';
+      tb.appendChild(tr);
     });
+  } catch (e) { console.error(e); }
 }
 
-async function addMenuItem() {
-    const name = document.getElementById('new-item-name').value.trim();
-    const type = document.getElementById('new-item-type').value;
-    const price = document.getElementById('new-item-price').value;
-    const buying_price = document.getElementById('new-item-cost').value;
-    const stock = document.getElementById('new-item-stock').value;
-    if (!name) return showToast('Item name required.', 'warning');
-    try {
-        const res = await fetch(API_URL + '/api/products', {
-            method: 'POST', headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ name, type, price, buying_price, stock })
-        });
-        const data = await res.json();
-        if (data.success) {
-            ['new-item-name','new-item-price','new-item-cost','new-item-stock'].forEach(id => document.getElementById(id).value = '');
-            showToast('"' + name + '" added to menu.', 'success');
-            fetchProducts();
-        }
-    } catch (e) { console.error(e); }
+async function addSpoilage() {
+  const product_id = document.getElementById('spItem').value;
+  const qty = parseFloat(document.getElementById('spQty').value);
+  const reason = document.getElementById('spReason').value;
+  if (!product_id) return toast('Select an item', 'warn');
+  if (!qty || qty <= 0) return toast('Enter quantity', 'warn');
+  try {
+    const r = await fetch(API_URL + '/api/spoilage', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ product_id, qty, reason, recorded_by: 'Admin' })
+    });
+    const d = await r.json();
+    if (d.success) {
+      toast('Spoilage recorded', 'ok');
+      document.getElementById('spQty').value = ''; document.getElementById('spReason').value = '';
+      loadMenu().then(loadSpoilage);
+    } else toast(d.message || 'Failed', 'err');
+  } catch (e) { toast('Server error', 'err'); }
 }
 
-async function updateMenuItem(id) {
-    const name = document.getElementById('mname-' + id).value.trim();
-    const stock = document.getElementById('mstock-' + id).value;
-    const buying_price = document.getElementById('mbuy-' + id).value;
-    const price = document.getElementById('msell-' + id).value;
-    if (!name) return showToast('Name cannot be empty.', 'warning');
-    try {
-        const res = await fetch(API_URL + '/api/products/' + id, {
-            method: 'PATCH', headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ name, stock, buying_price, price, recordedBy: 'Admin' })
-        });
-        const data = await res.json();
-        if (data.success) { showToast('Menu item updated.', 'success'); fetchProducts(); }
-    } catch (e) { console.error(e); }
+async function delSpoilage(id) {
+  if (!confirm('Delete this record? (Stock is NOT restored)')) return;
+  try {
+    await fetch(API_URL + '/api/spock-logs/' + id, { method: 'DELETE' });
+    loadSpoilage();
+  } catch (e) { console.error(e); }
 }
 
-async function deleteMenuItem(id, name) {
-    if (!confirm('Delete "' + name + '" from the menu?')) return;
-    try {
-        await fetch(API_URL + '/api/products/' + id, { method: 'DELETE' });
-        fetchProducts();
-    } catch (e) { console.error(e); }
+/* ===== MENU ===== */
+function renderMenu() {
+  const q = (document.getElementById('menuQ').value || '').toLowerCase();
+  const tb = document.getElementById('menuRows');
+  tb.innerHTML = '';
+  const items = menu.filter(p => p.name.toLowerCase().includes(q));
+  if (!items.length) { tb.innerHTML = '<tr><td colspan="7" style="text-align:center;color:var(--faint);padding:22px;font-weight:600">No items. Add above or load the default menu.</td></tr>'; return; }
+  items.forEach(p => {
+    const margin = p.buying_price > 0 ? Math.round(((p.price - p.buying_price) / p.buying_price) * 100) : 0;
+    const safe = p.name.replace(/'/g, "\\'");
+    const tr = document.createElement('tr');
+    tr.innerHTML = '<td><input class="inp" id="mn-' + p._id + '" value="' + safe + '"></td>' +
+      '<td style="text-transform:capitalize;color:var(--muted)">' + p.type + '</td>' +
+      '<td><input type="number" class="inp num w-s" id="ms-' + p._id + '" value="' + (p.stock || 0) + '"></td>' +
+      '<td><input type="number" class="inp num w-s" id="mb-' + p._id + '" value="' + (p.buying_price || 0) + '"></td>' +
+      '<td><input type="number" class="inp num w-s" id="mp-' + p._id + '" value="' + (p.price || 0) + '" style="' + (!p.price ? 'border-color:var(--red);' : '') + '"></td>' +
+      '<td class="num" style="color:var(--purple);font-weight:700">' + margin + '%</td>' +
+      '<td style="white-space:nowrap"><button class="btn btn-green mini" onclick="saveItem(\'' + p._id + '\')">Save</button> <button class="btn btn-red mini" onclick="delItem(\'' + p._id + '\', \'' + safe + '\')">×</button></td>';
+    tb.appendChild(tr);
+  });
+}
+
+async function addItem() {
+  const name = document.getElementById('nmName').value.trim();
+  if (!name) return toast('Name required', 'warn');
+  try {
+    const r = await fetch(API_URL + '/api/products', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        name, type: document.getElementById('nmType').value,
+        price: document.getElementById('nmPrice').value,
+        buying_price: document.getElementById('nmCost').value,
+        stock: document.getElementById('nmStock').value
+      })
+    });
+    const d = await r.json();
+    if (d.success) {
+      ['nmName', 'nmPrice', 'nmCost', 'nmStock'].forEach(id => document.getElementById(id).value = '');
+      toast('"' + name + '" added', 'ok'); loadMenu();
+    }
+  } catch (e) { console.error(e); }
+}
+
+async function saveItem(id) {
+  const name = document.getElementById('mn-' + id).value.trim();
+  if (!name) return toast('Name cannot be empty', 'warn');
+  try {
+    const r = await fetch(API_URL + '/api/products/' + id, {
+      method: 'PATCH', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        name,
+        stock: document.getElementById('ms-' + id).value,
+        buying_price: document.getElementById('mb-' + id).value,
+        price: document.getElementById('mp-' + id).value,
+        recordedBy: 'Admin'
+      })
+    });
+    const d = await r.json();
+    if (d.success) { toast('Item updated', 'ok'); loadMenu(); }
+  } catch (e) { console.error(e); }
+}
+
+async function delItem(id, name) {
+  if (!confirm('Delete "' + name + '" from the menu?')) return;
+  try {
+    await fetch(API_URL + '/api/products/' + id, { method: 'DELETE' });
+    loadMenu();
+  } catch (e) { console.error(e); }
 }
 
 async function seedMenu() {
-    if (!confirm('Load the default Delish Dish menu (chicken, kitheri, meat, soda, tropical, sausage, smokies, tea...)?')) return;
-    try {
-        const res = await fetch(API_URL + '/api/seed-menu', { method: 'POST' });
-        const data = await res.json();
-        if (data.success) { showToast(data.message, 'success'); fetchProducts(); }
-        else showModal('Menu Not Empty', data.message, 'warning');
-    } catch (e) { console.error(e); }
+  if (!confirm('Load the default Delish Dish menu?')) return;
+  try {
+    const r = await fetch(API_URL + '/api/seed-menu', { method: 'POST' });
+    const d = await r.json();
+    if (d.success) { toast(d.message, 'ok'); loadMenu(); }
+    else toast(d.message, 'warn');
+  } catch (e) { console.error(e); }
 }
 
-// ============ EXPENSES ============
-async function fetchExpenses() {
-    try {
-        const res = await fetch(API_URL + '/api/expenditures');
-        const data = await res.json();
-        const tbody = document.getElementById('expenses-tbody');
-        tbody.innerHTML = '';
-        if (!data.success || !data.expenses.length) {
-            tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:var(--text-dim);padding:24px;">No expenses recorded.</td></tr>';
-            return;
-        }
-        data.expenses.forEach(exp => {
-            const tr = document.createElement('tr');
-            tr.innerHTML = '<td style="color:var(--text-dim);">' + new Date(exp.date).toLocaleString('en-GB') + '</td>' +
-                '<td><strong>' + exp.description + '</strong></td>' +
-                '<td style="color:var(--danger);font-weight:700;font-family:\'JetBrains Mono\',monospace;">' + fmt(exp.amount) + '</td>' +
-                '<td style="text-transform:uppercase;color:var(--text-muted);font-size:12px;">' + (exp.added_by || 'Admin') + '</td>' +
-                '<td><button class="btn btn-delete" onclick="deleteExpense(\'' + exp._id + '\')">×</button></td>';
-            tbody.appendChild(tr);
-        });
-    } catch (e) { console.error(e); }
+/* ===== EXPENSES ===== */
+async function loadExpenses() {
+  try {
+    const r = await fetch(API_URL + '/api/expenditures');
+    const d = await r.json();
+    const tb = document.getElementById('exRows');
+    tb.innerHTML = '';
+    if (!d.success || !d.expenses.length) { tb.innerHTML = '<tr><td colspan="5" style="text-align:center;color:var(--faint);padding:22px;font-weight:600">No expenses recorded</td></tr>'; return; }
+    d.expenses.forEach(x => {
+      const tr = document.createElement('tr');
+      tr.innerHTML = '<td style="color:var(--faint)">' + new Date(x.date).toLocaleString('en-GB') + '</td>' +
+        '<td style="font-weight:700">' + x.description + '</td>' +
+        '<td class="num" style="color:var(--red);font-weight:700">' + KES(x.amount) + '</td>' +
+        '<td style="text-transform:uppercase;font-size:12px;font-weight:700;color:var(--muted)">' + (x.added_by || 'Admin') + '</td>' +
+        '<td><button class="btn btn-red mini" onclick="delExpense(\'' + x._id + '\')">×</button></td>';
+      tb.appendChild(tr);
+    });
+  } catch (e) { console.error(e); }
 }
 
 async function addExpense() {
-    const desc = document.getElementById('new-expense-desc').value;
-    const amount = document.getElementById('new-expense-amount').value;
-    if (!desc || !amount) return showToast('Provide description and amount.', 'warning');
-    try {
-        const res = await fetch(API_URL + '/api/expenditures', {
-            method: 'POST', headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ description: desc, amount, added_by: 'Admin' })
-        });
-        if ((await res.json()).success) {
-            document.getElementById('new-expense-desc').value = '';
-            document.getElementById('new-expense-amount').value = '';
-            fetchExpenses();
-        }
-    } catch (e) { console.error(e); }
-}
-
-async function deleteExpense(id) {
-    if (!confirm('Delete this expense?')) return;
-    try {
-        await fetch(API_URL + '/api/expenditures/' + id, { method: 'DELETE' });
-        fetchExpenses();
-    } catch (e) { console.error(e); }
-}
-
-// ============ STATEMENTS & REPORTS ============
-let repProdData = [];
-let repProdSort = 'most';
-
-function initReportDates() {
-    if (!document.getElementById('rep-from').value) {
-        const t = new Date().toISOString().substring(0, 10);
-        document.getElementById('rep-from').value = t;
-        document.getElementById('rep-to').value = t;
+  const description = document.getElementById('exDesc').value;
+  const amount = document.getElementById('exAmt').value;
+  if (!description || !amount) return toast('Provide description and amount', 'warn');
+  try {
+    const r = await fetch(API_URL + '/api/expenditures', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ description, amount, added_by: 'Admin' })
+    });
+    if ((await r.json()).success) {
+      document.getElementById('exDesc').value = ''; document.getElementById('exAmt').value = '';
+      loadExpenses();
     }
+  } catch (e) { console.error(e); }
 }
 
-function presetRange(p, btn) {
-    const now = new Date();
-    const iso = d => d.toISOString().substring(0, 10);
-    const monday = new Date(now);
-    monday.setDate(monday.getDate() - ((monday.getDay() + 6) % 7));
-    let from, to, group = 'day';
-    if (p === 'today') { from = now; to = now; }
-    else if (p === 'yesterday') { const y = new Date(now); y.setDate(y.getDate() - 1); from = y; to = y; }
-    else if (p === 'week') { from = monday; to = now; group = 'day'; }
-    else if (p === 'lastweek') { const s = new Date(monday); s.setDate(s.getDate() - 7); const e = new Date(monday); e.setDate(e.getDate() - 1); from = s; to = e; group = 'day'; }
-    else if (p === 'month') { from = new Date(now.getFullYear(), now.getMonth(), 1); to = now; group = 'day'; }
-    else if (p === 'lastmonth') { from = new Date(now.getFullYear(), now.getMonth() - 1, 1); to = new Date(now.getFullYear(), now.getMonth(), 0); group = 'day'; }
-    document.getElementById('rep-from').value = iso(from);
-    document.getElementById('rep-to').value = iso(to);
-    document.getElementById('rep-group').value = group;
-    document.querySelectorAll('#section-reports .tab-inline-btn').forEach(b => b.classList.remove('active'));
-    if (btn) btn.classList.add('active');
-    runReport();
+async function delExpense(id) {
+  if (!confirm('Delete this expense?')) return;
+  try { await fetch(API_URL + '/api/expenditures/' + id, { method: 'DELETE' }); loadExpenses(); }
+  catch (e) { console.error(e); }
+}
+
+/* ===== STATEMENTS ===== */
+function initReportDates() {
+  if (!document.getElementById('rpFrom').value) {
+    const t = new Date().toISOString().substring(0, 10);
+    document.getElementById('rpFrom').value = t;
+    document.getElementById('rpTo').value = t;
+  }
+}
+
+function presetRange(p) {
+  document.querySelectorAll('#rpPresets .preset').forEach(b => b.classList.toggle('on', b.dataset.p === p));
+  const now = new Date();
+  const iso = d => d.toISOString().substring(0, 10);
+  const monday = new Date(now); monday.setDate(monday.getDate() - ((monday.getDay() + 6) % 7));
+  let from, to;
+  if (p === 'today') { from = now; to = now; }
+  else if (p === 'yesterday') { const y = new Date(now); y.setDate(y.getDate() - 1); from = y; to = y; }
+  else if (p === 'week') { from = monday; to = now; }
+  else if (p === 'lastweek') { const s = new Date(monday); s.setDate(s.getDate() - 7); const e = new Date(monday); e.setDate(e.getDate() - 1); from = s; to = e; }
+  else if (p === 'month') { from = new Date(now.getFullYear(), now.getMonth(), 1); to = now; }
+  else if (p === 'lastmonth') { from = new Date(now.getFullYear(), now.getMonth() - 1, 1); to = new Date(now.getFullYear(), now.getMonth(), 0); }
+  document.getElementById('rpFrom').value = iso(from);
+  document.getElementById('rpTo').value = iso(to);
+  document.getElementById('rpGroup').value = 'day';
+  runReport();
 }
 
 async function runReport() {
-    initReportDates();
-    const from = document.getElementById('rep-from').value;
-    const to = document.getElementById('rep-to').value;
-    const group = document.getElementById('rep-group').value;
-    document.getElementById('rep-range-label').innerText = from + ' → ' + to;
-    document.getElementById('rep-prod-label').innerText = from + ' → ' + to;
-    try {
-        const [salesRes, prodRes] = await Promise.all([
-            fetch(API_URL + '/api/reports/sales?from=' + from + '&to=' + to + '&group=' + group),
-            fetch(API_URL + '/api/reports/products?from=' + from + '&to=' + to)
-        ]);
-        const sales = await salesRes.json();
-        const prod = await prodRes.json();
-
-        if (sales.success) {
-            const t = sales.totals;
-            document.getElementById('rep-metrics').innerHTML =
-                metricCard('blue', 'Total Revenue', fmt(t.revenue), t.orders + ' orders · ' + t.items + ' items') +
-                metricCard('teal', 'Cash', fmt(t.cash)) +
-                metricCard('green', 'M-Pesa', fmt(t.mpesa)) +
-                metricCard('red', 'Food Cost', fmt(t.cost)) +
-                metricCard('purple', 'Gross Profit', fmt(t.profit));
-            const tbody = document.getElementById('rep-tbody');
-            tbody.innerHTML = '';
-            if (!sales.rows.length) {
-                tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;color:var(--text-dim);padding:24px;">No sales in this period.</td></tr>';
-            } else {
-                sales.rows.forEach(r => {
-                    const tr = document.createElement('tr');
-                    tr.innerHTML = '<td><strong>' + r.period + '</strong></td>' +
-                        '<td style="font-family:\'JetBrains Mono\',monospace;">' + r.orders + '</td>' +
-                        '<td style="font-family:\'JetBrains Mono\',monospace;">' + r.items + '</td>' +
-                        '<td style="color:var(--accent);font-family:\'JetBrains Mono\',monospace;">' + fmt(r.cash) + '</td>' +
-                        '<td style="color:var(--green);font-family:\'JetBrains Mono\',monospace;">' + fmt(r.mpesa) + '</td>' +
-                        '<td style="color:var(--primary);font-weight:700;font-family:\'JetBrains Mono\',monospace;">' + fmt(r.revenue) + '</td>' +
-                        '<td style="color:var(--danger);font-family:\'JetBrains Mono\',monospace;">' + fmt(r.cost) + '</td>' +
-                        '<td style="color:var(--purple);font-weight:700;font-family:\'JetBrains Mono\',monospace;">' + fmt(r.profit) + '</td>';
-                    tbody.appendChild(tr);
-                });
-                // totals row
-                const tr = document.createElement('tr');
-                tr.style.background = 'rgba(59,130,246,.08)';
-                tr.innerHTML = '<td><strong>TOTAL</strong></td>' +
-                    '<td style="font-weight:800;font-family:\'JetBrains Mono\',monospace;">' + t.orders + '</td>' +
-                    '<td style="font-weight:800;font-family:\'JetBrains Mono\',monospace;">' + t.items + '</td>' +
-                    '<td style="font-weight:800;color:var(--accent);font-family:\'JetBrains Mono\',monospace;">' + fmt(t.cash) + '</td>' +
-                    '<td style="font-weight:800;color:var(--green);font-family:\'JetBrains Mono\',monospace;">' + fmt(t.mpesa) + '</td>' +
-                    '<td style="font-weight:800;color:var(--primary);font-family:\'JetBrains Mono\',monospace;">' + fmt(t.revenue) + '</td>' +
-                    '<td style="font-weight:800;color:var(--danger);font-family:\'JetBrains Mono\',monospace;">' + fmt(t.cost) + '</td>' +
-                    '<td style="font-weight:800;color:var(--purple);font-family:\'JetBrains Mono\',monospace;">' + fmt(t.profit) + '</td>';
-                tbody.appendChild(tr);
-            }
-        }
-
-        if (prod.success) {
-            repProdData = prod.products;
-            renderProdReport();
-        }
-    } catch (e) { console.error(e); }
+  initReportDates();
+  const from = document.getElementById('rpFrom').value;
+  const to = document.getElementById('rpTo').value;
+  const group = document.getElementById('rpGroup').value;
+  document.getElementById('rpRangeLbl').textContent = from + ' → ' + to;
+  document.getElementById('rpProdLbl').textContent = from + ' → ' + to;
+  try {
+    const [sRes, pRes] = await Promise.all([
+      fetch(API_URL + '/api/reports/sales?from=' + from + '&to=' + to + '&group=' + group),
+      fetch(API_URL + '/api/reports/products?from=' + from + '&to=' + to)
+    ]);
+    const s = await sRes.json(); const pr = await pRes.json();
+    if (s.success) {
+      const t = s.totals;
+      document.getElementById('rpCards').innerHTML =
+        card('b', 'Revenue', KES(t.revenue), t.orders + ' orders · ' + t.items + ' items') +
+        card('t', 'Cash', KES(t.cash)) + card('g', 'M-Pesa', KES(t.mpesa)) +
+        card('r', 'Food Cost', KES(t.cost)) + card('p', 'Gross Profit', KES(t.profit));
+      const tb = document.getElementById('rpRows');
+      tb.innerHTML = '';
+      if (!s.rows.length) tb.innerHTML = '<tr><td colspan="8" style="text-align:center;color:var(--faint);padding:22px;font-weight:600">No sales in this period</td></tr>';
+      s.rows.forEach(r => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = '<td style="font-weight:700">' + r.period + '</td><td class="num">' + r.orders + '</td><td class="num">' + r.items + '</td>' +
+          '<td class="num" style="color:var(--blue)">' + KES(r.cash) + '</td>' +
+          '<td class="num" style="color:var(--green)">' + KES(r.mpesa) + '</td>' +
+          '<td class="num" style="color:var(--brand);font-weight:700">' + KES(r.revenue) + '</td>' +
+          '<td class="num" style="color:var(--red)">' + KES(r.cost) + '</td>' +
+          '<td class="num" style="color:var(--purple);font-weight:700">' + KES(r.profit) + '</td>';
+        tb.appendChild(tr);
+      });
+      if (s.rows.length) {
+        const tr = document.createElement('tr');
+        tr.style.background = 'var(--blue-soft)';
+        tr.innerHTML = '<td style="font-weight:800">TOTAL</td><td class="num" style="font-weight:800">' + t.orders + '</td><td class="num" style="font-weight:800">' + t.items + '</td>' +
+          '<td class="num" style="font-weight:800;color:var(--blue)">' + KES(t.cash) + '</td>' +
+          '<td class="num" style="font-weight:800;color:var(--green)">' + KES(t.mpesa) + '</td>' +
+          '<td class="num" style="font-weight:800;color:var(--brand)">' + KES(t.revenue) + '</td>' +
+          '<td class="num" style="font-weight:800;color:var(--red)">' + KES(t.cost) + '</td>' +
+          '<td class="num" style="font-weight:800;color:var(--purple)">' + KES(t.profit) + '</td>';
+        tb.appendChild(tr);
+      }
+    }
+    if (pr.success) { rpProdData = pr.products; renderProdReport(); }
+  } catch (e) { console.error(e); }
 }
 
-function setProdSort(sort) {
-    repProdSort = sort;
-    document.getElementById('rep-sort-most').classList.toggle('active', sort === 'most');
-    document.getElementById('rep-sort-least').classList.toggle('active', sort === 'least');
-    renderProdReport();
+function setSort(s) {
+  rpSort = s;
+  document.getElementById('sortMost').classList.toggle('on', s === 'most');
+  document.getElementById('sortLeast').classList.toggle('on', s === 'least');
+  renderProdReport();
 }
 
 function renderProdReport() {
-    const tbody = document.getElementById('rep-prod-tbody');
-    tbody.innerHTML = '';
-    let data = [...repProdData];
-    if (repProdSort === 'least') data.reverse();
-    if (!data.length) {
-        tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:var(--text-dim);padding:24px;">No product sales in this period.</td></tr>';
-        return;
-    }
-    data.forEach((p, i) => {
-        const rankStyle = repProdSort === 'most'
-            ? (i === 0 ? 'color:var(--green);' : (i === data.length - 1 ? 'color:var(--danger);' : ''))
-            : (i === 0 ? 'color:var(--danger);' : '');
-        const tr = document.createElement('tr');
-        tr.innerHTML = '<td style="font-family:\'JetBrains Mono\',monospace;font-weight:800;' + rankStyle + '">' + (i + 1) + '</td>' +
-            '<td><strong>' + p.name + '</strong></td>' +
-            '<td style="font-family:\'JetBrains Mono\',monospace;font-size:16px;' + rankStyle + '">' + p.qty + '</td>' +
-            '<td style="color:var(--primary);font-family:\'JetBrains Mono\',monospace;">' + fmt(p.revenue) + '</td>' +
-            '<td style="color:var(--danger);font-family:\'JetBrains Mono\',monospace;">' + fmt(p.cost) + '</td>' +
-            '<td style="color:var(--purple);font-weight:700;font-family:\'JetBrains Mono\',monospace;">' + fmt(p.profit) + '</td>';
-        tbody.appendChild(tr);
-    });
+  const tb = document.getElementById('rpProdRows');
+  tb.innerHTML = '';
+  let data = [...rpProdData];
+  if (rpSort === 'least') data.reverse();
+  if (!data.length) { tb.innerHTML = '<tr><td colspan="6" style="text-align:center;color:var(--faint);padding:22px;font-weight:600">No product sales in this period</td></tr>'; return; }
+  data.forEach((p, i) => {
+    const tr = document.createElement('tr');
+    const rankColor = rpSort === 'most'
+      ? (i === 0 ? 'var(--green)' : (i === data.length - 1 ? 'var(--red)' : 'var(--muted)'))
+      : (i === 0 ? 'var(--red)' : 'var(--muted)');
+    tr.innerHTML = '<td class="num" style="font-weight:800;color:' + rankColor + '">' + (i + 1) + '</td>' +
+      '<td style="font-weight:700">' + p.name + '</td>' +
+      '<td class="num" style="font-size:15px;font-weight:700;color:' + rankColor + '">' + p.qty + '</td>' +
+      '<td class="num" style="color:var(--brand)">' + KES(p.revenue) + '</td>' +
+      '<td class="num" style="color:var(--red)">' + KES(p.cost) + '</td>' +
+      '<td class="num" style="color:var(--purple);font-weight:700">' + KES(p.profit) + '</td>';
+    tb.appendChild(tr);
+  });
 }
 
-// ============ STAFF ============
-async function fetchUsers() {
-    try {
-        const res = await fetch(API_URL + '/api/staff');
-        const data = await res.json();
-        if (!data.success) return;
-        const tbody = document.getElementById('users-tbody');
-        tbody.innerHTML = '';
-        data.staff.forEach(user => {
-            const isActive = user.isActive !== false;
-            const statusBadge = isActive ? '<span class="badge badge-active">Active</span>' : '<span class="badge badge-suspended">Suspended</span>';
-            const tr = document.createElement('tr');
-            tr.innerHTML = '<td><strong>' + user.username + '</strong></td>' +
-                '<td style="text-transform:uppercase;color:var(--text-muted);font-size:12px;font-weight:700;">' + user.role + '</td>' +
-                '<td>' + statusBadge + '</td>' +
-                '<td style="white-space:nowrap;">' +
-                '<button class="btn btn-edit" onclick="changePassword(\'' + user._id + '\', \'' + user.username + '\')">PIN</button> ' +
-                (isActive
-                    ? '<button class="btn btn-suspend" onclick="toggleUserStatus(\'' + user._id + '\', false)">Suspend</button>'
-                    : '<button class="btn btn-activate" onclick="toggleUserStatus(\'' + user._id + '\', true)">Activate</button>') + ' ' +
-                '<button class="btn btn-delete" onclick="deleteUser(\'' + user._id + '\', \'' + user.username + '\')">×</button></td>';
-            tbody.appendChild(tr);
-        });
-    } catch (e) { console.error(e); }
+/* ===== STAFF ===== */
+async function loadStaff() {
+  try {
+    const r = await fetch(API_URL + '/api/staff');
+    const d = await r.json();
+    if (!d.success) return;
+    const tb = document.getElementById('staffRows');
+    tb.innerHTML = '';
+    d.staff.forEach(u => {
+      const active = u.isActive !== false;
+      const tr = document.createElement('tr');
+      tr.innerHTML = '<td style="font-weight:800">' + u.username + '</td>' +
+        '<td>' + chip(u.role, u.role === 'admin' ? 'p' : 'b') + '</td>' +
+        '<td>' + chip(active ? 'Active' : 'Suspended', active ? 'g' : 'r') + '</td>' +
+        '<td style="white-space:nowrap">' +
+        '<button class="btn btn-ghost mini" onclick="resetPin(\'' + u._id + '\', \'' + u.username + '\')">Reset PIN</button> ' +
+        (active
+          ? '<button class="btn btn-red mini" onclick="toggleUser(\'' + u._id + '\', false)">Suspend</button>'
+          : '<button class="btn btn-green mini" onclick="toggleUser(\'' + u._id + '\', true)">Activate</button>') + ' ' +
+        '<button class="btn btn-red mini" onclick="delUser(\'' + u._id + '\', \'' + u.username + '\')">×</button></td>';
+      tb.appendChild(tr);
+    });
+  } catch (e) { console.error(e); }
 }
 
 async function addUser() {
-    const name = document.getElementById('new-user-name').value;
-    const role = document.getElementById('new-user-role').value;
-    const pin = document.getElementById('new-user-pin').value;
-    if (!name || !pin) return showToast('Fill in all fields.', 'warning');
-    try {
-        const res = await fetch(API_URL + '/api/staff', {
-            method: 'POST', headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ username: name, role, pin })
-        });
-        const data = await res.json();
-        if (data.success) {
-            document.getElementById('new-user-name').value = '';
-            document.getElementById('new-user-pin').value = '';
-            fetchUsers();
-            showToast('User created.', 'success');
-        } else showModal('Error', data.message, 'error');
-    } catch (e) { console.error(e); }
+  const username = document.getElementById('nuName').value.trim();
+  const role = document.getElementById('nuRole').value;
+  const pin = document.getElementById('nuPin').value;
+  if (!username || !pin) return toast('Fill all fields', 'warn');
+  try {
+    const r = await fetch(API_URL + '/api/staff', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ username, role, pin })
+    });
+    const d = await r.json();
+    if (d.success) {
+      document.getElementById('nuName').value = ''; document.getElementById('nuPin').value = '';
+      toast('Account created', 'ok'); loadStaff();
+    } else toast(d.message || 'Failed', 'err');
+  } catch (e) { console.error(e); }
 }
 
-async function toggleUserStatus(id, makeActive) {
-    if (!confirm('Are you sure?')) return;
-    try {
-        await fetch(API_URL + '/api/staff/' + id + '/edit', {
-            method: 'PATCH', headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ isActive: makeActive })
-        });
-        fetchUsers();
-    } catch (e) { console.error(e); }
+async function toggleUser(id, active) {
+  if (!confirm('Are you sure?')) return;
+  try {
+    await fetch(API_URL + '/api/staff/' + id + '/edit', {
+      method: 'PATCH', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ isActive: active })
+    });
+    loadStaff();
+  } catch (e) { console.error(e); }
 }
 
-async function changePassword(id, username) {
-    const newPassword = prompt('New PIN for ' + username + ':');
-    if (!newPassword) return;
-    try {
-        await fetch(API_URL + '/api/staff/' + id + '/password', {
-            method: 'PATCH', headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ newPin: newPassword })
-        });
-        showToast('PIN updated.', 'success');
-    } catch (e) { console.error(e); }
+async function resetPin(id, username) {
+  const pin = prompt('New PIN for ' + username + ':');
+  if (!pin) return;
+  try {
+    await fetch(API_URL + '/api/staff/' + id + '/password', {
+      method: 'PATCH', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ newPin: pin })
+    });
+    toast('PIN updated', 'ok');
+  } catch (e) { console.error(e); }
 }
 
-async function deleteUser(id, username) {
-    if (!confirm('Delete ' + username + '?')) return;
-    try {
-        await fetch(API_URL + '/api/staff/' + id, { method: 'DELETE' });
-        fetchUsers();
-    } catch (e) { console.error(e); }
+async function delUser(id, username) {
+  if (!confirm('Delete ' + username + '?')) return;
+  try {
+    await fetch(API_URL + '/api/staff/' + id, { method: 'DELETE' });
+    loadStaff();
+  } catch (e) { console.error(e); }
 }
 </script>
 </body>

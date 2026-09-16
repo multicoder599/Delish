@@ -1,19 +1,24 @@
 # Delish Dish Restaurant POS
 
-Waiter-driven restaurant POS with M-Pesa STK integration, per-waiter sales tracking,
-opening/closing stock takes, spoilage logging and full Profit & Loss reporting.
+Waiter-driven restaurant POS with per-waiter sales tracking, opening/closing stock takes,
+spoilage logging, full Profit & Loss reporting and product performance statements.
 
 ## Ports
-| Service         | Port | URL                              |
-|-----------------|------|----------------------------------|
-| API + Waiter UI | 4027 | http://<VPS-IP>:4027             |
-| Admin Dashboard | 4028 | http://<VPS-IP>:4028             |
+| Service         | Port | URL                  |
+|-----------------|------|----------------------|
+| API + Waiter UI | 4027 | http://<VPS-IP>:4027 |
+| Admin Dashboard | 4028 | http://<VPS-IP>:4028 |
+
+## Payments
+- **Cash** — waiter enters amount received, change is calculated
+- **M-Pesa** — customer pays to the restaurant till manually, waiter confirms
+  (edit the till number in `public/waiter/index.html`, constant `TILL_NUMBER`)
 
 ## Folder Structure
 
 ```
 delish/
-├── server.js                  # Express API + serves waiter UI (4027) + admin UI (4028)
+├── server.js                  # Express API + waiter UI (4027) + admin UI (4028)
 ├── package.json
 ├── .env                       # NEVER commit this (credentials live here)
 ├── .gitignore
@@ -21,15 +26,13 @@ delish/
 │   └── db.js                  # MongoDB connection
 ├── models/
 │   ├── User.js                # admin / waiter accounts
-│   ├── Product.js             # menu items (name, price, food cost, stock)
-│   ├── Order.js               # orders with waiter, table, payment split, COGS
-│   ├── MpesaTransaction.js    # confirmed M-Pesa payments
-│   └── WebhookLog.js          # raw MegaPay webhook audit trail
+│   ├── Product.js             # menu items (price, food cost, stock)
+│   └── Order.js               # orders with waiter, table, payment, COGS
+├── scripts/
+│   └── create-user.js         # CLI: node scripts/create-user.js <user> <pin> [admin|waiter]
 └── public/
-    ├── waiter/
-    │   └── index.html         # waiter terminal (orders, tables, payments, receipts)
-    └── admin/
-        └── index.html         # dashboard (P&L, waiter sales, stock, spoilage, statements)
+    ├── waiter/index.html      # waiter terminal (tables, menu, payments, receipts)
+    └── admin/index.html       # dashboard (P&L, waiters, stock, spoilage, statements)
 ```
 
 ## Local Development
@@ -58,17 +61,11 @@ git push -u origin main
 ### 2. First-time VPS setup (Ubuntu)
 
 ```bash
-# Node.js 20
 curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -
 sudo apt install -y nodejs
-
-# Process manager (keeps the app running 24/7)
 sudo npm install -g pm2
-
-# Firewall
 sudo ufw allow 4027
 sudo ufw allow 4028
-sudo ufw allow ssh
 sudo ufw enable
 ```
 
@@ -78,47 +75,37 @@ sudo ufw enable
 git clone https://github.com/YOUR_USERNAME/delish-dish.git
 cd delish-dish
 npm install --omit=dev
-
-# Create the .env file directly on the VPS (do NOT push it to GitHub)
-nano .env
-# paste:
-#   PORT=4027
-#   MONGO_URI=mongodb+srv://...
-#   MEGAPAY_API_KEY=...
-#   MEGAPAY_EMAIL=...
-# save: Ctrl+O, Enter, Ctrl+X
-```
-
-### 4. Start with PM2
-
-```bash
+nano .env        # PORT, MONGO_URI, (MegaPay keys no longer required)
 pm2 start server.js --name delish
 pm2 save
-pm2 startup        # auto-restart on VPS reboot (run the command it prints)
-pm2 logs delish    # watch logs
+pm2 startup      # run the printed command for auto-start on reboot
+pm2 logs delish
 ```
+
+### 4. Create the first admin account
+
+```bash
+node scripts/create-user.js admin 1234 admin
+node scripts/create-user.js mary 4321 waiter
+```
+
+Further waiters/admins are created from the admin portal → Staff tab.
 
 ### 5. Updating the app after changes
 
 ```bash
-# On your machine: edit, commit, push
-git add . && git commit -m "update" && git push
-
-# On the VPS:
+# machine: git add . && git commit -m "update" && git push
+# VPS:
 cd delish-dish
 git pull
 pm2 restart delish
 ```
 
-### 6. M-Pesa webhook note
-
-MegaPay calls back to the URL hardcoded in `server.js` (initiate-payment payload):
-`http://169.58.58.133:4027/api/megapay/webhook` — keep that IP/port reachable.
-
 ## Daily Workflow
 
-1. **Admin** logs in (port 4028) → Stock Control → **Record Opening Stock** (morning count)
-2. **Waiters** serve tables on port 4027 — cash, M-Pesa, or split
+1. **Admin** (port 4028) → Stock Control → **Record Opening Stock** (morning count)
+2. **Waiters** (port 4027) serve tables — cash or manual M-Pesa
 3. Record any **Spoilage** during the day
 4. End of day → **Record Closing Stock**
-5. Check **P&L Dashboard** (daily), **Waiter Sales**, **M-Pesa & Cash**, and generate **Statements** for any period
+5. Review **P&L Dashboard**, **Waiter Sales**, **M-Pesa & Cash**, and generate
+   **Statements** for any day, week, month or custom range — including most/least sold products.

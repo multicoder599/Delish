@@ -3,7 +3,6 @@ const express = require('express');
 const cors = require('cors');
 const path = require('path');
 const mongoose = require('mongoose');
-const axios = require('axios');
 const { v4: uuidv4 } = require('uuid');
 
 // --- DATABASE MODELS ---
@@ -11,8 +10,6 @@ const connectDB = require('./config/db');
 const User = require('./models/User');
 const Product = require('./models/Product');
 const Order = require('./models/Order');
-const MpesaTransaction = require('./models/MpesaTransaction');
-const WebhookLog = require('./models/WebhookLog');
 
 // --- RESTOCK AUDIT LOG ---
 const StockLogSchema = new mongoose.Schema({
@@ -64,17 +61,11 @@ connectDB();
 const API_PORT = 4027;
 const ADMIN_PORT = 4028;
 const STORE_ID = 'Delish Dish Restaurant';
-const MEGAPAY_API_KEY = process.env.MEGAPAY_API_KEY;
-const MEGAPAY_EMAIL = process.env.MEGAPAY_EMAIL;
 
 const apiApp = express();
 apiApp.use(cors());
 apiApp.use(express.json());
 apiApp.use(express.urlencoded({ extended: true }));
-
-// In-memory MegaPay tracking
-const pendingTransactions = new Map();
-let connectedClients = [];
 
 // ==========================================
 // --- AUTHENTICATION ---
@@ -284,7 +275,6 @@ apiApp.post('/api/stock-takes', async (req, res) => {
     if (!['opening', 'closing'].includes(type)) return res.status(400).json({ success: false, message: 'Type must be opening or closing' });
     if (!items || !items.length) return res.status(400).json({ success: false, message: 'No items provided' });
     try {
-        // snapshot live product data for each item
         const enriched = [];
         let total = 0;
         for (const it of items) {
@@ -295,8 +285,6 @@ apiApp.post('/api/stock-takes', async (req, res) => {
             const value = qty * unitCost;
             total += value;
             enriched.push({ product_id: p._id, name: p.name, qty, unit_cost: unitCost, value });
-            // Optional: sync live stock to counted qty (uncomment if you want auto-sync)
-            // p.stock = qty; await p.save();
         }
         const take = await StockTake.create({ type, taken_by: taken_by || 'Admin', items: enriched, total_value: total });
         res.json({ success: true, take });
@@ -460,7 +448,6 @@ apiApp.get('/api/sales/today', async (req, res) => {
         const mpesaSales = mpesaOrders.reduce((sum, o) => sum + (o.mpesa_amount || o.total_amount), 0);
         const splitCash = orders.filter(o => o.payment_method === 'split').reduce((sum, o) => sum + ((o.total_amount || 0) - (o.mpesa_amount || 0)), 0);
 
-        // per-waiter breakdown
         const waiterMap = {};
         orders.forEach(o => {
             const w = o.served_by || 'Unknown';
@@ -481,10 +468,33 @@ apiApp.get('/api/sales/today', async (req, res) => {
     }
 });
 
+// M-Pesa payments list (manual till payments recorded via orders — no STK)
+apiApp.get('/api/transactions/today', async (req, res) => {
+    const { start, end } = dayRange(req.query.date);
+    try {
+        const orders = await Order.find({ createdAt: { $gte: start, $lte: end }, status: 'completed', payment_method: { $in: ['mpesa', 'split'] } }).sort({ createdAt: -1 });
+        const transactions = [];
+        orders.forEach(o => {
+            const amt = o.payment_method === 'split' ? (o.mpesa_amount || 0) : (o.total_amount || 0);
+            if (amt > 0) transactions.push({
+                receipt: o.mpesa_receipt || 'M-PESA',
+                phone: 'Manual Till Payment',
+                amount: amt,
+                waiter: o.served_by,
+                createdAt: o.createdAt
+            });
+        });
+        const total = transactions.reduce((s, t) => s + t.amount, 0);
+        res.json({ success: true, total, count: transactions.length, transactions });
+    } catch (err) {
+        res.status(500).json({ success: false, message: err.message });
+    }
+});
+
 // ==========================================
 // --- FULL P&L FOR A DAY ---
 // ==========================================
-apiApp.get('/api/pl/:date?', async (req, res) => {
+apiApp.get('/api/pl/:date', async (req, res) => {
     const { start, end } = dayRange(req.params.date);
     try {
         const orders = await Order.find({ createdAt: { $gte: start, $lte: end }, status: 'completed' });
@@ -519,7 +529,7 @@ apiApp.get('/api/reports/sales', async (req, res) => {
             if (group === 'week') {
                 const monday = new Date(d);
                 const day = monday.getDay();
-                const diff = monday.getDate() - day + (day === 0 ? -6 : 1); // Monday as week start
+                const diff = monday.getDate() - day + (day === 0 ? -6 : 1);
                 monday.setDate(diff);
                 return 'Week of ' + monday.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
             }
@@ -532,22 +542,19 @@ apiApp.get('/api/reports/sales', async (req, res) => {
             const key = groupKey(new Date(o.createdAt));
             if (!buckets[key]) buckets[key] = { period: key, orders: 0, items: 0, revenue: 0, cost: 0, cash: 0, mpesa: 0, waiters: new Set() };
             const b = buckets[key];
-            b.orders += 1;
-            b.items += (o.items || []).reduce((s, i) => s + i.quantity, 0);
-            b.revenue += o.total_amount || 0;
-            b.cost += o.total_cost || 0;
+            const items = (o.items || []).reduce((s, i) => s + i.quantity, 0);
+            b.orders += 1; b.items += items;
+            b.revenue += o.total_amount || 0; b.cost += o.total_cost || 0;
             b.waiters.add(o.served_by);
-            if (o.payment_method === 'cash') b.cash += o.total_amount || 0;
-            else if (o.payment_method === 'mpesa') b.mpesa += o.mpesa_amount || o.total_amount || 0;
-            else { b.mpesa += o.mpesa_amount || 0; b.cash += (o.total_amount || 0) - (o.mpesa_amount || 0); }
-
+            let cash = 0, mpesa = 0;
+            if (o.payment_method === 'cash') cash = o.total_amount || 0;
+            else if (o.payment_method === 'mpesa') mpesa = o.mpesa_amount || o.total_amount || 0;
+            else { mpesa = o.mpesa_amount || 0; cash = (o.total_amount || 0) - (o.mpesa_amount || 0); }
+            b.cash += cash; b.mpesa += mpesa;
             totals.revenue += o.total_amount || 0;
             totals.cost += o.total_cost || 0;
-            totals.orders += 1;
-            totals.items += (o.items || []).reduce((s, i) => s + i.quantity, 0);
-            if (o.payment_method === 'cash') totals.cash += o.total_amount || 0;
-            else if (o.payment_method === 'mpesa') totals.mpesa += o.mpesa_amount || o.total_amount || 0;
-            else { totals.mpesa += o.mpesa_amount || 0; totals.cash += (o.total_amount || 0) - (o.mpesa_amount || 0); }
+            totals.orders += 1; totals.items += items;
+            totals.cash += cash; totals.mpesa += mpesa;
         });
         totals.profit = totals.revenue - totals.cost;
 
@@ -586,180 +593,6 @@ apiApp.get('/api/reports/products', async (req, res) => {
         res.status(500).json({ success: false, message: error.message });
     }
 });
-
-// ==========================================
-// --- MEGAPAY STK INTEGRATION ---
-// ==========================================
-apiApp.post('/api/initiate-payment', async (req, res) => {
-    const { amount, phoneNumber, waiter } = req.body;
-    if (!amount || !phoneNumber) return res.status(400).json({ success: false, message: "Amount and Phone Number are required." });
-    if (!MEGAPAY_API_KEY || !MEGAPAY_EMAIL) {
-        return res.status(500).json({ success: false, message: "Payment gateway not configured." });
-    }
-
-    let formattedPhone = phoneNumber.replace(/\s+/g, '');
-    if (formattedPhone.startsWith('0')) formattedPhone = '254' + formattedPhone.substring(1);
-    else if (formattedPhone.startsWith('+')) formattedPhone = formattedPhone.substring(1);
-
-    const reference = `DELISH-${Date.now()}`;
-    const payload = {
-        api_key: MEGAPAY_API_KEY,
-        email: MEGAPAY_EMAIL,
-        amount: amount,
-        msisdn: formattedPhone,
-        callback_url: `http://169.58.58.133:${API_PORT}/api/megapay/webhook`,
-        description: `Delish Dish Restaurant Payment`,
-        reference: reference
-    };
-
-    pendingTransactions.set(reference, {
-        status: 'Pending',
-        amount: parseFloat(amount),
-        phone: formattedPhone,
-        waiter: waiter || 'Waiter',
-        startTime: Date.now()
-    });
-
-    try {
-        const mpRes = await axios.post('https://megapay.co.ke/backend/v1/initiatestk', payload, {
-            headers: { 'Content-Type': 'application/json' },
-            timeout: 35000
-        });
-        const mpData = mpRes.data;
-        if (mpData && (mpData.status === false || mpData.success === false || mpData.ResponseCode === '1')) {
-            pendingTransactions.delete(reference);
-            return res.status(400).json({ success: false, message: mpData.errorMessage || mpData.message || 'MegaPay rejected the request.' });
-        }
-        return res.status(200).json({ success: true, message: 'STK Push sent! Waiting for customer PIN.', refId: reference });
-    } catch (mpErr) {
-        console.error('MegaPay STK Error:', mpErr.message);
-        return res.status(502).json({ success: false, message: 'Payment gateway timed out.', refId: reference });
-    }
-});
-
-apiApp.get('/api/stream-payment/:refId', (req, res) => {
-    const { refId } = req.params;
-    const tx = pendingTransactions.get(refId);
-    res.setHeader('Content-Type', 'text/event-stream');
-    res.setHeader('Cache-Control', 'no-cache');
-    res.setHeader('Connection', 'keep-alive');
-
-    if (tx && tx.status === 'Paid') {
-        res.write(`data: ${JSON.stringify({ success: true, receipt: tx.receipt })}\n\n`);
-        res.end();
-        return;
-    }
-    if (tx && tx.status === 'Failed') {
-        res.write(`data: ${JSON.stringify({ success: false, message: tx.failureReason })}\n\n`);
-        res.end();
-        return;
-    }
-
-    const client = { refId, res };
-    connectedClients.push(client);
-    req.on('close', () => { connectedClients = connectedClients.filter(c => c !== client); });
-});
-
-apiApp.post('/api/megapay/webhook', async (req, res) => {
-    res.status(200).send("OK");
-    const ip = req.headers['x-forwarded-for'] || req.ip || req.connection.remoteAddress;
-    console.log(`[${STORE_ID}] WEBHOOK HIT from ${ip}`);
-
-    if (!req.body || Object.keys(req.body).length === 0) {
-        console.error(`[${STORE_ID}] EMPTY BODY received.`);
-        return;
-    }
-
-    let data = req.body;
-    if (typeof req.body === 'string') {
-        try { data = JSON.parse(req.body); } catch (e) { data = req.body; }
-    }
-    const rawPayload = JSON.stringify(data);
-
-    try {
-        const responseCode = data.ResponseCode !== undefined ? String(data.ResponseCode) : (data.ResultCode !== undefined ? String(data.ResultCode) : undefined);
-        const amount = parseFloat(data.TransactionAmount || data.amount || data.Amount || 0);
-        const receipt = data.TransactionReceipt || data.MpesaReceiptNumber || data.receipt || 'N/A';
-        const phoneRaw = (data.Msisdn || data.phone || data.PhoneNumber || data.msisdn || "").toString();
-        const last9 = phoneRaw.replace(/\D/g, '').slice(-9);
-        const callbackRef = data.reference || data.Reference || data.TransactionReference || data.BillRefNumber || null;
-
-        let matchedRefId = null;
-        let matchedTx = null;
-
-        if (callbackRef && pendingTransactions.has(callbackRef)) {
-            const tx = pendingTransactions.get(callbackRef);
-            if (tx.status === 'Pending') { matchedRefId = callbackRef; matchedTx = tx; }
-        }
-
-        if (!matchedRefId) {
-            const now = Date.now();
-            for (let [refId, tx] of pendingTransactions.entries()) {
-                if (tx.status !== 'Pending') continue;
-                if (now - tx.startTime > 10 * 60 * 1000) continue;
-                if (tx.phone.endsWith(last9) && Math.abs(tx.amount - amount) < 0.01) {
-                    matchedRefId = refId; matchedTx = tx; break;
-                }
-            }
-        }
-
-        await WebhookLog.create({ store_id: STORE_ID, ref_id: callbackRef || matchedRefId || 'UNKNOWN', raw_payload: rawPayload, matched_ref: matchedRefId || null });
-
-        if (responseCode !== '0') {
-            if (matchedRefId) {
-                matchedTx.status = 'Failed';
-                matchedTx.failureReason = data.ResultDesc || data.errorMessage || 'Customer cancelled or did not enter PIN';
-                connectedClients.forEach(c => { if (c.refId === matchedRefId) c.res.write(`data: ${JSON.stringify({ success: false, message: matchedTx.failureReason })}\n\n`); });
-            }
-            return;
-        }
-
-        if (matchedRefId) {
-            matchedTx.status = 'Paid';
-            matchedTx.receipt = receipt;
-            await MpesaTransaction.create({ store_id: STORE_ID, ref_id: matchedRefId, receipt, phone: matchedTx.phone, amount: matchedTx.amount, waiter: matchedTx.waiter, status: 'Paid' });
-            connectedClients.forEach(c => { if (c.refId === matchedRefId) c.res.write(`data: ${JSON.stringify({ success: true, receipt })}\n\n`); });
-        } else {
-            console.log(`[${STORE_ID}] No pending match for receipt ${receipt}.`);
-        }
-    } catch (err) {
-        console.error(`[${STORE_ID}] Webhook processing error:`, err.message);
-    }
-});
-
-apiApp.get('/api/transactions/today', async (req, res) => {
-    const { start, end } = dayRange(req.query.date);
-    try {
-        const transactions = await MpesaTransaction.find({ createdAt: { $gte: start, $lte: end }, status: 'Paid' }).sort({ createdAt: -1 });
-        const total = transactions.reduce((sum, tx) => sum + (tx.amount || 0), 0);
-        res.json({ success: true, total, count: transactions.length, transactions });
-    } catch (err) {
-        res.status(500).json({ success: false, message: err.message });
-    }
-});
-
-apiApp.get('/api/transactions/all', async (req, res) => {
-    try {
-        const transactions = await MpesaTransaction.find({}).sort({ createdAt: -1 }).limit(200);
-        res.json({ success: true, transactions });
-    } catch (err) {
-        res.status(500).json({ success: false, message: err.message });
-    }
-});
-
-// Cleanup expired transactions every 2 minutes
-setInterval(() => {
-    const now = Date.now();
-    for (let [refId, tx] of pendingTransactions.entries()) {
-        if (tx.status !== 'Pending') continue;
-        if (now - tx.startTime > 5 * 60 * 1000) {
-            tx.status = 'Expired';
-            tx.failureReason = 'Transaction expired (no response from customer)';
-            connectedClients.forEach(c => { if (c.refId === refId) c.res.write(`data: ${JSON.stringify({ success: false, message: tx.failureReason })}\n\n`); });
-            setTimeout(() => { if (pendingTransactions.get(refId)?.status === 'Expired') pendingTransactions.delete(refId); }, 10 * 60 * 1000);
-        }
-    }
-}, 120000);
 
 // ==========================================
 // --- SERVE WAITER FRONTEND (PORT 4027) ---
