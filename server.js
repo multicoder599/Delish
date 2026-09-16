@@ -1,0 +1,784 @@
+require('dotenv').config();
+const express = require('express');
+const cors = require('cors');
+const path = require('path');
+const mongoose = require('mongoose');
+const axios = require('axios');
+const { v4: uuidv4 } = require('uuid');
+
+// --- DATABASE MODELS ---
+const connectDB = require('./config/db');
+const User = require('./models/User');
+const Product = require('./models/Product');
+const Order = require('./models/Order');
+const MpesaTransaction = require('./models/MpesaTransaction');
+const WebhookLog = require('./models/WebhookLog');
+
+// --- RESTOCK AUDIT LOG ---
+const StockLogSchema = new mongoose.Schema({
+    item_name: String,
+    qty_added: Number,
+    recorded_by: String,
+    createdAt: { type: Date, default: Date.now }
+});
+const StockLog = mongoose.model('StockLog', StockLogSchema);
+
+// --- OPENING / CLOSING STOCK TAKE ---
+const StockTakeSchema = new mongoose.Schema({
+    type: { type: String, enum: ['opening', 'closing'], required: true },
+    taken_by: String,
+    items: [{ product_id: String, name: String, qty: Number, unit_cost: Number, value: Number }],
+    total_value: { type: Number, default: 0 },
+    date: { type: Date, default: Date.now }
+});
+const StockTake = mongoose.model('StockTake', StockTakeSchema);
+
+// --- SPOILAGE ---
+const SpoilageSchema = new mongoose.Schema({
+    product_id: String,
+    item_name: String,
+    qty: Number,
+    unit_cost: { type: Number, default: 0 },
+    value: { type: Number, default: 0 },
+    reason: String,
+    recorded_by: String,
+    date: { type: Date, default: Date.now }
+});
+const Spoilage = mongoose.model('Spoilage', SpoilageSchema);
+
+// --- EXPENDITURE ---
+const ExpenditureSchema = new mongoose.Schema({
+    description: String,
+    amount: Number,
+    added_by: String,
+    date: { type: Date, default: Date.now }
+});
+const Expenditure = mongoose.model('Expenditure', ExpenditureSchema);
+
+// 1. Connect to Database
+connectDB();
+
+// ==========================================
+// 2. CENTRAL API & WAITER SERVER (PORT 4027)
+// ==========================================
+const API_PORT = 4027;
+const ADMIN_PORT = 4028;
+const STORE_ID = 'Delish Dish Restaurant';
+const MEGAPAY_API_KEY = process.env.MEGAPAY_API_KEY;
+const MEGAPAY_EMAIL = process.env.MEGAPAY_EMAIL;
+
+const apiApp = express();
+apiApp.use(cors());
+apiApp.use(express.json());
+apiApp.use(express.urlencoded({ extended: true }));
+
+// In-memory MegaPay tracking
+const pendingTransactions = new Map();
+let connectedClients = [];
+
+// ==========================================
+// --- AUTHENTICATION ---
+// ==========================================
+apiApp.post('/api/login', async (req, res) => {
+    const { username, pin, attemptedRole } = req.body;
+    try {
+        const user = await User.findOne({ username, pin_hash: pin });
+        if (!user) return res.status(401).json({ success: false, message: 'Invalid credentials' });
+        if (user.isActive === false && user.role !== 'admin') {
+            return res.status(403).json({ success: false, message: 'Account suspended. Contact Admin.' });
+        }
+        if (user.role === attemptedRole || user.role === 'admin') {
+            res.json({ success: true, token: 'temp-auth-token', role: user.role, userId: user._id, username: user.username });
+        } else {
+            res.status(401).json({ success: false, message: 'Invalid credentials or wrong portal' });
+        }
+    } catch (error) {
+        res.status(500).json({ success: false, message: 'Server error' });
+    }
+});
+
+// ==========================================
+// --- STAFF MANAGEMENT ---
+// ==========================================
+apiApp.get('/api/staff', async (req, res) => {
+    try {
+        const staff = await User.find({ role: { $in: ['admin', 'waiter'] } }, '-pin_hash').sort({ createdAt: -1 });
+        res.json({ success: true, staff });
+    } catch (error) {
+        res.status(500).json({ success: false, message: 'Failed to fetch users' });
+    }
+});
+
+apiApp.post('/api/staff', async (req, res) => {
+    try {
+        const { username, role, pin } = req.body;
+        if (!['admin', 'waiter'].includes(role)) return res.status(400).json({ success: false, message: 'Invalid role' });
+        const existingUser = await User.findOne({ username });
+        if (existingUser) return res.status(400).json({ success: false, message: 'Username already exists' });
+        const newUser = await User.create({ username, role, pin_hash: pin });
+        res.json({ success: true, message: 'User added successfully!', user: newUser });
+    } catch (error) {
+        res.status(500).json({ success: false, message: 'Failed to add user' });
+    }
+});
+
+apiApp.patch('/api/staff/:id/edit', async (req, res) => {
+    try {
+        const { username, isActive } = req.body;
+        const updateData = {};
+        if (username !== undefined) updateData.username = username;
+        if (isActive !== undefined) updateData.isActive = isActive;
+        const updatedUser = await User.findByIdAndUpdate(req.params.id, updateData, { new: true });
+        res.json({ success: true, user: updatedUser });
+    } catch (error) {
+        res.status(500).json({ success: false, message: `Failed to update: ${error.message}` });
+    }
+});
+
+apiApp.patch('/api/staff/:id/password', async (req, res) => {
+    try {
+        const { newPin } = req.body;
+        await User.findByIdAndUpdate(req.params.id, { pin_hash: newPin });
+        res.json({ success: true, message: 'Password updated successfully!' });
+    } catch (error) {
+        res.status(500).json({ success: false, message: 'Failed to update password' });
+    }
+});
+
+apiApp.delete('/api/staff/:id', async (req, res) => {
+    try {
+        const userToDelete = await User.findById(req.params.id);
+        if (userToDelete && userToDelete.username === 'admin') {
+            return res.status(400).json({ success: false, message: 'Cannot delete the main admin account!' });
+        }
+        await User.findByIdAndDelete(req.params.id);
+        res.json({ success: true, message: 'User deleted successfully!' });
+    } catch (error) {
+        res.status(500).json({ success: false, message: 'Failed to delete user' });
+    }
+});
+
+// ==========================================
+// --- MENU ITEMS (PRODUCTS) ---
+// ==========================================
+apiApp.get('/api/products', async (req, res) => {
+    try {
+        const products = await Product.find({});
+        res.json({ success: true, products });
+    } catch (error) {
+        res.status(500).json({ success: false, message: 'Failed to fetch menu items' });
+    }
+});
+
+apiApp.get('/api/products/barcode/:code', async (req, res) => {
+    try {
+        const product = await Product.findOne({ barcode: req.params.code });
+        if (!product) return res.status(404).json({ success: false, message: 'Item not found' });
+        res.json({ success: true, product });
+    } catch (error) {
+        res.status(500).json({ success: false, message: error.message });
+    }
+});
+
+apiApp.post('/api/products', async (req, res) => {
+    try {
+        const { name, type, price, buying_price, stock, barcode, image } = req.body;
+        const newProduct = await Product.create({
+            name,
+            barcode: barcode || null,
+            type: (type || 'meals').toLowerCase(),
+            price: Number(price) || 0,
+            buying_price: Number(buying_price) || 0,
+            stock: Number(stock) || 0,
+            image: image || null
+        });
+        res.json({ success: true, message: 'Menu item created!', product: newProduct });
+    } catch (error) {
+        console.error('Error creating item:', error);
+        res.status(500).json({ success: false, message: `DB Error: ${error.message}` });
+    }
+});
+
+apiApp.patch('/api/products/:id', async (req, res) => {
+    try {
+        const { price, buying_price, addedStock, recordedBy, barcode, image, name, stock } = req.body;
+        const product = await Product.findById(req.params.id);
+        if (!product) return res.status(404).json({ success: false, message: 'Item not found' });
+        if (price !== undefined && price !== '') product.price = Number(price);
+        if (buying_price !== undefined && buying_price !== '') product.buying_price = Number(buying_price);
+        if (barcode !== undefined) product.barcode = barcode;
+        if (image !== undefined) product.image = image;
+        if (name !== undefined && name !== '') product.name = name;
+        if (stock !== undefined && stock !== '') product.stock = Number(stock);
+        if (addedStock && Number(addedStock) > 0) {
+            product.stock = (product.stock || 0) + Number(addedStock);
+            await StockLog.create({ item_name: product.name, qty_added: Number(addedStock), recorded_by: recordedBy || 'Admin' });
+        }
+        await product.save();
+        res.json({ success: true, message: 'Item updated', product });
+    } catch (error) {
+        res.status(500).json({ success: false, message: `Failed to update: ${error.message}` });
+    }
+});
+
+apiApp.delete('/api/products/:id', async (req, res) => {
+    try {
+        await Product.findByIdAndDelete(req.params.id);
+        res.json({ success: true, message: 'Item deleted!' });
+    } catch (error) {
+        res.status(500).json({ success: false, message: `DB Error: ${error.message}` });
+    }
+});
+
+// Seed default Delish Dish menu
+apiApp.post('/api/seed-menu', async (req, res) => {
+    const menu = [
+        { name: 'Chicken (Quarter)', type: 'meals', price: 180, buying_price: 120, stock: 20 },
+        { name: 'Beef Stew (Meat)', type: 'meals', price: 120, buying_price: 80, stock: 20 },
+        { name: 'Kitheri / Githeri', type: 'meals', price: 70, buying_price: 40, stock: 30 },
+        { name: 'Ugali', type: 'meals', price: 30, buying_price: 15, stock: 40 },
+        { name: 'Rice', type: 'meals', price: 50, buying_price: 30, stock: 30 },
+        { name: 'Chips', type: 'meals', price: 100, buying_price: 60, stock: 25 },
+        { name: 'Sausage', type: 'snacks', price: 25, buying_price: 15, stock: 50 },
+        { name: 'Smokie', type: 'snacks', price: 30, buying_price: 20, stock: 50 },
+        { name: 'Tea', type: 'drinks', price: 20, buying_price: 10, stock: 100 },
+        { name: 'Soda', type: 'drinks', price: 50, buying_price: 35, stock: 60 },
+        { name: 'Tropical Juice', type: 'drinks', price: 60, buying_price: 40, stock: 40 }
+    ];
+    try {
+        const count = await Product.countDocuments();
+        if (count > 0) return res.json({ success: false, message: 'Menu already has items.' });
+        for (const m of menu) await Product.create(m);
+        res.json({ success: true, message: `Seeded ${menu.length} Delish Dish menu items.` });
+    } catch (error) {
+        res.status(500).json({ success: false, message: error.message });
+    }
+});
+
+// ==========================================
+// --- RESTOCK LOGS ---
+// ==========================================
+apiApp.get('/api/stock-logs', async (req, res) => {
+    try {
+        const logs = await StockLog.find().sort({ createdAt: -1 }).limit(100);
+        res.json({ success: true, logs });
+    } catch (error) {
+        res.status(500).json({ success: false, message: error.message });
+    }
+});
+
+// ==========================================
+// --- STOCK TAKES (OPENING / CLOSING) ---
+// ==========================================
+apiApp.get('/api/stock-takes', async (req, res) => {
+    try {
+        const takes = await StockTake.find().sort({ date: -1 }).limit(60);
+        res.json({ success: true, takes });
+    } catch (error) {
+        res.status(500).json({ success: false, message: error.message });
+    }
+});
+
+apiApp.post('/api/stock-takes', async (req, res) => {
+    const { type, taken_by, items } = req.body;
+    if (!['opening', 'closing'].includes(type)) return res.status(400).json({ success: false, message: 'Type must be opening or closing' });
+    if (!items || !items.length) return res.status(400).json({ success: false, message: 'No items provided' });
+    try {
+        // snapshot live product data for each item
+        const enriched = [];
+        let total = 0;
+        for (const it of items) {
+            const p = await Product.findById(it.product_id);
+            if (!p) continue;
+            const qty = Number(it.qty);
+            const unitCost = p.buying_price || 0;
+            const value = qty * unitCost;
+            total += value;
+            enriched.push({ product_id: p._id, name: p.name, qty, unit_cost: unitCost, value });
+            // Optional: sync live stock to counted qty (uncomment if you want auto-sync)
+            // p.stock = qty; await p.save();
+        }
+        const take = await StockTake.create({ type, taken_by: taken_by || 'Admin', items: enriched, total_value: total });
+        res.json({ success: true, take });
+    } catch (error) {
+        res.status(500).json({ success: false, message: error.message });
+    }
+});
+
+// ==========================================
+// --- SPOILAGE ---
+// ==========================================
+apiApp.get('/api/spoilage', async (req, res) => {
+    try {
+        const start = new Date(); start.setHours(0,0,0,0);
+        const end = new Date(); end.setHours(23,59,59,999);
+        const today = await Spoilage.find({ date: { $gte: start, $lte: end } }).sort({ date: -1 });
+        const all = await Spoilage.find({}).sort({ date: -1 }).limit(100);
+        const todayCost = today.reduce((s, x) => s + (x.value || 0), 0);
+        res.json({ success: true, today, all, todayCost });
+    } catch (error) {
+        res.status(500).json({ success: false, message: error.message });
+    }
+});
+
+apiApp.post('/api/spoilage', async (req, res) => {
+    const { product_id, qty, reason, recorded_by } = req.body;
+    if (!product_id || !qty) return res.status(400).json({ success: false, message: 'Item and quantity required' });
+    try {
+        const p = await Product.findById(product_id);
+        if (!p) return res.status(404).json({ success: false, message: 'Item not found' });
+        const q = Number(qty);
+        if (q > p.stock) return res.status(400).json({ success: false, message: `Only ${p.stock} in stock` });
+        const unitCost = p.buying_price || 0;
+        p.stock -= q;
+        await p.save();
+        const rec = await Spoilage.create({
+            product_id: p._id, item_name: p.name, qty: q,
+            unit_cost: unitCost, value: q * unitCost,
+            reason: reason || 'Spoilt / expired', recorded_by: recorded_by || 'Admin'
+        });
+        res.json({ success: true, record: rec });
+    } catch (error) {
+        res.status(500).json({ success: false, message: error.message });
+    }
+});
+
+apiApp.delete('/api/spock-logs/:id', async (req, res) => {
+    try {
+        await Spoilage.findByIdAndDelete(req.params.id);
+        res.json({ success: true, message: 'Spoilage record deleted.' });
+    } catch (error) {
+        res.status(500).json({ success: false, message: error.message });
+    }
+});
+
+// ==========================================
+// --- EXPENDITURES ---
+// ==========================================
+apiApp.get('/api/expenditures', async (req, res) => {
+    try {
+        const expenses = await Expenditure.find({}).sort({ date: -1 });
+        res.json({ success: true, expenses });
+    } catch (error) {
+        res.status(500).json({ success: false, message: error.message });
+    }
+});
+
+apiApp.post('/api/expenditures', async (req, res) => {
+    try {
+        const { description, amount, added_by } = req.body;
+        const newExpense = await Expenditure.create({ description, amount: Number(amount), added_by: added_by || 'Admin' });
+        res.json({ success: true, expense: newExpense });
+    } catch (error) {
+        res.status(500).json({ success: false, message: error.message });
+    }
+});
+
+apiApp.delete('/api/expenditures/:id', async (req, res) => {
+    try {
+        await Expenditure.findByIdAndDelete(req.params.id);
+        res.json({ success: true, message: 'Expense deleted.' });
+    } catch (error) {
+        res.status(500).json({ success: false, message: error.message });
+    }
+});
+
+// ==========================================
+// --- ORDERS ---
+// ==========================================
+apiApp.get('/api/orders', async (req, res) => {
+    try {
+        const orders = await Order.find({}).sort({ createdAt: -1 }).limit(300);
+        res.json({ success: true, orders });
+    } catch (error) {
+        res.status(500).json({ success: false, message: 'Failed to fetch orders' });
+    }
+});
+
+apiApp.post('/api/orders', async (req, res) => {
+    try {
+        const { items, total_amount, served_by, waiter_id, table_number, customer_name, payment_method, mpesa_receipt, mpesa_amount, cash_tendered, cash_change } = req.body;
+        let totalCost = 0;
+        const enrichedItems = [];
+        for (let item of (items || [])) {
+            const p = await Product.findById(item.product_id);
+            const unitCost = p ? (p.buying_price || 0) : 0;
+            totalCost += unitCost * item.quantity;
+            enrichedItems.push({ ...item, unit_cost: unitCost });
+        }
+        const newOrder = await Order.create({
+            waiter_id: waiter_id || null,
+            table_number: table_number || 'Counter',
+            items: enrichedItems,
+            total_amount: total_amount,
+            total_cost: totalCost,
+            status: 'completed',
+            served_by: served_by || 'Waiter',
+            customer_name: customer_name || 'WALK-IN',
+            payment_method: payment_method || 'cash',
+            mpesa_receipt: mpesa_receipt || null,
+            mpesa_amount: mpesa_amount || 0,
+            cash_tendered: cash_tendered || null,
+            cash_change: cash_change || null
+        });
+        if (items && items.length > 0) {
+            for (let item of items) {
+                if (item.product_id) {
+                    await Product.findByIdAndUpdate(item.product_id, { $inc: { stock: -item.quantity } });
+                }
+            }
+        }
+        res.json({ success: true, order: newOrder });
+    } catch (error) {
+        res.status(500).json({ success: false, message: `Failed to save order: ${error.message}` });
+    }
+});
+
+// ==========================================
+// --- DAILY SALES (totals + per-waiter + cash/mpesa split) ---
+// ==========================================
+function dayRange(dateStr) {
+    if (dateStr) {
+        const d = new Date(dateStr);
+        const start = new Date(d); start.setHours(0,0,0,0);
+        const end = new Date(d); end.setHours(23,59,59,999);
+        return { start, end };
+    }
+    const start = new Date(); start.setHours(0,0,0,0);
+    const end = new Date(); end.setHours(23,59,59,999);
+    return { start, end };
+}
+
+apiApp.get('/api/sales/today', async (req, res) => {
+    const { start, end } = dayRange(req.query.date);
+    try {
+        const orders = await Order.find({ createdAt: { $gte: start, $lte: end }, status: 'completed' });
+        const totalSales = orders.reduce((sum, o) => sum + (o.total_amount || 0), 0);
+        const totalCost = orders.reduce((sum, o) => sum + (o.total_cost || 0), 0);
+        const cashSales = orders.filter(o => o.payment_method === 'cash').reduce((sum, o) => sum + (o.total_amount || 0), 0);
+        const mpesaOrders = orders.filter(o => o.payment_method === 'mpesa' || o.payment_method === 'split');
+        const mpesaSales = mpesaOrders.reduce((sum, o) => sum + (o.mpesa_amount || o.total_amount), 0);
+        const splitCash = orders.filter(o => o.payment_method === 'split').reduce((sum, o) => sum + ((o.total_amount || 0) - (o.mpesa_amount || 0)), 0);
+
+        // per-waiter breakdown
+        const waiterMap = {};
+        orders.forEach(o => {
+            const w = o.served_by || 'Unknown';
+            if (!waiterMap[w]) waiterMap[w] = { waiter: w, orders: 0, revenue: 0, cost: 0, cash: 0, mpesa: 0, items: 0 };
+            waiterMap[w].orders += 1;
+            waiterMap[w].revenue += o.total_amount || 0;
+            waiterMap[w].cost += o.total_cost || 0;
+            waiterMap[w].items += (o.items || []).reduce((s, i) => s + i.quantity, 0);
+            if (o.payment_method === 'cash') waiterMap[w].cash += o.total_amount || 0;
+            else if (o.payment_method === 'mpesa') waiterMap[w].mpesa += o.mpesa_amount || o.total_amount || 0;
+            else { waiterMap[w].mpesa += o.mpesa_amount || 0; waiterMap[w].cash += (o.total_amount || 0) - (o.mpesa_amount || 0); }
+        });
+        const waiters = Object.values(waiterMap).sort((a, b) => b.revenue - a.revenue);
+
+        res.json({ success: true, totalSales, totalCost, grossProfit: totalSales - totalCost, cashSales, mpesaSales, splitCash, orderCount: orders.length, orders, waiters });
+    } catch (error) {
+        res.status(500).json({ success: false, message: error.message });
+    }
+});
+
+// ==========================================
+// --- FULL P&L FOR A DAY ---
+// ==========================================
+apiApp.get('/api/pl/:date?', async (req, res) => {
+    const { start, end } = dayRange(req.params.date);
+    try {
+        const orders = await Order.find({ createdAt: { $gte: start, $lte: end }, status: 'completed' });
+        const revenue = orders.reduce((s, o) => s + (o.total_amount || 0), 0);
+        const cogs = orders.reduce((s, o) => s + (o.total_cost || 0), 0);
+        const expenses = await Expenditure.find({ date: { $gte: start, $lte: end } });
+        const expenseTotal = expenses.reduce((s, e) => s + (e.amount || 0), 0);
+        const spoilage = await Spoilage.find({ date: { $gte: start, $lte: end } });
+        const spoilageCost = spoilage.reduce((s, x) => s + (x.value || 0), 0);
+        const grossProfit = revenue - cogs;
+        const netProfit = grossProfit - expenseTotal - spoilageCost;
+        res.json({ success: true, revenue, cogs, grossProfit, expenses: expenseTotal, spoilageCost, netProfit, expenseList: expenses, spoilageList: spoilage, orderCount: orders.length });
+    } catch (error) {
+        res.status(500).json({ success: false, message: error.message });
+    }
+});
+
+// ==========================================
+// --- STATEMENTS & PRODUCT REPORTS ---
+// ==========================================
+apiApp.get('/api/reports/sales', async (req, res) => {
+    const { from, to, group = 'day' } = req.query;
+    let start, end;
+    if (from) { start = new Date(from); start.setHours(0,0,0,0); } else { start = new Date(); start.setHours(0,0,0,0); }
+    if (to) { end = new Date(to); end.setHours(23,59,59,999); } else { end = new Date(); end.setHours(23,59,59,999); }
+    if (isNaN(start) || isNaN(end)) return res.status(400).json({ success: false, message: 'Invalid date range' });
+    try {
+        const orders = await Order.find({ createdAt: { $gte: start, $lte: end }, status: 'completed' }).sort({ createdAt: 1 });
+
+        function groupKey(d) {
+            if (group === 'month') return d.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+            if (group === 'week') {
+                const monday = new Date(d);
+                const day = monday.getDay();
+                const diff = monday.getDate() - day + (day === 0 ? -6 : 1); // Monday as week start
+                monday.setDate(diff);
+                return 'Week of ' + monday.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
+            }
+            return d.toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' });
+        }
+
+        const buckets = {};
+        let totals = { revenue: 0, cost: 0, profit: 0, orders: 0, cash: 0, mpesa: 0, items: 0 };
+        orders.forEach(o => {
+            const key = groupKey(new Date(o.createdAt));
+            if (!buckets[key]) buckets[key] = { period: key, orders: 0, items: 0, revenue: 0, cost: 0, cash: 0, mpesa: 0, waiters: new Set() };
+            const b = buckets[key];
+            b.orders += 1;
+            b.items += (o.items || []).reduce((s, i) => s + i.quantity, 0);
+            b.revenue += o.total_amount || 0;
+            b.cost += o.total_cost || 0;
+            b.waiters.add(o.served_by);
+            if (o.payment_method === 'cash') b.cash += o.total_amount || 0;
+            else if (o.payment_method === 'mpesa') b.mpesa += o.mpesa_amount || o.total_amount || 0;
+            else { b.mpesa += o.mpesa_amount || 0; b.cash += (o.total_amount || 0) - (o.mpesa_amount || 0); }
+
+            totals.revenue += o.total_amount || 0;
+            totals.cost += o.total_cost || 0;
+            totals.orders += 1;
+            totals.items += (o.items || []).reduce((s, i) => s + i.quantity, 0);
+            if (o.payment_method === 'cash') totals.cash += o.total_amount || 0;
+            else if (o.payment_method === 'mpesa') totals.mpesa += o.mpesa_amount || o.total_amount || 0;
+            else { totals.mpesa += o.mpesa_amount || 0; totals.cash += (o.total_amount || 0) - (o.mpesa_amount || 0); }
+        });
+        totals.profit = totals.revenue - totals.cost;
+
+        const rows = Object.values(buckets).map(b => ({
+            period: b.period, orders: b.orders, items: b.items,
+            revenue: b.revenue, cost: b.cost, profit: b.revenue - b.cost,
+            cash: b.cash, mpesa: b.mpesa, waiters: b.waiters.size
+        }));
+        res.json({ success: true, rows, totals, group });
+    } catch (error) {
+        res.status(500).json({ success: false, message: error.message });
+    }
+});
+
+apiApp.get('/api/reports/products', async (req, res) => {
+    const { from, to } = req.query;
+    let start, end;
+    if (from) { start = new Date(from); start.setHours(0,0,0,0); } else { start = new Date(); start.setHours(0,0,0,0); }
+    if (to) { end = new Date(to); end.setHours(23,59,59,999); } else { end = new Date(); end.setHours(23,59,59,999); }
+    try {
+        const orders = await Order.find({ createdAt: { $gte: start, $lte: end }, status: 'completed' });
+        const map = {};
+        orders.forEach(o => {
+            (o.items || []).forEach(it => {
+                const key = it.name || it.product_id;
+                if (!map[key]) map[key] = { name: it.name || 'Unknown', qty: 0, revenue: 0, cost: 0, profit: 0 };
+                map[key].qty += it.quantity;
+                map[key].revenue += (it.unit_price || 0) * it.quantity;
+                map[key].cost += (it.unit_cost || 0) * it.quantity;
+                map[key].profit += ((it.unit_price || 0) - (it.unit_cost || 0)) * it.quantity;
+            });
+        });
+        const products = Object.values(map).sort((a, b) => b.qty - a.qty);
+        res.json({ success: true, products });
+    } catch (error) {
+        res.status(500).json({ success: false, message: error.message });
+    }
+});
+
+// ==========================================
+// --- MEGAPAY STK INTEGRATION ---
+// ==========================================
+apiApp.post('/api/initiate-payment', async (req, res) => {
+    const { amount, phoneNumber, waiter } = req.body;
+    if (!amount || !phoneNumber) return res.status(400).json({ success: false, message: "Amount and Phone Number are required." });
+    if (!MEGAPAY_API_KEY || !MEGAPAY_EMAIL) {
+        return res.status(500).json({ success: false, message: "Payment gateway not configured." });
+    }
+
+    let formattedPhone = phoneNumber.replace(/\s+/g, '');
+    if (formattedPhone.startsWith('0')) formattedPhone = '254' + formattedPhone.substring(1);
+    else if (formattedPhone.startsWith('+')) formattedPhone = formattedPhone.substring(1);
+
+    const reference = `DELISH-${Date.now()}`;
+    const payload = {
+        api_key: MEGAPAY_API_KEY,
+        email: MEGAPAY_EMAIL,
+        amount: amount,
+        msisdn: formattedPhone,
+        callback_url: `http://169.58.58.133:${API_PORT}/api/megapay/webhook`,
+        description: `Delish Dish Restaurant Payment`,
+        reference: reference
+    };
+
+    pendingTransactions.set(reference, {
+        status: 'Pending',
+        amount: parseFloat(amount),
+        phone: formattedPhone,
+        waiter: waiter || 'Waiter',
+        startTime: Date.now()
+    });
+
+    try {
+        const mpRes = await axios.post('https://megapay.co.ke/backend/v1/initiatestk', payload, {
+            headers: { 'Content-Type': 'application/json' },
+            timeout: 35000
+        });
+        const mpData = mpRes.data;
+        if (mpData && (mpData.status === false || mpData.success === false || mpData.ResponseCode === '1')) {
+            pendingTransactions.delete(reference);
+            return res.status(400).json({ success: false, message: mpData.errorMessage || mpData.message || 'MegaPay rejected the request.' });
+        }
+        return res.status(200).json({ success: true, message: 'STK Push sent! Waiting for customer PIN.', refId: reference });
+    } catch (mpErr) {
+        console.error('MegaPay STK Error:', mpErr.message);
+        return res.status(502).json({ success: false, message: 'Payment gateway timed out.', refId: reference });
+    }
+});
+
+apiApp.get('/api/stream-payment/:refId', (req, res) => {
+    const { refId } = req.params;
+    const tx = pendingTransactions.get(refId);
+    res.setHeader('Content-Type', 'text/event-stream');
+    res.setHeader('Cache-Control', 'no-cache');
+    res.setHeader('Connection', 'keep-alive');
+
+    if (tx && tx.status === 'Paid') {
+        res.write(`data: ${JSON.stringify({ success: true, receipt: tx.receipt })}\n\n`);
+        res.end();
+        return;
+    }
+    if (tx && tx.status === 'Failed') {
+        res.write(`data: ${JSON.stringify({ success: false, message: tx.failureReason })}\n\n`);
+        res.end();
+        return;
+    }
+
+    const client = { refId, res };
+    connectedClients.push(client);
+    req.on('close', () => { connectedClients = connectedClients.filter(c => c !== client); });
+});
+
+apiApp.post('/api/megapay/webhook', async (req, res) => {
+    res.status(200).send("OK");
+    const ip = req.headers['x-forwarded-for'] || req.ip || req.connection.remoteAddress;
+    console.log(`[${STORE_ID}] WEBHOOK HIT from ${ip}`);
+
+    if (!req.body || Object.keys(req.body).length === 0) {
+        console.error(`[${STORE_ID}] EMPTY BODY received.`);
+        return;
+    }
+
+    let data = req.body;
+    if (typeof req.body === 'string') {
+        try { data = JSON.parse(req.body); } catch (e) { data = req.body; }
+    }
+    const rawPayload = JSON.stringify(data);
+
+    try {
+        const responseCode = data.ResponseCode !== undefined ? String(data.ResponseCode) : (data.ResultCode !== undefined ? String(data.ResultCode) : undefined);
+        const amount = parseFloat(data.TransactionAmount || data.amount || data.Amount || 0);
+        const receipt = data.TransactionReceipt || data.MpesaReceiptNumber || data.receipt || 'N/A';
+        const phoneRaw = (data.Msisdn || data.phone || data.PhoneNumber || data.msisdn || "").toString();
+        const last9 = phoneRaw.replace(/\D/g, '').slice(-9);
+        const callbackRef = data.reference || data.Reference || data.TransactionReference || data.BillRefNumber || null;
+
+        let matchedRefId = null;
+        let matchedTx = null;
+
+        if (callbackRef && pendingTransactions.has(callbackRef)) {
+            const tx = pendingTransactions.get(callbackRef);
+            if (tx.status === 'Pending') { matchedRefId = callbackRef; matchedTx = tx; }
+        }
+
+        if (!matchedRefId) {
+            const now = Date.now();
+            for (let [refId, tx] of pendingTransactions.entries()) {
+                if (tx.status !== 'Pending') continue;
+                if (now - tx.startTime > 10 * 60 * 1000) continue;
+                if (tx.phone.endsWith(last9) && Math.abs(tx.amount - amount) < 0.01) {
+                    matchedRefId = refId; matchedTx = tx; break;
+                }
+            }
+        }
+
+        await WebhookLog.create({ store_id: STORE_ID, ref_id: callbackRef || matchedRefId || 'UNKNOWN', raw_payload: rawPayload, matched_ref: matchedRefId || null });
+
+        if (responseCode !== '0') {
+            if (matchedRefId) {
+                matchedTx.status = 'Failed';
+                matchedTx.failureReason = data.ResultDesc || data.errorMessage || 'Customer cancelled or did not enter PIN';
+                connectedClients.forEach(c => { if (c.refId === matchedRefId) c.res.write(`data: ${JSON.stringify({ success: false, message: matchedTx.failureReason })}\n\n`); });
+            }
+            return;
+        }
+
+        if (matchedRefId) {
+            matchedTx.status = 'Paid';
+            matchedTx.receipt = receipt;
+            await MpesaTransaction.create({ store_id: STORE_ID, ref_id: matchedRefId, receipt, phone: matchedTx.phone, amount: matchedTx.amount, waiter: matchedTx.waiter, status: 'Paid' });
+            connectedClients.forEach(c => { if (c.refId === matchedRefId) c.res.write(`data: ${JSON.stringify({ success: true, receipt })}\n\n`); });
+        } else {
+            console.log(`[${STORE_ID}] No pending match for receipt ${receipt}.`);
+        }
+    } catch (err) {
+        console.error(`[${STORE_ID}] Webhook processing error:`, err.message);
+    }
+});
+
+apiApp.get('/api/transactions/today', async (req, res) => {
+    const { start, end } = dayRange(req.query.date);
+    try {
+        const transactions = await MpesaTransaction.find({ createdAt: { $gte: start, $lte: end }, status: 'Paid' }).sort({ createdAt: -1 });
+        const total = transactions.reduce((sum, tx) => sum + (tx.amount || 0), 0);
+        res.json({ success: true, total, count: transactions.length, transactions });
+    } catch (err) {
+        res.status(500).json({ success: false, message: err.message });
+    }
+});
+
+apiApp.get('/api/transactions/all', async (req, res) => {
+    try {
+        const transactions = await MpesaTransaction.find({}).sort({ createdAt: -1 }).limit(200);
+        res.json({ success: true, transactions });
+    } catch (err) {
+        res.status(500).json({ success: false, message: err.message });
+    }
+});
+
+// Cleanup expired transactions every 2 minutes
+setInterval(() => {
+    const now = Date.now();
+    for (let [refId, tx] of pendingTransactions.entries()) {
+        if (tx.status !== 'Pending') continue;
+        if (now - tx.startTime > 5 * 60 * 1000) {
+            tx.status = 'Expired';
+            tx.failureReason = 'Transaction expired (no response from customer)';
+            connectedClients.forEach(c => { if (c.refId === refId) c.res.write(`data: ${JSON.stringify({ success: false, message: tx.failureReason })}\n\n`); });
+            setTimeout(() => { if (pendingTransactions.get(refId)?.status === 'Expired') pendingTransactions.delete(refId); }, 10 * 60 * 1000);
+        }
+    }
+}, 120000);
+
+// ==========================================
+// --- SERVE WAITER FRONTEND (PORT 4027) ---
+// ==========================================
+apiApp.use(express.static(path.join(__dirname, 'public/waiter')));
+
+apiApp.listen(API_PORT, '0.0.0.0', () => {
+    console.log(`Delish Dish API & Waiter Portal running on http://169.58.58.133:${API_PORT}`);
+});
+
+// ==========================================
+// --- ADMIN FRONTEND SERVER (PORT 4028) ---
+// ==========================================
+const adminApp = express();
+adminApp.use(cors());
+adminApp.use(express.static(path.join(__dirname, 'public/admin')));
+adminApp.get(/.*/, (req, res) => {
+    res.sendFile(path.join(__dirname, 'public/admin/index.html'));
+});
+adminApp.listen(ADMIN_PORT, '0.0.0.0', () => {
+    console.log(`Delish Dish Admin Portal running on http://169.58.58.133:${ADMIN_PORT}`);
+});
