@@ -176,7 +176,7 @@ apiApp.post('/api/products', async (req, res) => {
         const { name, type, price, buying_price, stock, barcode, image } = req.body;
         const newProduct = await Product.create({
             name,
-            barcode: barcode || null,
+            barcode: barcode || undefined,
             type: (type || 'meals').toLowerCase(),
             price: Number(price) || 0,
             buying_price: Number(buying_price) || 0,

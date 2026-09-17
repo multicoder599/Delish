@@ -234,6 +234,14 @@ tbody tr:hover{background:#fafafa}
 }
 #printable{display:none}
 @media print{@page{margin:0}body *{visibility:hidden}#printable,#printable *{visibility:visible}#printable{position:absolute;left:0;top:0;display:block;width:100%;padding:12px;color:#000;background:#fff;font-family:'Courier New',monospace;font-size:12px}.rt{width:100%;border-collapse:collapse}.rt th,.rt td{padding:3px 0;text-align:left}.rd{border-bottom:1px dashed #000;margin:5px 0}}
+
+.login-badge svg,.sb-badge svg{width:28px;height:28px;color:#fff}
+.cat svg{width:13px;height:13px;vertical-align:-2px}
+.tile-emoji svg{width:26px;height:26px;color:var(--brand-dark)}
+.oitem-emoji svg{width:19px;height:19px;color:var(--brand-dark)}
+.empty-cart .big svg{width:42px;height:42px;color:#d1d5db}
+.pay-m .ic svg{width:24px;height:24px;color:var(--brand-dark)}
+.oitem-right .rm svg{width:14px;height:14px;vertical-align:-2px}
 </style>
 </head>
 <body>
@@ -243,7 +251,7 @@ tbody tr:hover{background:#fafafa}
 <!-- LOGIN -->
 <div class="login-screen" id="loginScreen">
   <div class="login-card">
-    <div class="login-badge">🍽️</div>
+    <div class="login-badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2"/><path d="M7 2v20"/><path d="M21 15V2a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3z"/><path d="M21 15v7"/></svg></div>
     <h1>Delish Dish</h1>
     <p class="sub">Waiter Point of Sale</p>
     <div class="field"><label>Username</label><input type="text" id="loginUser" placeholder="e.g. mary" autocomplete="off"></div>
@@ -256,7 +264,7 @@ tbody tr:hover{background:#fafafa}
 <div class="app" id="app">
   <div class="sidebar">
     <div class="sb-brand">
-      <div class="sb-badge">🍽️</div>
+      <div class="sb-badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2"/><path d="M7 2v20"/><path d="M21 15V2a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3z"/><path d="M21 15v7"/></svg></div>
       <div><b>Delish Dish</b><span>Waiter POS</span></div>
     </div>
     <nav class="sb-nav">
@@ -320,7 +328,7 @@ tbody tr:hover{background:#fafafa}
       <div class="page-head"><h2>My Sales Today</h2><p>Your personal performance for this shift</p></div>
       <div class="cards" id="myCards"></div>
       <div class="panel">
-        <div class="panel-head">📋 My Orders Today</div>
+        <div class="panel-head"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1"/></svg> My Orders Today</div>
         <div class="tbl-wrap">
           <table><thead><tr><th>Order</th><th>Table</th><th>Items</th><th>Amount</th><th>Method</th></tr></thead><tbody id="myRows"></tbody></table>
         </div>
@@ -347,10 +355,10 @@ tbody tr:hover{background:#fafafa}
     <div class="sheet-total"><span>Total Due</span><b class="num" id="payTotal">0.00</b></div>
     <div class="pay-methods">
       <div class="pay-m mpesa" onclick="payMpesa()">
-        <div class="ic">📱</div><b>M-Pesa</b><small>Pay to Till</small>
+        <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="2" width="14" height="20" rx="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg></div><b>M-Pesa</b><small>Pay to Till</small>
       </div>
       <div class="pay-m cash" onclick="payCash()">
-        <div class="ic">💵</div><b>Cash</b><small>Tender &amp; Change</small>
+        <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="20" height="12" rx="2"/><circle cx="12" cy="12" r="2"/><path d="M6 12h.01M18 12h.01"/></svg></div><b>Cash</b><small>Tender &amp; Change</small>
       </div>
     </div>
     <div class="sheet-actions">
@@ -460,18 +468,27 @@ let tabs = [];
 let cur = null;
 let nextId = 1;
 
-const EMOJI = [
-  [/chicken|kuku/, '🍗'], [/beef|meat|nyama/, '🥩'], [/githeri|kitheri|beans/, '🫘'],
-  [/ugali/, '🍲'], [/rice|pilau|biryani/, '🍚'], [/chips|fries/, '🍟'],
-  [/sausage/, '🌭'], [/smokie/, '🌭'], [/tea|chai/, '☕'], [/coffee|kahawa/, '☕'],
-  [/soda|coke|fanta|sprite|krest/, '🥤'], [/juice|tropical|mango|orange/, '🧃'],
-  [/water|maji/, '💧'], [/soup|supu/, '🍜'], [/egg|mayai/, '🍳'], [/bread|mkate/, '🍞'],
-  [/cake|mandazi|chapati/, '🥞'], [/fruit|apple|banana/, '🍌']
+const ICONS = {
+  meal: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2"/><path d="M7 2v20"/><path d="M21 15V2a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3z"/><path d="M21 15v7"/></svg>',
+  meat: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15.4 15.6a8 8 0 1 1-6.2 6.2"/><path d="m8.3 12.7-2.6 2.6a2.5 2.5 0 1 0-1.6 4.4 2.5 2.5 0 1 0 4.3-1.7l2.6-2.6"/></svg>',
+  cup: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 8h1a4 4 0 1 1 0 8h-1"/><path d="M3 8h14v9a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4Z"/><line x1="6" y1="2" x2="6" y2="4"/><line x1="10" y1="2" x2="10" y2="4"/><line x1="14" y1="2" x2="14" y2="4"/></svg>',
+  soda: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 8 1.75 12.28a2 2 0 0 0 2 1.72h4.54a2 2 0 0 0 2-1.72L18 8"/><path d="M5 8h14"/><path d="M12 8V5h2"/></svg>',
+  juice: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 22h8"/><path d="M7 10h10"/><path d="M12 15v7"/><path d="M12 15a5 5 0 0 0 5-5V4H7v6a5 5 0 0 0 5 5Z"/></svg>',
+  plate: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="3.5"/></svg>'
+};
+const FOOD_MAP = [
+  [/chicken|kuku/, 'meat'], [/beef|meat|nyama/, 'meat'],
+  [/tea|chai|coffee|kahawa/, 'cup'],
+  [/soda|coke|fanta|sprite|krest/, 'soda'],
+  [/juice|tropical|mango|orange/, 'juice'],
+  [/sausage|smokie|cake|mandazi|chapati|egg|mayai|bread|mkate|fruit/, 'plate']
 ];
-function emojiFor(name) {
+function emojiFor(name, type) {
   const n = (name || '').toLowerCase();
-  for (const [re, e] of EMOJI) if (re.test(n)) return e;
-  return '🍽️';
+  for (const [re, k] of FOOD_MAP) if (re.test(n)) return ICONS[k];
+  if (type === 'drinks') return ICONS.soda;
+  if (type === 'snacks') return ICONS.plate;
+  return ICONS.meal;
 }
 const KES = n => (n || 0).toLocaleString('en-KE', { minimumFractionDigits: 2 });
 
@@ -543,7 +560,7 @@ async function loadMenu() {
 }
 
 function renderCats() {
-  const cats = [['all', 'All Items'], ['meals', '🍽 Meals'], ['drinks', '🥤 Drinks'], ['snacks', '🌭 Snacks']];
+  const cats = [['all', 'All Items'], ['meals', '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2"/><path d="M7 2v20"/><path d="M21 15V2a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3z"/><path d="M21 15v7"/></svg> Meals'], ['drinks', '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 8 1.75 12.28a2 2 0 0 0 2 1.72h4.54a2 2 0 0 0 2-1.72L18 8"/><path d="M5 8h14"/><path d="M12 8V5h2"/></svg> Drinks'], ['snacks', '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="3.5"/></svg> Snacks']];
   document.getElementById('cats').innerHTML = cats.map(([k, l]) =>
     '<button class="cat ' + (cat === k ? 'active' : '') + '" onclick="setCat(\'' + k + '\')">' + l + '</button>').join('');
 }
@@ -658,14 +675,14 @@ function render() {
 
   const box = document.getElementById('orderItems');
   if (!t.items.length) {
-    box.innerHTML = '<div class="empty-cart"><div class="big">🧾</div><p>Order is empty</p><small>Tap menu items to add them here</small></div>';
+    box.innerHTML = '<div class="empty-cart"><div class="big"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 2v20l2-1 2 1 2-1 2 1 2-1 2 1 2-1 2 1V2l-2 1-2-1-2 1-2-1-2 1-2-1-2 1Z"/><path d="M8 7h8"/><path d="M8 11h8"/><path d="M8 15h5"/></svg></div><p>Order is empty</p><small>Tap menu items to add them here</small></div>';
   } else {
     box.innerHTML = t.items.map(i =>
       '<div class="oitem">' +
         '<div class="oitem-emoji">' + emojiFor(i.name) + '</div>' +
         '<div class="oitem-info"><b>' + i.name + '</b><small class="num">KES ' + KES(i.price) + ' each</small></div>' +
         '<div class="stepper"><button onclick="step(\'' + i._id + '\',-1)">−</button><span>' + i.qty + '</span><button onclick="step(\'' + i._id + '\',1)">+</button></div>' +
-        '<div class="oitem-right"><div class="amt num">' + KES(i.price * i.qty) + '</div><button class="rm" onclick="rmItem(\'' + i._id + '\')">🗑</button></div>' +
+        '<div class="oitem-right"><div class="amt num">' + KES(i.price * i.qty) + '</div><button class="rm" onclick="rmItem(\'' + i._id + '\')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg></button></div>' +
       '</div>').join('');
   }
 }
