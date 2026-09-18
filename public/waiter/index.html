@@ -136,41 +136,7 @@ button{font-family:inherit}
 .checkout svg{width:18px;height:18px}
 
 /* ===== MODALS ===== */
-.overlay{position:fixed;inset:0;background:rgba(17,24,39,.55);backdrop-filter:blur(6px);z-index:200;display:none;align-items:center;justify-content:center;padding:16px}
-.overlay.open{display:flex}
-.sheet{background:#fff;border-radius:22px;padding:28px;width:100%;max-width:430px;box-shadow:0 32px 80px rgba(0,0,0,.3);animation:fadeUp .25s ease}
-.sheet h2{font-size:20px;font-weight:800;letter-spacing:-.3px}
-.sheet .sub{color:var(--muted);font-size:13.5px;margin:4px 0 18px}
-.sheet-total{display:flex;justify-content:space-between;align-items:baseline;background:#fafafa;border:1px solid var(--border);border-radius:var(--r-md);padding:14px 18px;margin-bottom:20px}
-.sheet-total span{font-size:12.5px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px}
-.sheet-total b{font-size:26px;font-weight:800;letter-spacing:-1px}
-.pay-methods{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px}
-.pay-m{border:2px solid var(--border);border-radius:var(--r-lg);padding:20px 12px;text-align:center;cursor:pointer;transition:var(--tr);background:#fff}
-.pay-m:hover{border-color:var(--brand);transform:translateY(-2px);box-shadow:var(--shadow-lg)}
-.pay-m .ic{width:52px;height:52px;border-radius:15px;margin:0 auto 10px;display:flex;align-items:center;justify-content:center;font-size:25px}
-.pay-m.mpesa .ic{background:var(--green-soft)}
-.pay-m.cash .ic{background:var(--blue-soft)}
-.pay-m b{font-size:14.5px;display:block}
-.pay-m small{font-size:11px;color:var(--faint);font-weight:600}
-.till-box{background:var(--green-soft);border:1.5px dashed #a7f3d0;border-radius:var(--r-md);padding:13px 16px;margin-bottom:14px;text-align:center}
-.till-box span{font-size:11.5px;font-weight:700;color:var(--green);text-transform:uppercase;letter-spacing:.6px;display:block}
-.till-box b{font-size:22px;font-weight:800;color:var(--text);letter-spacing:2px}
-.field-inline{margin-bottom:14px}
-.field-inline label{display:block;font-size:11.5px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px}
-.field-inline input{width:100%;padding:13px;background:#f9fafb;border:1.5px solid var(--border);border-radius:var(--r-md);font-size:16px;font-family:inherit;outline:none;transition:var(--tr);color:var(--text)}
 .field-inline input:focus{border-color:var(--brand);box-shadow:0 0 0 4px rgba(234,88,12,.1);background:#fff}
-.quick-cash{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px}
-.quick-cash button{padding:11px;background:#f3f4f6;border:1.5px solid var(--border);border-radius:var(--r-sm);font-weight:800;font-size:14px;cursor:pointer;transition:var(--tr);color:var(--text)}
-.quick-cash button:hover{background:var(--brand-soft);border-color:var(--brand);color:var(--brand-dark)}
-.change-row{display:flex;justify-content:space-between;align-items:center;background:#fafafa;border:1px solid var(--border);border-radius:var(--r-md);padding:13px 18px;margin-bottom:16px}
-.change-row span{font-size:12px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px}
-.change-row b{font-size:24px;font-weight:800}
-.change-row b.neg{color:var(--red)}
-.sheet-actions{display:flex;flex-direction:column;gap:9px}
-.btn-ghost{padding:13px;background:#fff;border:1.5px solid var(--border);border-radius:var(--r-md);font-weight:700;font-size:14px;cursor:pointer;transition:var(--tr);color:var(--muted)}
-.btn-ghost:hover{background:#f9fafb;color:var(--text)}
-.btn-green{width:100%;padding:15px;background:linear-gradient(135deg,var(--green),#10b981);color:#fff;border:none;border-radius:var(--r-md);font-weight:800;font-size:15px;cursor:pointer;transition:var(--tr);box-shadow:0 6px 18px rgba(5,150,105,.3)}
-.btn-green:hover{transform:translateY(-1px)}
 
 /* ===== SUCCESS ===== */
 .success{position:fixed;inset:0;background:#fff;z-index:300;display:none;flex-direction:column;align-items:center;justify-content:center}
@@ -240,9 +206,9 @@ tbody tr:hover{background:#fafafa}
 .tile-emoji svg{width:26px;height:26px;color:var(--brand-dark)}
 .oitem-emoji svg{width:19px;height:19px;color:var(--brand-dark)}
 .empty-cart .big svg{width:42px;height:42px;color:#d1d5db}
-.pay-m .ic svg{width:24px;height:24px;color:var(--brand-dark)}
 .oitem-right .rm svg{width:14px;height:14px;vertical-align:-2px}
 </style>
+<base target="_blank">
 </head>
 <body>
 
@@ -315,7 +281,7 @@ tbody tr:hover{background:#fafafa}
         <div class="order-foot">
           <div class="tot-row"><span class="lbl">Total Due</span><span class="amt num" id="grandTotal">0.00</span></div>
           <div class="tot-sub" id="totMeta">KES · VAT inclusive</div>
-          <button class="checkout" id="checkoutBtn" onclick="openPay()" disabled>
+          <button class="checkout" id="checkoutBtn" onclick="charge()" disabled>
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
             Charge <span class="num" id="checkoutAmt"></span>
           </button>
@@ -347,80 +313,16 @@ tbody tr:hover{background:#fafafa}
   </div>
 </div>
 
-<!-- PAYMENT SHEET -->
-<div class="overlay" id="payOverlay">
-  <div class="sheet">
-    <h2>Take Payment</h2>
-    <p class="sub">Customer pays, then select the method used</p>
-    <div class="sheet-total"><span>Total Due</span><b class="num" id="payTotal">0.00</b></div>
-    <div class="pay-methods">
-      <div class="pay-m mpesa" onclick="payMpesa()">
-        <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="2" width="14" height="20" rx="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg></div><b>M-Pesa</b><small>Pay to Till</small>
-      </div>
-      <div class="pay-m cash" onclick="payCash()">
-        <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="20" height="12" rx="2"/><circle cx="12" cy="12" r="2"/><path d="M6 12h.01M18 12h.01"/></svg></div><b>Cash</b><small>Tender &amp; Change</small>
-      </div>
-    </div>
-    <div class="sheet-actions">
-      <button class="btn-ghost" onclick="closePay()">Cancel</button>
-    </div>
-  </div>
-</div>
-
-<!-- MPESA CONFIRM SHEET -->
-<div class="overlay" id="mpesaOverlay">
-  <div class="sheet">
-    <h2>M-Pesa Payment</h2>
-    <p class="sub">Customer sends to the till number, then confirm</p>
-    <div class="sheet-total"><span>Total Due</span><b class="num" id="mpesaTotal">0.00</b></div>
-    <div class="till-box">
-      <span>Pay to M-Pesa Till Number</span>
-      <b class="num">523 4077</b>
-    </div>
-    <div class="field-inline">
-      <label>M-Pesa Confirmation Code (optional)</label>
-      <input type="text" id="mpesaCode" placeholder="e.g. QK7X2H9YLM" autocomplete="off">
-    </div>
-    <div class="sheet-actions">
-      <button class="btn-green" onclick="confirmMpesa()">Confirm M-Pesa Received</button>
-      <button class="btn-ghost" onclick="closeMpesa()">Back</button>
-    </div>
-  </div>
-</div>
-
-<!-- CASH SHEET -->
-<div class="overlay" id="cashOverlay">
-  <div class="sheet">
-    <h2>Cash Payment</h2>
-    <p class="sub">Enter the amount the customer handed you</p>
-    <div class="sheet-total"><span>Total Due</span><b class="num" id="cashTotal">0.00</b></div>
-    <div class="quick-cash">
-      <button onclick="setTender('exact')" id="qaExact">Exact</button>
-      <button onclick="setTender(500)">+500</button>
-      <button onclick="setTender(1000)">+1000</button>
-    </div>
-    <div class="field-inline">
-      <label>Amount Received (KES)</label>
-      <input type="number" id="tendered" placeholder="0" oninput="calcChange()">
-    </div>
-    <div class="change-row"><span>Change to Give</span><b class="num" id="changeAmt">0.00</b></div>
-    <div class="sheet-actions">
-      <button class="btn-green" onclick="confirmCash()">Confirm &amp; Print</button>
-      <button class="btn-ghost" onclick="closeCash()">Back</button>
-    </div>
-  </div>
-</div>
-
 <!-- SUCCESS -->
 <div class="success" id="successView">
   <div class="check-ring">
     <div class="ring"></div>
     <svg viewBox="0 0 100 100"><polyline points="22,54 44,76 80,30"/></svg>
   </div>
-  <h1>PAYMENT RECEIVED</h1>
+  <h1>RECEIPT PRINTED</h1>
   <div class="samt num" id="sAmt">0.00</div>
-  <div class="smeth" id="sMeth">M-PESA</div>
-  <div class="print-note">Receipt printing…</div>
+  <div class="smeth" id="sMeth">M-PESA TILL 5195879</div>
+  <div class="print-note">Hand receipt to customer — they pay at the counter or directly to the till</div>
 </div>
 
 <!-- RECEIPT -->
@@ -428,7 +330,8 @@ tbody tr:hover{background:#fafafa}
   <div style="text-align:center;font-weight:bold">
     <div style="font-size:17px">DELISH DISH RESTAURANT</div>
     <div>Home of Great Taste</div>
-    <div>-----ORDER RECEIPT-----</div>
+    <div style="margin-top:7px"><span style="border:1.5px dashed #000;padding:4px 12px;font-size:13px">M-PESA TILL NO: 5195879</span></div>
+    <div style="margin-top:7px">-----ORDER RECEIPT-----</div>
   </div>
   <div class="rd"></div>
   <table class="rt">
@@ -459,7 +362,7 @@ tbody tr:hover{background:#fafafa}
 
 <script>
 const API_URL = window.location.origin;
-const TILL_NUMBER = '523 4077';
+const TILL_NUMBER = '5195879';
 
 let menu = [];
 let me = { name: localStorage.getItem('dd_name') || '', id: localStorage.getItem('dd_id') || '' };
@@ -689,81 +592,20 @@ function render() {
 
 function selTab(id) { cur = id; persist(); render(); }
 
-/* ============ PAYMENTS (no STK — manual till) ============ */
-function openPay() {
-  const t = curTab(); if (!t || !t.items.length) return;
-  document.getElementById('payTotal').textContent = 'KES ' + KES(tabTotal(t));
-  document.getElementById('payOverlay').classList.add('open');
-}
-function closePay() { document.getElementById('payOverlay').classList.remove('open'); }
-
-function payMpesa() {
-  closePay();
+/* ============ CHARGE — receipt prints, customer pays at counter/till ============ */
+function charge() {
   const t = curTab();
-  document.getElementById('mpesaTotal').textContent = 'KES ' + KES(tabTotal(t));
-  document.getElementById('mpesaCode').value = '';
-  document.getElementById('mpesaOverlay').classList.add('open');
-  setTimeout(() => document.getElementById('mpesaCode').focus(), 100);
-}
-function closeMpesa() { document.getElementById('mpesaOverlay').classList.remove('open'); }
-
-function confirmMpesa() {
-  const t = curTab(); if (!t) return;
-  const code = document.getElementById('mpesaCode').value.trim().toUpperCase();
-  finalize(t, { method: 'mpesa', receipt: code || null });
+  if (!t || !t.items.length) return;
+  finalize(t);
 }
 
-function payCash() {
-  closePay();
-  const t = curTab();
-  document.getElementById('cashTotal').textContent = 'KES ' + KES(tabTotal(t));
-  document.getElementById('tendered').value = '';
-  document.getElementById('changeAmt').textContent = '0.00';
-  document.getElementById('changeAmt').classList.remove('neg');
-  document.getElementById('cashOverlay').classList.add('open');
-  setTimeout(() => document.getElementById('tendered').focus(), 100);
-}
-function closeCash() { document.getElementById('cashOverlay').classList.remove('open'); }
-
-function setTender(v) {
-  const t = curTab();
-  const due = tabTotal(t);
-  const cur = parseFloat(document.getElementById('tendered').value) || 0;
-  document.getElementById('tendered').value = v === 'exact' ? due : cur + v;
-  calcChange();
-}
-
-function calcChange() {
-  const t = curTab();
-  const due = tabTotal(t);
-  const tendered = parseFloat(document.getElementById('tendered').value) || 0;
-  const ch = tendered - due;
-  const el = document.getElementById('changeAmt');
-  el.textContent = KES(Math.abs(ch));
-  el.classList.toggle('neg', ch < 0);
-}
-
-function confirmCash() {
-  const t = curTab(); if (!t) return;
-  const due = tabTotal(t);
-  const tendered = parseFloat(document.getElementById('tendered').value) || 0;
-  if (tendered <= 0) return toast('Enter amount received', 'warn');
-  if (tendered < due) return toast('Short by KES ' + KES(due - tendered), 'err');
-  finalize(t, { method: 'cash', tendered, change: tendered - due });
-}
-
-function finalize(t, pay) {
-  document.getElementById('payOverlay').classList.remove('open');
-  document.getElementById('mpesaOverlay').classList.remove('open');
-  document.getElementById('cashOverlay').classList.remove('open');
-
+function finalize(t) {
   const total = tabTotal(t);
   document.getElementById('sAmt').textContent = 'KES ' + KES(total);
-  document.getElementById('sMeth').textContent = pay.method === 'mpesa' ? 'M-PESA' : 'CASH';
   document.getElementById('successView').classList.add('open');
 
-  printReceipt(t, pay, total);
-  saveOrder(t, pay, total);
+  printReceipt(t, total);
+  saveOrder(t, total);
 
   setTimeout(() => {
     t.items = [];
@@ -773,7 +615,7 @@ function finalize(t, pay) {
   }, 2600);
 }
 
-function printReceipt(t, pay, total) {
+function printReceipt(t, total) {
   document.getElementById('rId').textContent = String(Math.floor(Math.random() * 900000) + 100000);
   document.getElementById('rDate').textContent = new Date().toLocaleString('en-GB');
   document.getElementById('rTable').textContent = t.name;
@@ -781,21 +623,13 @@ function printReceipt(t, pay, total) {
   document.getElementById('rTotal').textContent = 'KES ' + KES(total);
   document.getElementById('rItems').innerHTML = t.items.map(i =>
     '<tr><td>' + i.name.toUpperCase() + '</td><td>' + i.qty + '</td><td>' + KES(i.price) + '</td><td style="text-align:right">' + KES(i.price * i.qty) + '</td></tr>').join('');
-  if (pay.method === 'cash') {
-    document.getElementById('rTenderRow').style.display = '';
-    document.getElementById('rChangeRow').style.display = '';
-    document.getElementById('rTendered').textContent = 'KES ' + KES(pay.tendered);
-    document.getElementById('rChange').textContent = 'KES ' + KES(pay.change);
-    document.getElementById('rMethod').textContent = 'CASH';
-  } else {
-    document.getElementById('rTenderRow').style.display = 'none';
-    document.getElementById('rChangeRow').style.display = 'none';
-    document.getElementById('rMethod').textContent = 'M-PESA' + (pay.receipt ? ' · ' + pay.receipt : '');
-  }
+  document.getElementById('rTenderRow').style.display = 'none';
+  document.getElementById('rChangeRow').style.display = 'none';
+  document.getElementById('rMethod').textContent = 'PAY TO TILL ' + TILL_NUMBER;
   setTimeout(() => window.print(), 350);
 }
 
-async function saveOrder(t, pay, total) {
+async function saveOrder(t, total) {
   const payload = {
     items: t.items.map(i => ({ product_id: i._id, name: i.name, quantity: i.qty, unit_price: i.price })),
     total_amount: total,
@@ -803,11 +637,11 @@ async function saveOrder(t, pay, total) {
     waiter_id: me.id,
     table_number: t.name,
     customer_name: 'DINE-IN',
-    payment_method: pay.method,
-    mpesa_receipt: pay.method === 'mpesa' ? (pay.receipt || null) : null,
-    mpesa_amount: pay.method === 'mpesa' ? total : 0,
-    cash_tendered: pay.method === 'cash' ? pay.tendered : null,
-    cash_change: pay.method === 'cash' ? pay.change : null
+    payment_method: 'receipt',
+    mpesa_receipt: null,
+    mpesa_amount: 0,
+    cash_tendered: null,
+    cash_change: null
   };
   try {
     await fetch(API_URL + '/api/orders', {
@@ -821,6 +655,7 @@ async function saveOrder(t, pay, total) {
 function chip(m) {
   if (m === 'mpesa') return '<span class="chip mpesa">M-Pesa</span>';
   if (m === 'split') return '<span class="chip split">Split</span>';
+  if (m === 'receipt') return '<span class="chip" style="background:var(--amber-soft);color:var(--amber)">Receipt</span>';
   return '<span class="chip cash">Cash</span>';
 }
 
@@ -832,7 +667,7 @@ async function loadMySales() {
     const mine = d.orders.filter(o => o.served_by === me.name);
     const tot = mine.reduce((s, o) => s + o.total_amount, 0);
     const cash = mine.filter(o => o.payment_method === 'cash').reduce((s, o) => s + o.total_amount, 0);
-    const mp = mine.filter(o => o.payment_method !== 'cash').reduce((s, o) => s + o.total_amount, 0);
+    const mp = mine.filter(o => o.payment_method === 'mpesa' || o.payment_method === 'split').reduce((s, o) => s + o.total_amount, 0);
     document.getElementById('myCards').innerHTML =
       '<div class="card g"><h5>My Sales</h5><div class="v num">KES ' + KES(tot) + '</div></div>' +
       '<div class="card b"><h5>Cash</h5><div class="v num">KES ' + KES(cash) + '</div></div>' +
