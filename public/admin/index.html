@@ -170,6 +170,7 @@ tbody tr:hover{background:#fafafa}
   .preset{padding:8px 13px;font-size:11.5px}
 }
 </style>
+<base target="_blank">
 </head>
 <body>
 
@@ -419,7 +420,7 @@ function chip(html, cls) { return '<span class="chip ' + cls + '">' + html + '</
 /* ===== NAV ===== */
 function buildNav() {
   document.getElementById('sbNav').innerHTML = NAV.map(([k, ic, l]) =>
-    '<button class="sb-item" id="nav-' + k + '" onclick="go('' + k + '')">' + ICONS[ic] + ' ' + l + '</button>').join('');
+    '<button class="sb-item" id="nav-' + k + '" onclick="go(\'' + k + '\')">' + ICONS[ic] + ' ' + l + '</button>').join('');
 }
 
 function go(k) {
@@ -514,7 +515,7 @@ async function loadDash() {
           '<div class="plr pl-total"><span class="l">TOTAL MADE</span><span class="v num" style="color:' + (p.totalMade >= 0 ? 'var(--green)' : 'var(--red)') + '">' + KES(p.totalMade) + '</span></div>';
       } else if (p.closingTotal !== null) {
         box = plr("Today's closing", KES(p.closingTotal), 'var(--blue)') +
-          '<div class="plr"><span class="l">Yesterday's closing</span><span class="v num" style="color:var(--faint)">not recorded</span></div>';
+          '<div class="plr"><span class="l">Yesterday\'s closing</span><span class="v num" style="color:var(--faint)">not recorded</span></div>';
       } else {
         box = '<div style="padding:8px 0;color:var(--faint);font-weight:600;font-size:13px">Cashier has not recorded the day-end balance yet.</div>';
       }
@@ -631,7 +632,7 @@ function renderStock() {
       '<td class="num" style="font-weight:800;font-size:15px;color:' + (low ? 'var(--red)' : 'var(--green)') + '">' + (p.stock || 0) + '</td>' +
       '<td class="num">' + KES((p.stock || 0) * (p.buying_price || 0)) + '</td>' +
       '<td><input type="number" class="inp num w-s" id="rs-' + p._id + '" placeholder="+Qty" min="1"></td>' +
-      '<td><button class="btn btn-green mini" onclick="restock('' + p._id + '')">Add</button></td>';
+      '<td><button class="btn btn-green mini" onclick="restock(\'' + p._id + '\')">Add</button></td>';
     tb.appendChild(tr);
   });
 }
@@ -730,7 +731,7 @@ function renderMenu() {
       '<td style="text-transform:capitalize;color:var(--muted)">' + p.type + '</td>' +
       '<td><input type="number" class="inp num w-s" id="ms-' + p._id + '" value="' + (p.stock || 0) + '"></td>' +
       '<td><input type="number" class="inp num w-s" id="mp-' + p._id + '" value="' + (p.price || 0) + '" style="' + (!p.price ? 'border-color:var(--red);' : '') + '"></td>' +
-      '<td style="white-space:nowrap"><button class="btn btn-green mini" onclick="saveItem('' + p._id + '')">Save</button> <button class="btn btn-red mini" onclick="delItem('' + p._id + '', '' + safe + '')">×</button></td>';
+      '<td style="white-space:nowrap"><button class="btn btn-green mini" onclick="saveItem(\'' + p._id + '\')">Save</button> <button class="btn btn-red mini" onclick="delItem(\'' + p._id + '\', \'' + safe + '\')">×</button></td>';
     tb.appendChild(tr);
   });
 }
@@ -960,11 +961,11 @@ async function loadStaff() {
         '<td>' + chip(u.role, u.role === 'admin' ? 'p' : 'b') + '</td>' +
         '<td>' + chip(active ? 'Active' : 'Suspended', active ? 'g' : 'r') + '</td>' +
         '<td style="white-space:nowrap">' +
-        '<button class="btn btn-ghost mini" onclick="resetPin('' + u._id + '', '' + u.username + '')">Reset PIN</button> ' +
+        '<button class="btn btn-ghost mini" onclick="resetPin(\'' + u._id + '\', \'' + u.username + '\')">Reset PIN</button> ' +
         (active
-          ? '<button class="btn btn-red mini" onclick="toggleUser('' + u._id + '', false)">Suspend</button>'
-          : '<button class="btn btn-green mini" onclick="toggleUser('' + u._id + '', true)">Activate</button>') + ' ' +
-        '<button class="btn btn-red mini" onclick="delUser('' + u._id + '', '' + u.username + '')">×</button></td>';
+          ? '<button class="btn btn-red mini" onclick="toggleUser(\'' + u._id + '\', false)">Suspend</button>'
+          : '<button class="btn btn-green mini" onclick="toggleUser(\'' + u._id + '\', true)">Activate</button>') + ' ' +
+        '<button class="btn btn-red mini" onclick="delUser(\'' + u._id + '\', \'' + u.username + '\')">×</button></td>';
       tb.appendChild(tr);
     });
   } catch (e) { console.error(e); }
