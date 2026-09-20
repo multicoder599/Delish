@@ -496,17 +496,32 @@ apiApp.get('/api/transactions/today', async (req, res) => {
 // ==========================================
 apiApp.get('/api/pl/:date', async (req, res) => {
     const { start, end } = dayRange(req.params.date);
+    const dateStr = req.params.date || localDateStr(new Date());
     try {
         const orders = await Order.find({ createdAt: { $gte: start, $lte: end }, status: 'completed' });
-        const revenue = orders.reduce((s, o) => s + (o.total_amount || 0), 0);
-        const cogs = orders.reduce((s, o) => s + (o.total_cost || 0), 0);
+        const revenue = orders.reduce((sum, o) => sum + (o.total_amount || 0), 0);
+        const cogs = orders.reduce((sum, o) => sum + (o.total_cost || 0), 0);
         const expenses = await Expenditure.find({ date: { $gte: start, $lte: end } });
-        const expenseTotal = expenses.reduce((s, e) => s + (e.amount || 0), 0);
+        const expenseTotal = expenses.reduce((sum, e) => sum + (e.amount || 0), 0);
         const spoilage = await Spoilage.find({ date: { $gte: start, $lte: end } });
-        const spoilageCost = spoilage.reduce((s, x) => s + (x.value || 0), 0);
+        const spoilageCost = spoilage.reduce((sum, x) => sum + (x.value || 0), 0);
         const grossProfit = revenue - cogs;
-        const netProfit = grossProfit - expenseTotal - spoilageCost;
-        res.json({ success: true, revenue, cogs, grossProfit, expenses: expenseTotal, spoilageCost, netProfit, expenseList: expenses, spoilageList: spoilage, orderCount: orders.length });
+
+        // Closing-balance cashflow: today's closing (M-Pesa + cash) - yesterday's closing - today's expenses
+        const balToday = await DailyBalance.findOne({ date: dateStr });
+        const dPrev = new Date(dateStr + 'T00:00:00'); dPrev.setDate(dPrev.getDate() - 1);
+        const balPrev = await DailyBalance.findOne({ date: localDateStr(dPrev) });
+        const closingMpesa = balToday ? balToday.mpesa : null;
+        const closingCash = balToday ? balToday.cash : null;
+        const closingTotal = balToday ? (balToday.mpesa + balToday.cash) : null;
+        const prevClosing = balPrev ? (balPrev.mpesa + balPrev.cash) : null;
+        const totalMade = (closingTotal === null || prevClosing === null) ? null : closingTotal - prevClosing - expenseTotal;
+
+        res.json({
+            success: true, revenue, cogs, grossProfit, expenses: expenseTotal, spoilageCost, netProfit: grossProfit - expenseTotal - spoilageCost,
+            closingMpesa, closingCash, closingTotal, prevClosing, totalMade, balanceRecorded: !!balToday,
+            expenseList: expenses, spoilageList: spoilage, orderCount: orders.length
+        });
     } catch (error) {
         res.status(500).json({ success: false, message: error.message });
     }
@@ -589,6 +604,194 @@ apiApp.get('/api/reports/products', async (req, res) => {
         });
         const products = Object.values(map).sort((a, b) => b.qty - a.qty);
         res.json({ success: true, products });
+    } catch (error) {
+        res.status(500).json({ success: false, message: error.message });
+    }
+});
+
+// ==========================================
+// --- REMAINDER (food left over at day end) ---
+// ==========================================
+const RemainderSchema = new mongoose.Schema({
+    item_name: String,
+    qty: { type: Number, default: 0 },
+    price: { type: Number, default: 0 },
+    value: { type: Number, default: 0 },
+    recorded_by: String,
+    date: { type: Date, default: Date.now }
+});
+const Remainder = mongoose.model('Remainder', RemainderSchema);
+
+apiApp.get('/api/remainder', async (req, res) => {
+    try {
+        if (req.query.date) {
+            const { start, end } = dayRange(req.query.date);
+            const list = await Remainder.find({ date: { $gte: start, $lte: end } }).sort({ date: -1 });
+            return res.json({ success: true, list });
+        }
+        const start = new Date(); start.setHours(0,0,0,0);
+        const end = new Date(); end.setHours(23,59,59,999);
+        const today = await Remainder.find({ date: { $gte: start, $lte: end } }).sort({ date: -1 });
+        const all = await Remainder.find({}).sort({ date: -1 }).limit(200);
+        const todayValue = today.reduce((sum, r) => sum + (r.value || 0), 0);
+        res.json({ success: true, today, all, todayValue });
+    } catch (error) {
+        res.status(500).json({ success: false, message: error.message });
+    }
+});
+
+apiApp.post('/api/remainder', async (req, res) => {
+    const { item_name, qty, price, recorded_by } = req.body;
+    if (!item_name || !qty) return res.status(400).json({ success: false, message: 'Item and quantity required' });
+    try {
+        const q = Number(qty);
+        const p = Number(price) || 0;
+        const rec = await Remainder.create({
+            item_name, qty: q, price: p, value: q * p,
+            recorded_by: recorded_by || 'Staff'
+        });
+        res.json({ success: true, record: rec });
+    } catch (error) {
+        res.status(500).json({ success: false, message: error.message });
+    }
+});
+
+apiApp.delete('/api/remainder/:id', async (req, res) => {
+    try {
+        await Remainder.findByIdAndDelete(req.params.id);
+        res.json({ success: true, message: 'Remainder record deleted.' });
+    } catch (error) {
+        res.status(500).json({ success: false, message: error.message });
+    }
+});
+
+// ==========================================
+// --- DAILY BALANCE (closing M-Pesa + cash, recorded by cashier at day end) ---
+// ==========================================
+const DailyBalanceSchema = new mongoose.Schema({
+    date: { type: String, required: true, unique: true }, // YYYY-MM-DD (local)
+    mpesa: { type: Number, default: 0 },
+    cash: { type: Number, default: 0 },
+    recorded_by: String
+}, { timestamps: true });
+const DailyBalance = mongoose.model('DailyBalance', DailyBalanceSchema);
+
+function localDateStr(d) {
+    return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+}
+
+apiApp.get('/api/daily-balance', async (req, res) => {
+    const dateStr = req.query.date || localDateStr(new Date());
+    try {
+        const balance = await DailyBalance.findOne({ date: dateStr });
+        const d = new Date(dateStr + 'T00:00:00');
+        d.setDate(d.getDate() - 1);
+        const prev = await DailyBalance.findOne({ date: localDateStr(d) });
+        res.json({ success: true, date: dateStr, balance, prev });
+    } catch (error) {
+        res.status(500).json({ success: false, message: error.message });
+    }
+});
+
+apiApp.post('/api/daily-balance', async (req, res) => {
+    const { date, mpesa, cash, recorded_by } = req.body;
+    const dateStr = date || localDateStr(new Date());
+    if (mpesa === undefined && cash === undefined) return res.status(400).json({ success: false, message: 'Provide M-Pesa and/or cash totals' });
+    try {
+        const bal = await DailyBalance.findOneAndUpdate(
+            { date: dateStr },
+            { mpesa: Number(mpesa) || 0, cash: Number(cash) || 0, recorded_by: recorded_by || 'Staff' },
+            { upsert: true, new: true }
+        );
+        res.json({ success: true, balance: bal });
+    } catch (error) {
+        res.status(500).json({ success: false, message: error.message });
+    }
+});
+
+// ==========================================
+// --- DAY DETAIL (products sold + spoilage + remainder + profit for one day) ---
+// ==========================================
+apiApp.get('/api/reports/day', async (req, res) => {
+    const { start, end } = dayRange(req.query.date);
+    const dateStr = req.query.date || localDateStr(new Date());
+    try {
+        const orders = await Order.find({ createdAt: { $gte: start, $lte: end }, status: 'completed' });
+        const revenue = orders.reduce((sum, o) => sum + (o.total_amount || 0), 0);
+        const cogs = orders.reduce((sum, o) => sum + (o.total_cost || 0), 0);
+        const pmap = {};
+        orders.forEach(o => (o.items || []).forEach(it => {
+            const k = it.name || it.product_id;
+            if (!pmap[k]) pmap[k] = { name: it.name || 'Unknown', qty: 0, revenue: 0, cost: 0, profit: 0 };
+            pmap[k].qty += it.quantity;
+            pmap[k].revenue += (it.unit_price || 0) * it.quantity;
+            pmap[k].cost += (it.unit_cost || 0) * it.quantity;
+            pmap[k].profit += ((it.unit_price || 0) - (it.unit_cost || 0)) * it.quantity;
+        }));
+        const products = Object.values(pmap).sort((a, b) => b.qty - a.qty);
+
+        const spoilage = await Spoilage.find({ date: { $gte: start, $lte: end } }).sort({ date: -1 });
+        const spoilageCost = spoilage.reduce((sum, x) => sum + (x.value || 0), 0);
+        const remainder = await Remainder.find({ date: { $gte: start, $lte: end } }).sort({ date: -1 });
+        const remainderValue = remainder.reduce((sum, x) => sum + (x.value || 0), 0);
+        const expenses = await Expenditure.find({ date: { $gte: start, $lte: end } });
+        const expenseTotal = expenses.reduce((sum, e) => sum + (e.amount || 0), 0);
+
+        // closing-balance cashflow for the day
+        const balToday = await DailyBalance.findOne({ date: dateStr });
+        const dPrev = new Date(dateStr + 'T00:00:00'); dPrev.setDate(dPrev.getDate() - 1);
+        const balPrev = await DailyBalance.findOne({ date: localDateStr(dPrev) });
+        const closingTotal = balToday ? (balToday.mpesa + balToday.cash) : null;
+        const prevTotal = balPrev ? (balPrev.mpesa + balPrev.cash) : 0;
+        const totalMade = closingTotal === null ? null : closingTotal - prevTotal - expenseTotal;
+
+        res.json({
+            success: true, date: dateStr,
+            revenue, cogs, salesProfit: revenue - cogs,
+            expenseTotal, spoilageCost, remainderValue,
+            products, spoilage, remainder,
+            orderCount: orders.length,
+            closingMpesa: balToday ? balToday.mpesa : null,
+            closingCash: balToday ? balToday.cash : null,
+            prevClosing: balPrev ? prevTotal : null,
+            totalMade
+        });
+    } catch (error) {
+        res.status(500).json({ success: false, message: error.message });
+    }
+});
+
+// ==========================================
+// --- DAILY PRODUCT PERFORMANCE (product x day matrix) ---
+// ==========================================
+apiApp.get('/api/reports/daily-products', async (req, res) => {
+    const { from, to } = req.query;
+    let start, end;
+    if (from) { start = new Date(from); start.setHours(0,0,0,0); } else { start = new Date(); start.setHours(0,0,0,0); }
+    if (to) { end = new Date(to); end.setHours(23,59,59,999); } else { end = new Date(); end.setHours(23,59,59,999); }
+    try {
+        const orders = await Order.find({ createdAt: { $gte: start, $lte: end }, status: 'completed' }).sort({ createdAt: 1 });
+        const dateKeys = [];
+        const byDate = {};
+        orders.forEach(o => {
+            const dk = localDateStr(new Date(o.createdAt));
+            if (!byDate[dk]) { byDate[dk] = true; dateKeys.push(dk); }
+        });
+        const pmap = {};
+        orders.forEach(o => {
+            const dk = localDateStr(new Date(o.createdAt));
+            (o.items || []).forEach(it => {
+                const k = it.name || it.product_id;
+                if (!pmap[k]) pmap[k] = { name: it.name || 'Unknown', per: {}, qty: 0, revenue: 0, profit: 0 };
+                const row = pmap[k];
+                row.per[dk] = (row.per[dk] || 0) + it.quantity;
+                row.qty += it.quantity;
+                row.revenue += (it.unit_price || 0) * it.quantity;
+                row.profit += ((it.unit_price || 0) - (it.unit_cost || 0)) * it.quantity;
+            });
+        });
+        const products = Object.values(pmap).sort((a, b) => b.qty - a.qty);
+        res.json({ success: true, dates: dateKeys, products });
     } catch (error) {
         res.status(500).json({ success: false, message: error.message });
     }

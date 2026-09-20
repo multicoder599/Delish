@@ -29,33 +29,30 @@ button,input,select{font-family:inherit}
 @keyframes toastIn{from{transform:translateX(120%);opacity:0}to{transform:translateX(0);opacity:1}}
 @keyframes toastOut{from{transform:translateX(0);opacity:1}to{transform:translateX(120%);opacity:0}}
 
-/* LOGIN */
 .login-screen{position:fixed;inset:0;background:linear-gradient(135deg,#111827 0%,#1f2937 55%,#172554 100%);display:flex;align-items:center;justify-content:center;z-index:100;padding:16px}
 .login-card{background:#fff;border-radius:24px;padding:44px 40px;width:100%;max-width:400px;box-shadow:0 32px 80px rgba(0,0,0,.45);animation:fadeUp .4s ease}
-.login-badge{width:64px;height:64px;border-radius:18px;background:linear-gradient(135deg,var(--blue),#3b82f6);display:flex;align-items:center;justify-content:center;margin:0 auto 20px;box-shadow:0 8px 24px rgba(37,99,235,.35);font-size:30px}
+.login-badge{width:64px;height:64px;border-radius:18px;background:linear-gradient(135deg,var(--blue),#3b82f6);display:flex;align-items:center;justify-content:center;margin:0 auto 20px;box-shadow:0 8px 24px rgba(37,99,235,.35)}
 .login-card h1{font-size:24px;font-weight:800;text-align:center;letter-spacing:-.5px}
 .login-card .sub{text-align:center;color:var(--muted);font-size:13.5px;margin:6px 0 28px}
 .field{margin-bottom:16px}
 .field label{display:block;font-size:12px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.6px;margin-bottom:6px}
-.field input,.field select{width:100%;padding:13px 15px;background:#f9fafb;border:1.5px solid var(--border);border-radius:var(--r-md);font-size:14.5px;outline:none;transition:var(--tr);color:var(--text)}
-.field input:focus,.field select:focus{border-color:var(--blue);box-shadow:0 0 0 4px rgba(37,99,235,.12);background:#fff}
+.field input{width:100%;padding:13px 15px;background:#f9fafb;border:1.5px solid var(--border);border-radius:var(--r-md);font-size:14.5px;outline:none;transition:var(--tr);color:var(--text)}
+.field input:focus{border-color:var(--blue);box-shadow:0 0 0 4px rgba(37,99,235,.12);background:#fff}
 .btn{display:inline-flex;align-items:center;gap:7px;padding:10px 16px;border:none;border-radius:var(--r-md);font-weight:800;font-size:13px;cursor:pointer;transition:var(--tr);white-space:nowrap}
 .btn:hover{transform:translateY(-1px)}
 .btn-blue{background:var(--blue);color:#fff;box-shadow:0 4px 14px rgba(37,99,235,.3)}
 .btn-green{background:var(--green);color:#fff;box-shadow:0 4px 14px rgba(5,150,105,.3)}
 .btn-red{background:var(--red-soft);color:var(--red);border:1.5px solid #fecaca}
-.btn-red:hover{background:#fee2e2}
-.btn-orange{background:var(--brand);color:#fff;box-shadow:0 4px 14px rgba(234,88,12,.3)}
 .btn-ghost{background:#fff;border:1.5px solid var(--border);color:var(--muted)}
 .btn-ghost:hover{background:#f9fafb;color:var(--text)}
 .btn-block{width:100%;padding:14px;font-size:15px;justify-content:center}
+.btn.mini{padding:7px 11px;font-size:11.5px;border-radius:7px}
 
-/* SHELL */
 .app{display:none;min-height:100vh}
 .app.on{display:flex}
 .sidebar{width:232px;background:var(--sidebar);display:flex;flex-direction:column;padding:20px 12px;position:sticky;top:0;height:100vh;flex-shrink:0}
 .sb-brand{display:flex;align-items:center;gap:10px;padding:4px 10px 20px;border-bottom:1px solid rgba(255,255,255,.08);margin-bottom:14px}
-.sb-badge{width:38px;height:38px;border-radius:11px;background:linear-gradient(135deg,var(--blue),#3b82f6);display:flex;align-items:center;justify-content:center;font-size:19px;flex-shrink:0}
+.sb-badge{width:38px;height:38px;border-radius:11px;background:linear-gradient(135deg,var(--blue),#3b82f6);display:flex;align-items:center;justify-content:center;flex-shrink:0}
 .sb-brand b{color:#fff;font-size:15px;display:block;line-height:1.15}
 .sb-brand span{color:#9ca3af;font-size:10.5px;font-weight:600;letter-spacing:.4px;text-transform:uppercase}
 .sb-nav{display:flex;flex-direction:column;gap:4px;flex:1}
@@ -73,9 +70,8 @@ button,input,select{font-family:inherit}
 .vh h2{font-size:22px;font-weight:800;letter-spacing:-.4px}
 .vh p{color:var(--muted);font-size:13.5px;margin-top:3px}
 .date-inp{padding:10px 14px;background:#fff;border:1.5px solid var(--border);border-radius:var(--r-md);font-size:14px;outline:none;color:var(--text)}
-.date-inp:focus{border-color:var(--blue);box-shadow:0 0 0 4px rgba(37,99,235,.1)}
 
-.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(185px,1fr));gap:14px;margin-bottom:20px}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(175px,1fr));gap:14px;margin-bottom:20px}
 .card{background:#fff;border:1px solid var(--border);border-radius:var(--r-lg);padding:19px;box-shadow:var(--shadow);position:relative;overflow:hidden}
 .card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px}
 .card.g::before{background:linear-gradient(90deg,var(--green),#34d399)}
@@ -85,13 +81,14 @@ button,input,select{font-family:inherit}
 .card.r::before{background:linear-gradient(90deg,var(--red),#f87171)}
 .card.t::before{background:linear-gradient(90deg,#0d9488,#2dd4bf)}
 .card h5{font-size:11px;font-weight:800;color:var(--faint);text-transform:uppercase;letter-spacing:.6px;margin-bottom:9px}
-.card .v{font-size:25px;font-weight:800;letter-spacing:-1px}
+.card .v{font-size:24px;font-weight:800;letter-spacing:-1px}
 .card.g .v{color:var(--green)} .card.b .v{color:var(--blue)} .card.o .v{color:var(--brand)} .card.p .v{color:var(--purple)} .card.r .v{color:var(--red)} .card.t .v{color:#0d9488}
 .card .s{font-size:11.5px;color:var(--faint);margin-top:4px;font-weight:600}
 
 .panel{background:#fff;border:1px solid var(--border);border-radius:var(--r-lg);box-shadow:var(--shadow);overflow:hidden;margin-bottom:20px}
 .panel-head{padding:15px 20px;border-bottom:1px solid var(--border);font-weight:800;font-size:14.5px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
 .panel-head .t{display:flex;align-items:center;gap:8px}
+.panel-head svg{width:16px;height:16px;flex-shrink:0;color:var(--brand)}
 .tbl-wrap{overflow-x:auto}
 table{width:100%;border-collapse:collapse}
 th{text-align:left;padding:11px 15px;font-size:10.5px;font-weight:800;color:var(--faint);text-transform:uppercase;letter-spacing:.6px;background:#fafafa;border-bottom:1px solid var(--border);white-space:nowrap}
@@ -108,19 +105,18 @@ tbody tr:hover{background:#fafafa}
 .pl-total{border-top:2px solid var(--border);margin-top:6px;padding-top:14px}
 .pl-total .l{color:var(--text);font-size:14.5px;font-weight:800}
 .pl-total .v{font-size:23px;font-weight:800}
+.note{background:var(--amber-soft);border:1.5px solid #fde68a;color:var(--amber);border-radius:var(--r-md);padding:12px 16px;font-size:13px;font-weight:700;margin-bottom:16px}
 
 .inp{padding:10px 12px;background:#f9fafb;border:1.5px solid var(--border);border-radius:var(--r-sm);font-size:13.5px;outline:none;color:var(--text);transition:var(--tr);width:100%}
 .inp:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(37,99,235,.1);background:#fff}
 .inp.num{font-family:'IBM Plex Mono',monospace;font-weight:600}
 .inp.w-s{width:86px}
-.inp.w-m{width:110px}
 .frm{display:grid;gap:12px;padding:18px 20px}
 .frm-row{display:flex;gap:12px;flex-wrap:wrap;align-items:flex-end}
 .frm-row .fg{flex:1;min-width:140px}
 .fg label{display:block;font-size:11px;font-weight:800;color:var(--faint);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px}
 .search{position:relative;max-width:320px}
 .search input{width:100%;padding:10px 12px 10px 38px;background:#f9fafb;border:1.5px solid var(--border);border-radius:var(--r-md);font-size:13.5px;outline:none;color:var(--text)}
-.search input:focus{border-color:var(--blue)}
 .search svg{position:absolute;left:12px;top:50%;transform:translateY(-50%);width:16px;height:16px;color:var(--faint)}
 .preset-row{display:flex;gap:8px;flex-wrap:wrap}
 .preset{padding:9px 16px;background:#f3f4f6;border:1.5px solid var(--border);border-radius:999px;font-size:12.5px;font-weight:800;color:var(--muted);cursor:pointer;transition:var(--tr)}
@@ -145,29 +141,40 @@ tbody tr:hover{background:#fafafa}
 .toast{background:#111827;color:#fff;border-radius:var(--r-md);padding:13px 18px;display:flex;align-items:center;gap:11px;font-weight:700;font-size:13.5px;box-shadow:var(--shadow-lg);animation:toastIn .3s ease;max-width:340px;pointer-events:all}
 .toast.hide{animation:toastOut .25s ease forwards}
 .toast .dot{width:9px;height:9px;border-radius:50%;flex-shrink:0}
-.mini{padding:7px 11px;font-size:11.5px;border-radius:7px}
+.stat-row{display:flex;gap:12px;flex-wrap:wrap;padding:16px 20px;border-bottom:1px solid var(--border)}
+.stat-pill{background:#f9fafb;border:1.5px solid var(--border);border-radius:var(--r-md);padding:10px 16px;min-width:130px}
+.stat-pill span{font-size:10.5px;font-weight:800;color:var(--faint);text-transform:uppercase;letter-spacing:.5px;display:block;margin-bottom:4px}
+.stat-pill b{font-size:16px;font-weight:800}
 
 @media(max-width:900px){
   .app.on{flex-direction:column}
-  .sidebar{width:100%;flex-direction:row;padding:10px 12px;align-items:center;gap:6px;overflow-x:auto;height:auto;position:sticky}
+  .sidebar{width:100%;flex-direction:row;padding:10px 12px;align-items:center;gap:6px;overflow-x:auto;height:auto;position:sticky;top:0;z-index:50}
   .sb-brand{border:none;margin:0;padding:0 10px 0 0}
-  .sb-nav{flex-direction:row}
+  .sb-nav{flex-direction:row;overflow-x:auto}
   .sb-item{white-space:nowrap}
   .sb-logout{display:none}
   .main{padding:18px 16px}
 }
-
-.login-badge svg,.sb-badge svg{width:28px;height:28px;color:#fff}
-.panel-head svg{width:16px;height:16px;color:var(--brand)}
-.btn svg{width:14px;height:14px}
-.chip svg{width:12px;height:12px;vertical-align:-1px}
+@media(max-width:640px){
+  .main{padding:14px 12px}
+  .vh{flex-direction:column;align-items:stretch}
+  .vh .date-inp{width:100%}
+  .cards{grid-template-columns:repeat(2,1fr);gap:10px}
+  .card{padding:14px}
+  .card .v{font-size:18px}
+  .card h5{font-size:9.5px}
+  .frm-row{flex-direction:column;align-items:stretch}
+  .sheet-actions{flex-direction:column}
+  .panel-head{padding:13px 14px;font-size:13.5px}
+  th,td{padding:9px 11px;font-size:12.5px}
+  .preset{padding:8px 13px;font-size:11.5px}
+}
 </style>
 </head>
 <body>
 
 <div class="toasts" id="toasts"></div>
 
-<!-- LOGIN -->
 <div class="login-screen" id="loginScreen">
   <div class="login-card">
     <div class="login-badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2"/><path d="M7 2v20"/><path d="M21 15V2a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3z"/><path d="M21 15v7"/></svg></div>
@@ -179,7 +186,6 @@ tbody tr:hover{background:#fafafa}
   </div>
 </div>
 
-<!-- APP -->
 <div class="app" id="app">
   <div class="sidebar">
     <div class="sb-brand">
@@ -195,19 +201,18 @@ tbody tr:hover{background:#fafafa}
 
   <div class="main">
 
-    <!-- DASHBOARD -->
+    <!-- DASHBOARD / P&L -->
     <div class="view on" id="v-dash">
       <div class="vh"><div><h2>Profit &amp; Loss</h2><p id="dashSub">Today's financial summary</p></div><input type="date" class="date-inp" id="dashDate" onchange="loadDash()"></div>
+      <div id="balNote"></div>
       <div class="cards" id="dashCards"></div>
-      <div style="display:grid;grid-template-columns:1fr;gap:20px">
-        <div class="panel" style="max-width:520px">
-          <div class="panel-head"><span class="t"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="M18 17V9"/><path d="M13 17V5"/><path d="M8 17v-3"/></svg> P&amp;L Breakdown</span></div>
-          <div style="padding:8px 20px 14px" id="plBox"></div>
-        </div>
+      <div class="panel" style="max-width:540px">
+        <div class="panel-head"><span class="t"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12V7H5a2 2 0 0 1 0-4h14v4"/><path d="M3 5v14a2 2 0 0 0 2 2h16v-5"/><path d="M18 12a2 2 0 0 0 0 4h4v-4Z"/></svg> P&amp;L Breakdown</span></div>
+        <div style="padding:8px 20px 14px" id="plBox"></div>
       </div>
       <div class="panel">
-        <div class="panel-head"><span class="t"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 2v20l2-1 2 1 2-1 2 1 2-1 2 1 2-1 2 1V2l-2 1-2-1-2 1-2-1-2 1-2-1-2 1Z"/><path d="M8 7h8"/><path d="M8 11h8"/><path d="M8 15h5"/></svg> Itemized Orders</span></div>
-        <div class="tbl-wrap"><table><thead><tr><th>Order</th><th>Waiter</th><th>Table</th><th>Items</th><th>Cost</th><th>Revenue</th><th>Profit</th></tr></thead><tbody id="dashRows"></tbody></table></div>
+        <div class="panel-head"><span class="t"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg> Itemized Orders</span></div>
+        <div class="tbl-wrap"><table><thead><tr><th>Order</th><th>Waiter</th><th>Table</th><th>Items</th><th>Revenue</th><th>Profit</th></tr></thead><tbody id="dashRows"></tbody></table></div>
       </div>
     </div>
 
@@ -217,21 +222,7 @@ tbody tr:hover{background:#fafafa}
       <div class="cards" id="wCards"></div>
       <div class="panel">
         <div class="panel-head"><span class="t"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg> Per-Waiter Breakdown</span></div>
-        <div class="tbl-wrap"><table><thead><tr><th>Waiter</th><th>Orders</th><th>Items</th><th>Cash</th><th>M-Pesa</th><th>Revenue</th><th>Est. Profit</th></tr></thead><tbody id="wRows"></tbody></table></div>
-      </div>
-    </div>
-
-    <!-- PAYMENTS -->
-    <div class="view" id="v-pay">
-      <div class="vh"><div><h2>M-Pesa &amp; Cash</h2><p>Collections by payment channel (manual till payments)</p></div><input type="date" class="date-inp" id="pDate" onchange="loadPay()"></div>
-      <div class="cards" id="pCards"></div>
-      <div class="panel">
-        <div class="panel-head"><span class="t" style="color:var(--green)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="2" width="14" height="20" rx="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg> M-Pesa Payments</span></div>
-        <div class="tbl-wrap"><table><thead><tr><th>Time</th><th>Reference</th><th>Waiter</th><th>Amount</th></tr></thead><tbody id="mpRows"></tbody></table></div>
-      </div>
-      <div class="panel">
-        <div class="panel-head"><span class="t" style="color:var(--blue)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="20" height="12" rx="2"/><circle cx="12" cy="12" r="2"/><path d="M6 12h.01M18 12h.01"/></svg> Cash Payments</span></div>
-        <div class="tbl-wrap"><table><thead><tr><th>Time</th><th>Order</th><th>Waiter</th><th>Table</th><th>Received</th><th>Change</th><th>Net Cash</th></tr></thead><tbody id="cashRows"></tbody></table></div>
+        <div class="tbl-wrap"><table><thead><tr><th>Waiter</th><th>Orders</th><th>Items</th><th>Revenue</th><th>Est. Profit</th></tr></thead><tbody id="wRows"></tbody></table></div>
       </div>
     </div>
 
@@ -240,84 +231,76 @@ tbody tr:hover{background:#fafafa}
       <div class="vh"><div><h2>Stock Control</h2><p>Opening &amp; closing stock takes, restocking, live inventory</p></div></div>
       <div class="panel">
         <div class="panel-head"><span class="t"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.29 7 12 12 20.71 7"/><line x1="12" y1="22" x2="12" y2="12"/></svg> Stock Takes</span>
-          <span style="display:flex;gap:9px">
-            <button class="btn btn-blue" onclick="openTake('opening')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg> Record Opening Stock</button>
-            <button class="btn btn-green" onclick="openTake('closing')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg> Record Closing Stock</button>
+          <span style="display:flex;gap:9px;flex-wrap:wrap">
+            <button class="btn btn-blue" onclick="openTake('opening')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg> Record Opening</button>
+            <button class="btn btn-green" onclick="openTake('closing')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg> Record Closing</button>
           </span>
         </div>
         <div class="tbl-wrap"><table><thead><tr><th>Date &amp; Time</th><th>Type</th><th>Taken By</th><th>Items</th><th>Value (Cost)</th></tr></thead><tbody id="takeRows"></tbody></table></div>
       </div>
       <div class="panel">
         <div class="panel-head"><span class="t"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1"/></svg> Live Inventory</span>
-          <div class="search"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg><input type="text" id="stockQ" placeholder="Search item..." oninput="renderStock()"></div>
+          <div class="search"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg><input type="text" id="stockQ" placeholder="Search item..." oninput="renderStock()"></div>
         </div>
-        <div class="tbl-wrap"><table><thead><tr><th>Item</th><th>Category</th><th>Stock</th><th>Cost/Unit</th><th>Stock Value</th><th>Restock</th><th></th></tr></thead><tbody id="stockRows"></tbody></table></div>
+        <div class="tbl-wrap"><table><thead><tr><th>Item</th><th>Category</th><th>Stock</th><th>Stock Value</th><th>Restock</th><th></th></tr></thead><tbody id="stockRows"></tbody></table></div>
       </div>
     </div>
 
-    <!-- SPOILAGE -->
+    <!-- SPOILAGE (view only) -->
     <div class="view" id="v-spoil">
-      <div class="vh"><div><h2>Spoilage &amp; Wastage</h2><p>Record spoiled food — deducts stock and hits P&amp;L</p></div></div>
+      <div class="vh"><div><h2>Spoilage</h2><p>Recorded by staff — view only. Staff deducts stock when recording.</p></div></div>
       <div class="cards" id="spCards"></div>
       <div class="panel">
-        <div class="panel-head"><span class="t" style="color:var(--red)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg> Record Spoilage</span></div>
-        <div class="frm-row frm">
-          <div class="fg" style="flex:2"><label>Item</label><select class="inp" id="spItem"></select></div>
-          <div class="fg"><label>Qty Spoilt</label><input type="number" class="inp num" id="spQty" min="1" placeholder="0"></div>
-          <div class="fg" style="flex:2"><label>Reason</label><input type="text" class="inp" id="spReason" placeholder="e.g. Expired, dropped, burnt"></div>
-          <button class="btn btn-red" onclick="addSpoilage()">Record Loss</button>
-        </div>
+        <div class="panel-head"><span class="t"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg> Spoilage Log</span></div>
+        <div class="tbl-wrap"><table><thead><tr><th>Date</th><th>Item</th><th>Qty</th><th>Reason</th><th>Loss (Cost)</th><th>By</th></tr></thead><tbody id="spRows"></tbody></table></div>
       </div>
+    </div>
+
+    <!-- REMAINDER (view only) -->
+    <div class="view" id="v-remain">
+      <div class="vh"><div><h2>Remainder</h2><p>Food left over at day end, recorded by staff — view only</p></div></div>
+      <div class="cards" id="rmCards"></div>
       <div class="panel">
-        <div class="panel-head"><span class="t">Spoilage Log</span></div>
-        <div class="tbl-wrap"><table><thead><tr><th>Date</th><th>Item</th><th>Qty</th><th>Reason</th><th>Loss (Cost)</th><th>By</th><th></th></tr></thead><tbody id="spRows"></tbody></table></div>
+        <div class="panel-head"><span class="t"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1"/></svg> Remainder Log</span></div>
+        <div class="tbl-wrap"><table><thead><tr><th>Date</th><th>Item</th><th>Qty Left</th><th>Price</th><th>Value</th><th>By</th></tr></thead><tbody id="rmRows"></tbody></table></div>
+      </div>
+    </div>
+
+    <!-- EXPENSES (view only) -->
+    <div class="view" id="v-exp">
+      <div class="vh"><div><h2>Expenses</h2><p>Recorded by staff when they buy with business cash — view only</p></div></div>
+      <div class="panel">
+        <div class="panel-head"><span class="t"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg> Expense History</span><b class="num" id="expTotalLbl" style="color:var(--red)"></b></div>
+        <div class="tbl-wrap"><table><thead><tr><th>Date</th><th>Description</th><th>Amount</th><th>By</th></tr></thead><tbody id="exRows"></tbody></table></div>
       </div>
     </div>
 
     <!-- MENU -->
     <div class="view" id="v-menu">
-      <div class="vh"><div><h2>Menu &amp; Prices</h2><p>Adjust names, prices, food cost and stock levels</p></div><button class="btn btn-ghost" onclick="seedMenu()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg> Load Default Delish Menu</button></div>
+      <div class="vh"><div><h2>Menu &amp; Prices</h2><p>Adjust names, selling prices and stock levels</p></div><button class="btn btn-ghost" onclick="seedMenu()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> Load Default Delish Menu</button></div>
       <div class="panel">
         <div class="panel-head"><span class="t"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> Add Menu Item</span></div>
         <div class="frm-row frm">
           <div class="fg" style="flex:2"><label>Name</label><input type="text" class="inp" id="nmName" placeholder="e.g. Pilau"></div>
           <div class="fg"><label>Category</label><select class="inp" id="nmType"><option value="meals">Meals</option><option value="drinks">Drinks</option><option value="snacks">Snacks</option></select></div>
           <div class="fg"><label>Sell Price</label><input type="number" class="inp num" id="nmPrice" placeholder="0"></div>
-          <div class="fg"><label>Food Cost</label><input type="number" class="inp num" id="nmCost" placeholder="0"></div>
           <div class="fg"><label>Stock</label><input type="number" class="inp num" id="nmStock" placeholder="0"></div>
           <button class="btn btn-blue" onclick="addItem()">Add Item</button>
         </div>
       </div>
       <div class="panel">
         <div class="panel-head"><span class="t">Full Menu</span>
-          <div class="search"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg><input type="text" id="menuQ" placeholder="Search item..." oninput="renderMenu()"></div>
+          <div class="search"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg><input type="text" id="menuQ" placeholder="Search item..." oninput="renderMenu()"></div>
         </div>
-        <div class="tbl-wrap"><table><thead><tr><th>Item</th><th>Category</th><th>Stock</th><th>Food Cost</th><th>Sell Price</th><th>Margin</th><th></th></tr></thead><tbody id="menuRows"></tbody></table></div>
-      </div>
-    </div>
-
-    <!-- EXPENSES -->
-    <div class="view" id="v-exp">
-      <div class="vh"><div><h2>Expenses</h2><p>Rent, supplies, fuel — anything that reduces profit</p></div></div>
-      <div class="panel">
-        <div class="panel-head"><span class="t"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg> Record Expense</span></div>
-        <div class="frm-row frm">
-          <div class="fg" style="flex:2"><label>Description</label><input type="text" class="inp" id="exDesc" placeholder="e.g. Charcoal, vegetables, rent"></div>
-          <div class="fg"><label>Amount (KES)</label><input type="number" class="inp num" id="exAmt" placeholder="0.00"></div>
-          <button class="btn btn-orange" onclick="addExpense()">Record</button>
-        </div>
-      </div>
-      <div class="panel">
-        <div class="panel-head"><span class="t">Expense History</span></div>
-        <div class="tbl-wrap"><table><thead><tr><th>Date</th><th>Description</th><th>Amount</th><th>By</th><th></th></tr></thead><tbody id="exRows"></tbody></table></div>
+        <div class="tbl-wrap"><table><thead><tr><th>Item</th><th>Category</th><th>Stock</th><th>Sell Price</th><th></th></tr></thead><tbody id="menuRows"></tbody></table></div>
       </div>
     </div>
 
     <!-- STATEMENTS -->
     <div class="view" id="v-rep">
-      <div class="vh"><div><h2>Statements &amp; Reports</h2><p>Daily, weekly or monthly statements + product performance</p></div></div>
+      <div class="vh"><div><h2>Statements &amp; Reports</h2><p>Any range — daily, weekly, monthly — plus day detail and product performance</p></div></div>
       <div class="panel">
-        <div class="panel-head"><span class="t"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg> Report Period</span></div>
+        <div class="panel-head"><span class="t"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg> Report Period</span></div>
         <div class="frm">
           <div class="frm-row">
             <div class="fg"><label>From</label><input type="date" class="inp" id="rpFrom"></div>
@@ -338,16 +321,24 @@ tbody tr:hover{background:#fafafa}
       <div class="cards" id="rpCards"></div>
       <div class="panel">
         <div class="panel-head"><span class="t"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg> Sales Statement — <span class="num" id="rpRangeLbl" style="font-weight:600"></span></span></div>
-        <div class="tbl-wrap"><table><thead><tr><th>Period</th><th>Orders</th><th>Items</th><th>Cash</th><th>M-Pesa</th><th>Revenue</th><th>Cost</th><th>Profit</th></tr></thead><tbody id="rpRows"></tbody></table></div>
+        <div class="tbl-wrap"><table><thead><tr><th>Period</th><th>Orders</th><th>Items</th><th>Revenue</th><th>Cost</th><th>Profit</th></tr></thead><tbody id="rpRows"></tbody></table></div>
       </div>
+
       <div class="panel">
-        <div class="panel-head"><span class="t"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/></svg> Product Performance — <span class="num" id="rpProdLbl" style="font-weight:600"></span></span>
-          <span style="display:flex;gap:8px">
-            <button class="preset on" id="sortMost" onclick="setSort('most')">Most Sold</button>
-            <button class="preset" id="sortLeast" onclick="setSort('least')">Least Sold</button>
+        <div class="panel-head"><span class="t"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg> Day Detail — everything that happened on one day</span>
+          <span style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+            <input type="date" class="date-inp" id="ddDate">
+            <button class="btn btn-blue" onclick="loadDayDetail()">View Day</button>
           </span>
         </div>
-        <div class="tbl-wrap"><table><thead><tr><th>#</th><th>Product</th><th>Qty Sold</th><th>Revenue</th><th>Food Cost</th><th>Profit</th></tr></thead><tbody id="rpProdRows"></tbody></table></div>
+        <div id="ddBody"><div style="padding:20px;color:var(--faint);font-weight:600">Pick a date above to see products sold, spoilage, remainder and profit for that day.</div></div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-head"><span class="t"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg> Performance — products sold per day (uses the report range)</span>
+          <button class="btn btn-ghost" onclick="loadPerformance()">Refresh</button>
+        </div>
+        <div class="tbl-wrap" id="perfWrap"><div style="padding:20px;color:var(--faint);font-weight:600">Set a range above (e.g. 7–12 of this month) and the matrix of products × days appears here.</div></div>
       </div>
     </div>
 
@@ -388,18 +379,29 @@ tbody tr:hover{background:#fafafa}
 <script>
 const API_URL = 'http://169.58.58.133:4027';
 const KES = n => 'KES ' + (n || 0).toLocaleString('en-KE', { minimumFractionDigits: 2 });
-const N = n => (n || 0).toLocaleString('en-KE', { minimumFractionDigits: 2 });
 
 let menu = [];
 let takeType = 'opening';
-let rpProdData = [];
-let rpSort = 'most';
 
 const NAV = [
-  ['dash', '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="M18 17V9"/><path d="M13 17V5"/><path d="M8 17v-3"/></svg>', 'P&L Dashboard'], ['waiters', '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>', 'Waiter Sales'], ['pay', '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>', 'M-Pesa & Cash'],
-  ['stock', '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.29 7 12 12 20.71 7"/><line x1="12" y1="22" x2="12" y2="12"/></svg>', 'Stock Control'], ['spoil', '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>', 'Spoilage'], ['menu', '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2"/><path d="M7 2v20"/><path d="M21 15V2a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3z"/><path d="M21 15v7"/></svg>', 'Menu & Prices'],
-  ['exp', '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>', 'Expenses'], ['rep', '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>', 'Statements'], ['staff', '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>', 'Staff']
+  ['dash', 'CHART', 'P&L Dashboard'], ['waiters', 'USERS', 'Waiter Sales'],
+  ['stock', 'BOX', 'Stock Control'], ['spoil', 'WARN', 'Spoilage'],
+  ['remain', 'CLIP', 'Remainder'], ['exp', 'MONEY', 'Expenses'],
+  ['menu', 'FOOD', 'Menu & Prices'], ['rep', 'TREND', 'Statements'], ['staff', 'LOCK', 'Staff']
 ];
+const ICONS = {
+  CHART: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="M18 17V9"/><path d="M13 17V5"/><path d="M8 17v-3"/></svg>',
+  USERS: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>',
+  BOX: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.29 7 12 12 20.71 7"/><line x1="12" y1="22" x2="12" y2="12"/></svg>',
+  WARN: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>',
+  CLIP: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1"/></svg>',
+  MONEY: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>',
+  FOOD: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2"/><path d="M7 2v20"/><path d="M21 15V2a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3z"/><path d="M21 15v7"/></svg>',
+  TREND: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>',
+  LOCK: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>',
+  DOC: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>',
+  WALLET: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12V7H5a2 2 0 0 1 0-4h14v4"/><path d="M3 5v14a2 2 0 0 0 2 2h16v-5"/><path d="M18 12a2 2 0 0 0 0 4h4v-4Z"/></svg>'
+};
 
 function toast(msg, type) {
   const t = document.createElement('div');
@@ -409,16 +411,15 @@ function toast(msg, type) {
   document.getElementById('toasts').appendChild(t);
   setTimeout(() => { t.classList.add('hide'); setTimeout(() => t.remove(), 250); }, 3500);
 }
-
 function card(color, title, val, sub) {
-  return '<div class="card ' + color + '"><h5>' + title + '</h5><div class="v num">' + val + '</div>' + (sub ? '<div class="s">' + sub + '</div>' : '') + '</div>';
+  return '<div class="card ' + color + '"><h5>' + title + '</h5><div class="v">' + val + '</div>' + (sub ? '<div class="s">' + sub + '</div>' : '') + '</div>';
 }
 function chip(html, cls) { return '<span class="chip ' + cls + '">' + html + '</span>'; }
 
 /* ===== NAV ===== */
 function buildNav() {
   document.getElementById('sbNav').innerHTML = NAV.map(([k, ic, l]) =>
-    '<button class="sb-item" id="nav-' + k + '" onclick="go(\'' + k + '\')">' + ic + ' ' + l + '</button>').join('');
+    '<button class="sb-item" id="nav-' + k + '" onclick="go('' + k + '')">' + ICONS[ic] + ' ' + l + '</button>').join('');
 }
 
 function go(k) {
@@ -429,11 +430,11 @@ function go(k) {
   window.scrollTo(0, 0);
   if (k === 'dash') loadDash();
   if (k === 'waiters') loadWaiters();
-  if (k === 'pay') loadPay();
   if (k === 'stock') loadStockView();
   if (k === 'spoil') loadSpoilage();
-  if (k === 'menu') renderMenu();
+  if (k === 'remain') loadRemainder();
   if (k === 'exp') loadExpenses();
+  if (k === 'menu') renderMenu();
   if (k === 'rep') { initReportDates(); runReport(); }
   if (k === 'staff') loadStaff();
 }
@@ -442,7 +443,8 @@ function go(k) {
 document.addEventListener('DOMContentLoaded', () => {
   buildNav();
   const t = new Date().toISOString().substring(0, 10);
-  ['dashDate', 'wDate', 'pDate'].forEach(id => document.getElementById(id).value = t);
+  ['dashDate', 'wDate'].forEach(id => document.getElementById(id).value = t);
+  document.getElementById('ddDate').value = t;
   if (localStorage.getItem('dd_admin_auth') === '1') enterApp();
 });
 
@@ -456,10 +458,8 @@ async function doLogin() {
       body: JSON.stringify({ username: u, pin: p, attemptedRole: 'admin' })
     });
     const d = await r.json();
-    if (d.success) {
-      localStorage.setItem('dd_admin_auth', '1');
-      enterApp();
-    } else toast(d.message || 'Login failed', 'err');
+    if (d.success) { localStorage.setItem('dd_admin_auth', '1'); enterApp(); }
+    else toast(d.message || 'Login failed', 'err');
   } catch (e) { toast('Cannot reach server', 'err'); }
 }
 
@@ -475,11 +475,11 @@ async function loadMenu() {
   try {
     const r = await fetch(API_URL + '/api/products');
     const d = await r.json();
-    if (d.success) { menu = d.products; renderStock(); renderMenu(); fillSpoilSelect(); }
+    if (d.success) { menu = d.products; renderStock(); renderMenu(); }
   } catch (e) { console.error(e); }
 }
 
-/* ===== DASHBOARD ===== */
+/* ===== DASHBOARD / P&L (closing-balance formula) ===== */
 async function loadDash() {
   const date = document.getElementById('dashDate').value;
   document.getElementById('dashSub').textContent = 'Summary for ' + date;
@@ -489,39 +489,55 @@ async function loadDash() {
       fetch(API_URL + '/api/pl/' + date)
     ]);
     const s = await sRes.json(); const p = await pRes.json();
-    if (s.success) {
+    const dashNote = document.getElementById('balNote');
+    if (p.success && !p.balanceRecorded) {
+      dashNote.innerHTML = '<div class="note">Day-end balance (M-Pesa + till totals) has not been recorded by the cashier for this day yet. "Total Made" will appear once it is recorded.</div>';
+    } else dashNote.innerHTML = '';
+
+    if (s.success && p.success) {
       document.getElementById('dashCards').innerHTML =
-        card('b', 'Gross Revenue', KES(s.totalSales), s.orderCount + ' orders') +
-        card('t', 'Cash Collected', KES(s.cashSales)) +
-        card('g', 'M-Pesa Collected', KES(s.mpesaSales)) +
-        card('p', 'Gross Profit', KES(s.grossProfit), 'after food cost') +
-        card('r', 'Spoilage Loss', KES(p.success ? p.spoilageCost : 0)) +
-        card('o', 'Net Profit', KES(p.success ? p.netProfit : 0), 'after expenses & spoilage');
+        card('b', 'Closing M-Pesa', p.closingMpesa !== null ? KES(p.closingMpesa) : '—', 'recorded at day end') +
+        card('t', 'Closing Cash', p.closingCash !== null ? KES(p.closingCash) : '—', 'recorded at day end') +
+        card('g', 'TOTAL MADE', p.totalMade !== null ? KES(p.totalMade) : '—', 'today − yesterday − expenses') +
+        card('o', 'Sales Revenue', KES(s.totalSales), s.orderCount + ' orders') +
+        card('p', 'Sales Gross Profit', KES(s.grossProfit), 'after food cost') +
+        card('r', 'Expenses', KES(p.expenses)) +
+        card('r', 'Spoilage Loss', KES(p.spoilageCost));
+
+      const plr = (l, v, c) => '<div class="plr"><span class="l">' + l + '</span><span class="v num" style="color:' + c + '">' + v + '</span></div>';
+      let box = '';
+      if (p.closingTotal !== null && p.prevClosing !== null) {
+        box =
+          plr("Today's closing (M-Pesa " + KES(p.closingMpesa) + ' + Cash ' + KES(p.closingCash) + ')', KES(p.closingTotal), 'var(--blue)') +
+          plr("Yesterday's closing", '− ' + KES(p.prevClosing), 'var(--red)') +
+          plr("Today's expenses", '− ' + KES(p.expenses), 'var(--red)') +
+          '<div class="plr pl-total"><span class="l">TOTAL MADE</span><span class="v num" style="color:' + (p.totalMade >= 0 ? 'var(--green)' : 'var(--red)') + '">' + KES(p.totalMade) + '</span></div>';
+      } else if (p.closingTotal !== null) {
+        box = plr("Today's closing", KES(p.closingTotal), 'var(--blue)') +
+          '<div class="plr"><span class="l">Yesterday's closing</span><span class="v num" style="color:var(--faint)">not recorded</span></div>';
+      } else {
+        box = '<div style="padding:8px 0;color:var(--faint);font-weight:600;font-size:13px">Cashier has not recorded the day-end balance yet.</div>';
+      }
+      box += '<div style="border-top:1px dashed var(--border);margin-top:10px;padding-top:10px">' +
+        plr('Sales revenue (reference)', KES(p.revenue), 'var(--green)') +
+        plr('Food cost (reference)', KES(p.cogs), 'var(--red)') +
+        plr('Sales gross profit (reference)', KES(p.grossProfit), 'var(--purple)') + '</div>';
+      document.getElementById('plBox').innerHTML = box;
+
       const tb = document.getElementById('dashRows');
       tb.innerHTML = '';
-      if (!s.orders.length) tb.innerHTML = '<tr><td colspan="7" style="text-align:center;color:var(--faint);padding:22px;font-weight:600">No orders this day</td></tr>';
+      if (!s.orders.length) tb.innerHTML = '<tr><td colspan="6" style="text-align:center;color:var(--faint);padding:22px;font-weight:600">No orders this day</td></tr>';
       s.orders.forEach(o => {
         const tr = document.createElement('tr');
         const profit = (o.total_amount || 0) - (o.total_cost || 0);
         tr.innerHTML = '<td><b class="num">#' + o._id.substring(0, 6).toUpperCase() + '</b><br><small style="color:var(--faint)">' + new Date(o.createdAt).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }) + '</small></td>' +
           '<td style="text-transform:uppercase;font-weight:700;font-size:12px;color:var(--muted)">' + o.served_by + '</td>' +
           '<td>' + (o.table_number || 'Counter') + '</td>' +
-          '<td style="font-size:12px;color:var(--muted);max-width:210px">' + o.items.map(i => i.quantity + 'x ' + i.name).join(', ') + '</td>' +
-          '<td class="num" style="color:var(--red)">' + KES(o.total_cost || 0) + '</td>' +
+          '<td style="font-size:12px;color:var(--muted);max-width:220px">' + o.items.map(i => i.quantity + 'x ' + i.name).join(', ') + '</td>' +
           '<td class="num" style="color:var(--green);font-weight:700">' + KES(o.total_amount) + '</td>' +
           '<td class="num" style="color:var(--purple);font-weight:700">' + KES(profit) + '</td>';
         tb.appendChild(tr);
       });
-    }
-    if (p.success) {
-      const plr = (l, v, c) => '<div class="plr"><span class="l">' + l + '</span><span class="v num" style="color:' + c + '">' + v + '</span></div>';
-      document.getElementById('plBox').innerHTML =
-        plr('Sales Revenue', KES(p.revenue), 'var(--green)') +
-        plr('Food Cost (COGS)', '− ' + KES(p.cogs), 'var(--red)') +
-        plr('Gross Profit', KES(p.grossProfit), 'var(--purple)') +
-        plr('Expenses', '− ' + KES(p.expenses), 'var(--red)') +
-        plr('Spoilage Loss', '− ' + KES(p.spoilageCost), 'var(--red)') +
-        '<div class="plr pl-total"><span class="l">NET PROFIT</span><span class="v num" style="color:' + (p.netProfit >= 0 ? 'var(--green)' : 'var(--red)') + '">' + KES(p.netProfit) + '</span></div>';
     }
   } catch (e) { console.error(e); }
 }
@@ -534,75 +550,19 @@ async function loadWaiters() {
     const d = await r.json();
     if (!d.success) return;
     document.getElementById('wCards').innerHTML =
-      card('b', 'Total Revenue', KES(d.totalSales)) + card('g', 'M-Pesa', KES(d.mpesaSales)) +
-      card('t', 'Cash', KES(d.cashSales)) + card('o', 'Active Waiters', d.waiters.length);
+      card('b', 'Total Revenue', KES(d.totalSales)) + card('o', 'Active Waiters', d.waiters.length) +
+      card('p', 'Gross Profit', KES(d.grossProfit)) + card('r', 'Orders', d.orderCount);
     const tb = document.getElementById('wRows');
     tb.innerHTML = '';
-    if (!d.waiters.length) { tb.innerHTML = '<tr><td colspan="7" style="text-align:center;color:var(--faint);padding:22px;font-weight:600">No waiter sales this day</td></tr>'; return; }
+    if (!d.waiters.length) { tb.innerHTML = '<tr><td colspan="5" style="text-align:center;color:var(--faint);padding:22px;font-weight:600">No waiter sales this day</td></tr>'; return; }
     d.waiters.forEach(w => {
       const tr = document.createElement('tr');
       tr.innerHTML = '<td style="text-transform:uppercase;font-weight:800">' + w.waiter + '</td>' +
         '<td class="num">' + w.orders + '</td><td class="num">' + w.items + '</td>' +
-        '<td class="num" style="color:var(--blue)">' + KES(w.cash) + '</td>' +
-        '<td class="num" style="color:var(--green)">' + KES(w.mpesa) + '</td>' +
         '<td class="num" style="color:var(--brand);font-weight:700">' + KES(w.revenue) + '</td>' +
         '<td class="num" style="color:var(--purple);font-weight:700">' + KES(w.revenue - w.cost) + '</td>';
       tb.appendChild(tr);
     });
-  } catch (e) { console.error(e); }
-}
-
-/* ===== PAYMENTS ===== */
-function payChip(m) {
-  if (m === 'mpesa') return chip('M-Pesa', 'g');
-  if (m === 'split') return chip('Split', 'p');
-  return chip('Cash', 'b');
-}
-
-async function loadPay() {
-  const date = document.getElementById('pDate').value;
-  try {
-    const [sRes, tRes] = await Promise.all([
-      fetch(API_URL + '/api/sales/today?date=' + date),
-      fetch(API_URL + '/api/transactions/today?date=' + date)
-    ]);
-    const s = await sRes.json(); const tx = await tRes.json();
-    if (s.success) {
-      const splits = s.orders.filter(o => o.payment_method === 'split').length;
-      document.getElementById('pCards').innerHTML =
-        card('b', 'Total Collections', KES(s.totalSales)) + card('t', 'Cash', KES(s.cashSales)) +
-        card('g', 'M-Pesa', KES(s.mpesaSales)) + card('p', 'Split Orders', splits);
-    }
-    const mtb = document.getElementById('mpRows');
-    mtb.innerHTML = '';
-    if (tx.success) {
-      if (!tx.transactions.length) mtb.innerHTML = '<tr><td colspan="4" style="text-align:center;color:var(--faint);padding:22px;font-weight:600">No M-Pesa payments this day</td></tr>';
-      tx.transactions.forEach(t => {
-        const tr = document.createElement('tr');
-        tr.innerHTML = '<td style="color:var(--faint)">' + new Date(t.createdAt).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }) + '</td>' +
-          '<td class="num" style="color:var(--green);font-weight:700">' + (t.receipt || 'M-PESA') + '</td>' +
-          '<td style="text-transform:uppercase;font-size:12px;font-weight:700;color:var(--muted)">' + (t.waiter || '—') + '</td>' +
-          '<td class="num" style="color:var(--green);font-weight:700">' + KES(t.amount) + '</td>';
-        mtb.appendChild(tr);
-      });
-    }
-    const ctb = document.getElementById('cashRows');
-    ctb.innerHTML = '';
-    if (s.success) {
-      const cashOrders = s.orders.filter(o => o.payment_method === 'cash');
-      if (!cashOrders.length) ctb.innerHTML = '<tr><td colspan="7" style="text-align:center;color:var(--faint);padding:22px;font-weight:600">No cash payments this day</td></tr>';
-      cashOrders.forEach(o => {
-        const tr = document.createElement('tr');
-        tr.innerHTML = '<td style="color:var(--faint)">' + new Date(o.createdAt).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }) + '</td>' +
-          '<td class="num">#' + o._id.substring(0, 6).toUpperCase() + '</td>' +
-          '<td style="text-transform:uppercase;font-size:12px;font-weight:700;color:var(--muted)">' + o.served_by + '</td>' +
-          '<td>' + (o.table_number || 'Counter') + '</td>' +
-          '<td class="num">' + KES(o.cash_tendered || o.total_amount) + '</td>' +
-          '<td class="num" style="color:var(--red)">' + KES(o.cash_change || 0) + '</td>' +
-          '<td class="num" style="color:var(--blue);font-weight:700">' + KES((o.cash_tendered || o.total_amount) - (o.cash_change || 0)) + '</td>';
-        ctb.appendChild(tr);
-      });
-    }
   } catch (e) { console.error(e); }
 }
 
@@ -619,7 +579,7 @@ async function loadTakes() {
     d.takes.forEach(t => {
       const tr = document.createElement('tr');
       tr.innerHTML = '<td style="color:var(--faint)">' + new Date(t.date).toLocaleString('en-GB') + '</td>' +
-        '<td>' + chip(t.type === 'opening' ? '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg> Opening' : '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg> Closing', t.type === 'opening' ? 'b' : 'g') + '</td>' +
+        '<td>' + chip(t.type === 'opening' ? 'Opening' : 'Closing', t.type === 'opening' ? 'b' : 'g') + '</td>' +
         '<td style="text-transform:uppercase;font-size:12px;font-weight:700;color:var(--muted)">' + t.taken_by + '</td>' +
         '<td class="num">' + t.items.length + '</td>' +
         '<td class="num" style="font-weight:700;color:' + (t.type === 'opening' ? 'var(--blue)' : 'var(--green)') + '">' + KES(t.total_value) + '</td>';
@@ -662,17 +622,16 @@ function renderStock() {
   const tb = document.getElementById('stockRows');
   tb.innerHTML = '';
   const items = menu.filter(p => p.name.toLowerCase().includes(q));
-  if (!items.length) { tb.innerHTML = '<tr><td colspan="7" style="text-align:center;color:var(--faint);padding:22px;font-weight:600">No items</td></tr>'; return; }
+  if (!items.length) { tb.innerHTML = '<tr><td colspan="6" style="text-align:center;color:var(--faint);padding:22px;font-weight:600">No items</td></tr>'; return; }
   items.forEach(p => {
     const low = (p.stock || 0) < 10;
     const tr = document.createElement('tr');
     tr.innerHTML = '<td style="font-weight:700">' + p.name + '</td>' +
       '<td style="text-transform:capitalize;color:var(--muted)">' + p.type + '</td>' +
       '<td class="num" style="font-weight:800;font-size:15px;color:' + (low ? 'var(--red)' : 'var(--green)') + '">' + (p.stock || 0) + '</td>' +
-      '<td class="num">' + KES(p.buying_price || 0) + '</td>' +
       '<td class="num">' + KES((p.stock || 0) * (p.buying_price || 0)) + '</td>' +
       '<td><input type="number" class="inp num w-s" id="rs-' + p._id + '" placeholder="+Qty" min="1"></td>' +
-      '<td><button class="btn btn-green mini" onclick="restock(\'' + p._id + '\')">Add</button></td>';
+      '<td><button class="btn btn-green mini" onclick="restock('' + p._id + '')">Add</button></td>';
     tb.appendChild(tr);
   });
 }
@@ -690,14 +649,8 @@ async function restock(id) {
   } catch (e) { console.error(e); }
 }
 
-/* ===== SPOILAGE ===== */
-function fillSpoilSelect() {
-  document.getElementById('spItem').innerHTML = menu.map(p =>
-    '<option value="' + p._id + '">' + p.name + ' (' + (p.stock || 0) + ' left)</option>').join('');
-}
-
+/* ===== SPOILAGE (view only) ===== */
 async function loadSpoilage() {
-  fillSpoilSelect();
   try {
     const r = await fetch(API_URL + '/api/spoilage');
     const d = await r.json();
@@ -705,7 +658,7 @@ async function loadSpoilage() {
       card('r', "Today's Loss", KES(d.todayCost)) + card('o', 'Records Today', d.today.length) + card('p', 'All-Time Records', d.all.length);
     const tb = document.getElementById('spRows');
     tb.innerHTML = '';
-    if (!d.all.length) { tb.innerHTML = '<tr><td colspan="7" style="text-align:center;color:var(--faint);padding:22px;font-weight:600">No spoilage recorded</td></tr>'; return; }
+    if (!d.all.length) { tb.innerHTML = '<tr><td colspan="6" style="text-align:center;color:var(--faint);padding:22px;font-weight:600">No spoilage recorded</td></tr>'; return; }
     d.all.forEach(s => {
       const tr = document.createElement('tr');
       tr.innerHTML = '<td style="color:var(--faint)">' + new Date(s.date).toLocaleString('en-GB') + '</td>' +
@@ -713,59 +666,71 @@ async function loadSpoilage() {
         '<td class="num" style="color:var(--red);font-weight:700">−' + s.qty + '</td>' +
         '<td style="color:var(--muted)">' + (s.reason || '—') + '</td>' +
         '<td class="num" style="color:var(--red);font-weight:700">' + KES(s.value) + '</td>' +
-        '<td style="text-transform:uppercase;font-size:12px;font-weight:700;color:var(--muted)">' + (s.recorded_by || 'Admin') + '</td>' +
-        '<td><button class="btn btn-red mini" onclick="delSpoilage(\'' + s._id + '\')">×</button></td>';
+        '<td style="text-transform:uppercase;font-size:12px;font-weight:700;color:var(--muted)">' + (s.recorded_by || 'Staff') + '</td>';
       tb.appendChild(tr);
     });
   } catch (e) { console.error(e); }
 }
 
-async function addSpoilage() {
-  const product_id = document.getElementById('spItem').value;
-  const qty = parseFloat(document.getElementById('spQty').value);
-  const reason = document.getElementById('spReason').value;
-  if (!product_id) return toast('Select an item', 'warn');
-  if (!qty || qty <= 0) return toast('Enter quantity', 'warn');
+/* ===== REMAINDER (view only) ===== */
+async function loadRemainder() {
   try {
-    const r = await fetch(API_URL + '/api/spoilage', {
-      method: 'POST', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ product_id, qty, reason, recorded_by: 'Admin' })
-    });
+    const r = await fetch(API_URL + '/api/remainder');
     const d = await r.json();
-    if (d.success) {
-      toast('Spoilage recorded', 'ok');
-      document.getElementById('spQty').value = ''; document.getElementById('spReason').value = '';
-      loadMenu().then(loadSpoilage);
-    } else toast(d.message || 'Failed', 'err');
-  } catch (e) { toast('Server error', 'err'); }
-}
-
-async function delSpoilage(id) {
-  if (!confirm('Delete this record? (Stock is NOT restored)')) return;
-  try {
-    await fetch(API_URL + '/api/spock-logs/' + id, { method: 'DELETE' });
-    loadSpoilage();
+    document.getElementById('rmCards').innerHTML =
+      card('b', "Today's Value", KES(d.todayValue)) + card('o', 'Records Today', d.today.length) + card('p', 'All-Time Records', d.all.length);
+    const tb = document.getElementById('rmRows');
+    tb.innerHTML = '';
+    if (!d.all.length) { tb.innerHTML = '<tr><td colspan="6" style="text-align:center;color:var(--faint);padding:22px;font-weight:600">No remainder recorded</td></tr>'; return; }
+    d.all.forEach(x => {
+      const tr = document.createElement('tr');
+      tr.innerHTML = '<td style="color:var(--faint)">' + new Date(x.date).toLocaleString('en-GB') + '</td>' +
+        '<td style="font-weight:700">' + x.item_name + '</td>' +
+        '<td class="num">' + x.qty + '</td>' +
+        '<td class="num">' + (x.price ? KES(x.price) : '—') + '</td>' +
+        '<td class="num" style="color:var(--brand);font-weight:700">' + (x.value ? KES(x.value) : '—') + '</td>' +
+        '<td style="text-transform:uppercase;font-size:12px;font-weight:700;color:var(--muted)">' + (x.recorded_by || 'Staff') + '</td>';
+      tb.appendChild(tr);
+    });
   } catch (e) { console.error(e); }
 }
 
-/* ===== MENU ===== */
+/* ===== EXPENSES (view only) ===== */
+async function loadExpenses() {
+  try {
+    const r = await fetch(API_URL + '/api/expenditures');
+    const d = await r.json();
+    const list = d.expenses || [];
+    document.getElementById('expTotalLbl').textContent = 'Total: ' + KES(list.reduce((s, x) => s + x.amount, 0));
+    const tb = document.getElementById('exRows');
+    tb.innerHTML = '';
+    if (!list.length) { tb.innerHTML = '<tr><td colspan="4" style="text-align:center;color:var(--faint);padding:22px;font-weight:600">No expenses recorded</td></tr>'; return; }
+    list.forEach(x => {
+      const tr = document.createElement('tr');
+      tr.innerHTML = '<td style="color:var(--faint)">' + new Date(x.date).toLocaleString('en-GB') + '</td>' +
+        '<td style="font-weight:700">' + x.description + '</td>' +
+        '<td class="num" style="color:var(--red);font-weight:700">' + KES(x.amount) + '</td>' +
+        '<td style="text-transform:uppercase;font-size:12px;font-weight:700;color:var(--muted)">' + (x.added_by || 'Staff') + '</td>';
+      tb.appendChild(tr);
+    });
+  } catch (e) { console.error(e); }
+}
+
+/* ===== MENU (no cost / margin) ===== */
 function renderMenu() {
   const q = (document.getElementById('menuQ').value || '').toLowerCase();
   const tb = document.getElementById('menuRows');
   tb.innerHTML = '';
   const items = menu.filter(p => p.name.toLowerCase().includes(q));
-  if (!items.length) { tb.innerHTML = '<tr><td colspan="7" style="text-align:center;color:var(--faint);padding:22px;font-weight:600">No items. Add above or load the default menu.</td></tr>'; return; }
+  if (!items.length) { tb.innerHTML = '<tr><td colspan="5" style="text-align:center;color:var(--faint);padding:22px;font-weight:600">No items. Add above or load the default menu.</td></tr>'; return; }
   items.forEach(p => {
-    const margin = p.buying_price > 0 ? Math.round(((p.price - p.buying_price) / p.buying_price) * 100) : 0;
-    const safe = p.name.replace(/'/g, "\\'");
+    const safe = p.name.replace(/'/g, "\'");
     const tr = document.createElement('tr');
     tr.innerHTML = '<td><input class="inp" id="mn-' + p._id + '" value="' + safe + '"></td>' +
       '<td style="text-transform:capitalize;color:var(--muted)">' + p.type + '</td>' +
       '<td><input type="number" class="inp num w-s" id="ms-' + p._id + '" value="' + (p.stock || 0) + '"></td>' +
-      '<td><input type="number" class="inp num w-s" id="mb-' + p._id + '" value="' + (p.buying_price || 0) + '"></td>' +
       '<td><input type="number" class="inp num w-s" id="mp-' + p._id + '" value="' + (p.price || 0) + '" style="' + (!p.price ? 'border-color:var(--red);' : '') + '"></td>' +
-      '<td class="num" style="color:var(--purple);font-weight:700">' + margin + '%</td>' +
-      '<td style="white-space:nowrap"><button class="btn btn-green mini" onclick="saveItem(\'' + p._id + '\')">Save</button> <button class="btn btn-red mini" onclick="delItem(\'' + p._id + '\', \'' + safe + '\')">×</button></td>';
+      '<td style="white-space:nowrap"><button class="btn btn-green mini" onclick="saveItem('' + p._id + '')">Save</button> <button class="btn btn-red mini" onclick="delItem('' + p._id + '', '' + safe + '')">×</button></td>';
     tb.appendChild(tr);
   });
 }
@@ -779,13 +744,12 @@ async function addItem() {
       body: JSON.stringify({
         name, type: document.getElementById('nmType').value,
         price: document.getElementById('nmPrice').value,
-        buying_price: document.getElementById('nmCost').value,
         stock: document.getElementById('nmStock').value
       })
     });
     const d = await r.json();
     if (d.success) {
-      ['nmName', 'nmPrice', 'nmCost', 'nmStock'].forEach(id => document.getElementById(id).value = '');
+      ['nmName', 'nmPrice', 'nmStock'].forEach(id => document.getElementById(id).value = '');
       toast('"' + name + '" added', 'ok'); loadMenu();
     } else toast(d.message || 'Could not add item', 'err');
   } catch (e) { console.error(e); }
@@ -800,7 +764,6 @@ async function saveItem(id) {
       body: JSON.stringify({
         name,
         stock: document.getElementById('ms-' + id).value,
-        buying_price: document.getElementById('mb-' + id).value,
         price: document.getElementById('mp-' + id).value,
         recordedBy: 'Admin'
       })
@@ -826,48 +789,6 @@ async function seedMenu() {
     if (d.success) { toast(d.message, 'ok'); loadMenu(); }
     else toast(d.message, 'warn');
   } catch (e) { console.error(e); }
-}
-
-/* ===== EXPENSES ===== */
-async function loadExpenses() {
-  try {
-    const r = await fetch(API_URL + '/api/expenditures');
-    const d = await r.json();
-    const tb = document.getElementById('exRows');
-    tb.innerHTML = '';
-    if (!d.success || !d.expenses.length) { tb.innerHTML = '<tr><td colspan="5" style="text-align:center;color:var(--faint);padding:22px;font-weight:600">No expenses recorded</td></tr>'; return; }
-    d.expenses.forEach(x => {
-      const tr = document.createElement('tr');
-      tr.innerHTML = '<td style="color:var(--faint)">' + new Date(x.date).toLocaleString('en-GB') + '</td>' +
-        '<td style="font-weight:700">' + x.description + '</td>' +
-        '<td class="num" style="color:var(--red);font-weight:700">' + KES(x.amount) + '</td>' +
-        '<td style="text-transform:uppercase;font-size:12px;font-weight:700;color:var(--muted)">' + (x.added_by || 'Admin') + '</td>' +
-        '<td><button class="btn btn-red mini" onclick="delExpense(\'' + x._id + '\')">×</button></td>';
-      tb.appendChild(tr);
-    });
-  } catch (e) { console.error(e); }
-}
-
-async function addExpense() {
-  const description = document.getElementById('exDesc').value;
-  const amount = document.getElementById('exAmt').value;
-  if (!description || !amount) return toast('Provide description and amount', 'warn');
-  try {
-    const r = await fetch(API_URL + '/api/expenditures', {
-      method: 'POST', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ description, amount, added_by: 'Admin' })
-    });
-    if ((await r.json()).success) {
-      document.getElementById('exDesc').value = ''; document.getElementById('exAmt').value = '';
-      loadExpenses();
-    }
-  } catch (e) { console.error(e); }
-}
-
-async function delExpense(id) {
-  if (!confirm('Delete this expense?')) return;
-  try { await fetch(API_URL + '/api/expenditures/' + id, { method: 'DELETE' }); loadExpenses(); }
-  catch (e) { console.error(e); }
 }
 
 /* ===== STATEMENTS ===== */
@@ -903,74 +824,125 @@ async function runReport() {
   const to = document.getElementById('rpTo').value;
   const group = document.getElementById('rpGroup').value;
   document.getElementById('rpRangeLbl').textContent = from + ' → ' + to;
-  document.getElementById('rpProdLbl').textContent = from + ' → ' + to;
   try {
-    const [sRes, pRes] = await Promise.all([
-      fetch(API_URL + '/api/reports/sales?from=' + from + '&to=' + to + '&group=' + group),
-      fetch(API_URL + '/api/reports/products?from=' + from + '&to=' + to)
-    ]);
-    const s = await sRes.json(); const pr = await pRes.json();
-    if (s.success) {
-      const t = s.totals;
-      document.getElementById('rpCards').innerHTML =
-        card('b', 'Revenue', KES(t.revenue), t.orders + ' orders · ' + t.items + ' items') +
-        card('t', 'Cash', KES(t.cash)) + card('g', 'M-Pesa', KES(t.mpesa)) +
-        card('r', 'Food Cost', KES(t.cost)) + card('p', 'Gross Profit', KES(t.profit));
-      const tb = document.getElementById('rpRows');
-      tb.innerHTML = '';
-      if (!s.rows.length) tb.innerHTML = '<tr><td colspan="8" style="text-align:center;color:var(--faint);padding:22px;font-weight:600">No sales in this period</td></tr>';
-      s.rows.forEach(r => {
-        const tr = document.createElement('tr');
-        tr.innerHTML = '<td style="font-weight:700">' + r.period + '</td><td class="num">' + r.orders + '</td><td class="num">' + r.items + '</td>' +
-          '<td class="num" style="color:var(--blue)">' + KES(r.cash) + '</td>' +
-          '<td class="num" style="color:var(--green)">' + KES(r.mpesa) + '</td>' +
-          '<td class="num" style="color:var(--brand);font-weight:700">' + KES(r.revenue) + '</td>' +
-          '<td class="num" style="color:var(--red)">' + KES(r.cost) + '</td>' +
-          '<td class="num" style="color:var(--purple);font-weight:700">' + KES(r.profit) + '</td>';
-        tb.appendChild(tr);
-      });
-      if (s.rows.length) {
-        const tr = document.createElement('tr');
-        tr.style.background = 'var(--blue-soft)';
-        tr.innerHTML = '<td style="font-weight:800">TOTAL</td><td class="num" style="font-weight:800">' + t.orders + '</td><td class="num" style="font-weight:800">' + t.items + '</td>' +
-          '<td class="num" style="font-weight:800;color:var(--blue)">' + KES(t.cash) + '</td>' +
-          '<td class="num" style="font-weight:800;color:var(--green)">' + KES(t.mpesa) + '</td>' +
-          '<td class="num" style="font-weight:800;color:var(--brand)">' + KES(t.revenue) + '</td>' +
-          '<td class="num" style="font-weight:800;color:var(--red)">' + KES(t.cost) + '</td>' +
-          '<td class="num" style="font-weight:800;color:var(--purple)">' + KES(t.profit) + '</td>';
-        tb.appendChild(tr);
-      }
-    }
-    if (pr.success) { rpProdData = pr.products; renderProdReport(); }
+    const r = await fetch(API_URL + '/api/reports/sales?from=' + from + '&to=' + to + '&group=' + group);
+    const s = await r.json();
+    if (!s.success) return;
+    const t = s.totals;
+    document.getElementById('rpCards').innerHTML =
+      card('b', 'Revenue', KES(t.revenue), t.orders + ' orders · ' + t.items + ' items') +
+      card('r', 'Food Cost', KES(t.cost)) + card('p', 'Gross Profit', KES(t.profit));
+    const tb = document.getElementById('rpRows');
+    tb.innerHTML = '';
+    if (!s.rows.length) tb.innerHTML = '<tr><td colspan="6" style="text-align:center;color:var(--faint);padding:22px;font-weight:600">No sales in this period</td></tr>';
+    s.rows.forEach(rw => {
+      const tr = document.createElement('tr');
+      tr.innerHTML = '<td style="font-weight:700">' + rw.period + '</td><td class="num">' + rw.orders + '</td><td class="num">' + rw.items + '</td>' +
+        '<td class="num" style="color:var(--brand);font-weight:700">' + KES(rw.revenue) + '</td>' +
+        '<td class="num" style="color:var(--red)">' + KES(rw.cost) + '</td>' +
+        '<td class="num" style="color:var(--purple);font-weight:700">' + KES(rw.profit) + '</td>';
+      tb.appendChild(tr);
+    });
+    loadPerformance();
   } catch (e) { console.error(e); }
 }
 
-function setSort(s) {
-  rpSort = s;
-  document.getElementById('sortMost').classList.toggle('on', s === 'most');
-  document.getElementById('sortLeast').classList.toggle('on', s === 'least');
-  renderProdReport();
+/* ===== DAY DETAIL ===== */
+async function loadDayDetail() {
+  const date = document.getElementById('ddDate').value;
+  if (!date) return toast('Pick a date', 'warn');
+  const box = document.getElementById('ddBody');
+  box.innerHTML = '<div style="padding:20px;color:var(--faint);font-weight:600">Loading…</div>';
+  try {
+    const r = await fetch(API_URL + '/api/reports/day?date=' + date);
+    const d = await r.json();
+    if (!d.success) { box.innerHTML = '<div style="padding:20px;color:var(--red);font-weight:600">Failed to load</div>'; return; }
+
+    let html = '<div class="stat-row">' +
+      '<div class="stat-pill"><span>Revenue</span><b class="num" style="color:var(--green)">' + KES(d.revenue) + '</b></div>' +
+      '<div class="stat-pill"><span>Sales Profit</span><b class="num" style="color:var(--purple)">' + KES(d.salesProfit) + '</b></div>' +
+      '<div class="stat-pill"><span>Expenses</span><b class="num" style="color:var(--red)">' + KES(d.expenseTotal) + '</b></div>' +
+      '<div class="stat-pill"><span>Spoilage</span><b class="num" style="color:var(--red)">' + KES(d.spoilageCost) + '</b></div>' +
+      '<div class="stat-pill"><span>Remainder Value</span><b class="num" style="color:var(--blue)">' + KES(d.remainderValue) + '</b></div>' +
+      '<div class="stat-pill"><span>Closing Total</span><b class="num">' + (d.closingMpesa !== null ? KES(d.closingMpesa + d.closingCash) : '—') + '</b></div>' +
+      '<div class="stat-pill"><span>TOTAL MADE</span><b class="num" style="color:var(--green)">' + (d.totalMade !== null ? KES(d.totalMade) : '—') + '</b></div>' +
+      '</div>';
+
+    html += '<div class="panel-head" style="border-top:1px solid var(--border)">Products Sold (' + d.products.length + ')</div>' +
+      '<div class="tbl-wrap"><table><thead><tr><th>Product</th><th>Qty</th><th>Revenue</th><th>Cost</th><th>Profit</th></tr></thead><tbody>';
+    if (!d.products.length) html += '<tr><td colspan="5" style="text-align:center;color:var(--faint);padding:18px;font-weight:600">No products sold</td></tr>';
+    d.products.forEach(p => {
+      html += '<tr><td style="font-weight:700">' + p.name + '</td><td class="num">' + p.qty + '</td>' +
+        '<td class="num" style="color:var(--brand)">' + KES(p.revenue) + '</td>' +
+        '<td class="num" style="color:var(--red)">' + KES(p.cost) + '</td>' +
+        '<td class="num" style="color:var(--purple);font-weight:700">' + KES(p.profit) + '</td></tr>';
+    });
+    html += '</tbody></table></div>';
+
+    html += '<div class="panel-head" style="border-top:1px solid var(--border)">Spoilage (' + d.spoilage.length + ')</div>' +
+      '<div class="tbl-wrap"><table><thead><tr><th>Item</th><th>Qty</th><th>Reason</th><th>Loss</th><th>By</th></tr></thead><tbody>';
+    if (!d.spoilage.length) html += '<tr><td colspan="5" style="text-align:center;color:var(--faint);padding:18px;font-weight:600">No spoilage</td></tr>';
+    d.spoilage.forEach(s => {
+      html += '<tr><td style="font-weight:700">' + s.item_name + '</td><td class="num" style="color:var(--red)">−' + s.qty + '</td>' +
+        '<td>' + (s.reason || '—') + '</td><td class="num" style="color:var(--red)">' + KES(s.value) + '</td>' +
+        '<td style="text-transform:uppercase;font-size:12px;color:var(--muted)">' + (s.recorded_by || 'Staff') + '</td></tr>';
+    });
+    html += '</tbody></table></div>';
+
+    html += '<div class="panel-head" style="border-top:1px solid var(--border)">Remainder (' + d.remainder.length + ')</div>' +
+      '<div class="tbl-wrap"><table><thead><tr><th>Item</th><th>Qty Left</th><th>Price</th><th>Value</th><th>By</th></tr></thead><tbody>';
+    if (!d.remainder.length) html += '<tr><td colspan="5" style="text-align:center;color:var(--faint);padding:18px;font-weight:600">No remainder recorded</td></tr>';
+    d.remainder.forEach(x => {
+      html += '<tr><td style="font-weight:700">' + x.item_name + '</td><td class="num">' + x.qty + '</td>' +
+        '<td class="num">' + (x.price ? KES(x.price) : '—') + '</td><td class="num" style="color:var(--brand)">' + (x.value ? KES(x.value) : '—') + '</td>' +
+        '<td style="text-transform:uppercase;font-size:12px;color:var(--muted)">' + (x.recorded_by || 'Staff') + '</td></tr>';
+    });
+    html += '</tbody></table></div>';
+
+    box.innerHTML = html;
+  } catch (e) {
+    box.innerHTML = '<div style="padding:20px;color:var(--red);font-weight:600">Failed to load day detail</div>';
+  }
 }
 
-function renderProdReport() {
-  const tb = document.getElementById('rpProdRows');
-  tb.innerHTML = '';
-  let data = [...rpProdData];
-  if (rpSort === 'least') data.reverse();
-  if (!data.length) { tb.innerHTML = '<tr><td colspan="6" style="text-align:center;color:var(--faint);padding:22px;font-weight:600">No product sales in this period</td></tr>'; return; }
-  data.forEach((p, i) => {
-    const tr = document.createElement('tr');
-    const rankColor = rpSort === 'most'
-      ? (i === 0 ? 'var(--green)' : (i === data.length - 1 ? 'var(--red)' : 'var(--muted)'))
-      : (i === 0 ? 'var(--red)' : 'var(--muted)');
-    tr.innerHTML = '<td class="num" style="font-weight:800;color:' + rankColor + '">' + (i + 1) + '</td>' +
-      '<td style="font-weight:700">' + p.name + '</td>' +
-      '<td class="num" style="font-size:15px;font-weight:700;color:' + rankColor + '">' + p.qty + '</td>' +
-      '<td class="num" style="color:var(--brand)">' + KES(p.revenue) + '</td>' +
-      '<td class="num" style="color:var(--red)">' + KES(p.cost) + '</td>' +
-      '<td class="num" style="color:var(--purple);font-weight:700">' + KES(p.profit) + '</td>';
-    tb.appendChild(tr);
-  });
+/* ===== PERFORMANCE MATRIX ===== */
+async function loadPerformance() {
+  const from = document.getElementById('rpFrom').value;
+  const to = document.getElementById('rpTo').value;
+  const wrap = document.getElementById('perfWrap');
+  if (!from || !to) { wrap.innerHTML = '<div style="padding:20px;color:var(--faint);font-weight:600">Set the report range first.</div>'; return; }
+  wrap.innerHTML = '<div style="padding:20px;color:var(--faint);font-weight:600">Loading…</div>';
+  try {
+    const r = await fetch(API_URL + '/api/reports/daily-products?from=' + from + '&to=' + to);
+    const d = await r.json();
+    if (!d.success) return;
+    const dates = d.dates;
+    const products = d.products;
+    if (!dates.length || !products.length) {
+      wrap.innerHTML = '<div style="padding:20px;color:var(--faint);font-weight:600">No product sales in this range.</div>';
+      return;
+    }
+    let html = '<table><thead><tr><th>Product</th>';
+    dates.forEach(dt => {
+      const dd = new Date(dt + 'T00:00:00');
+      html += '<th style="text-align:center">' + dd.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' }) + '</th>';
+    });
+    html += '<th style="text-align:center">Total</th><th>Revenue</th><th>Profit</th></tr></thead><tbody>';
+    products.forEach(p => {
+      html += '<tr><td style="font-weight:700;white-space:nowrap">' + p.name + '</td>';
+      dates.forEach(dt => {
+        const q = p.per[dt] || 0;
+        html += '<td class="num" style="text-align:center;' + (q ? 'font-weight:800;color:var(--brand)' : 'color:var(--faint)') + '">' + (q || '—') + '</td>';
+      });
+      html += '<td class="num" style="text-align:center;font-weight:800">' + p.qty + '</td>' +
+        '<td class="num" style="color:var(--brand)">' + KES(p.revenue) + '</td>' +
+        '<td class="num" style="color:var(--purple);font-weight:700">' + KES(p.profit) + '</td></tr>';
+    });
+    html += '</tbody></table>';
+    wrap.innerHTML = html;
+  } catch (e) {
+    wrap.innerHTML = '<div style="padding:20px;color:var(--red);font-weight:600">Failed to load performance</div>';
+  }
 }
 
 /* ===== STAFF ===== */
@@ -988,11 +960,11 @@ async function loadStaff() {
         '<td>' + chip(u.role, u.role === 'admin' ? 'p' : 'b') + '</td>' +
         '<td>' + chip(active ? 'Active' : 'Suspended', active ? 'g' : 'r') + '</td>' +
         '<td style="white-space:nowrap">' +
-        '<button class="btn btn-ghost mini" onclick="resetPin(\'' + u._id + '\', \'' + u.username + '\')">Reset PIN</button> ' +
+        '<button class="btn btn-ghost mini" onclick="resetPin('' + u._id + '', '' + u.username + '')">Reset PIN</button> ' +
         (active
-          ? '<button class="btn btn-red mini" onclick="toggleUser(\'' + u._id + '\', false)">Suspend</button>'
-          : '<button class="btn btn-green mini" onclick="toggleUser(\'' + u._id + '\', true)">Activate</button>') + ' ' +
-        '<button class="btn btn-red mini" onclick="delUser(\'' + u._id + '\', \'' + u.username + '\')">×</button></td>';
+          ? '<button class="btn btn-red mini" onclick="toggleUser('' + u._id + '', false)">Suspend</button>'
+          : '<button class="btn btn-green mini" onclick="toggleUser('' + u._id + '', true)">Activate</button>') + ' ' +
+        '<button class="btn btn-red mini" onclick="delUser('' + u._id + '', '' + u.username + '')">×</button></td>';
       tb.appendChild(tr);
     });
   } catch (e) { console.error(e); }
