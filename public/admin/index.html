@@ -146,17 +146,24 @@ tbody tr:hover{background:#fafafa}
 .stat-pill span{font-size:10.5px;font-weight:800;color:var(--faint);text-transform:uppercase;letter-spacing:.5px;display:block;margin-bottom:4px}
 .stat-pill b{font-size:16px;font-weight:800}
 
+.topbar{display:none}
+.sb-overlay{display:none}
 @media(max-width:900px){
+  .topbar{display:flex;align-items:center;gap:12px;background:var(--sidebar);color:#fff;padding:12px 16px;position:sticky;top:0;z-index:80}
+  .ham{background:none;border:none;color:#fff;cursor:pointer;padding:4px;display:flex}
+  .ham svg{width:22px;height:22px}
+  .sb-overlay{display:block;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:70;opacity:0;pointer-events:none;transition:opacity .25s}
+  .sb-overlay.open{opacity:1;pointer-events:all}
   .app.on{flex-direction:column}
-  .sidebar{width:100%;flex-direction:row;padding:10px 12px;align-items:center;gap:6px;overflow-x:auto;height:auto;position:sticky;top:0;z-index:50}
-  .sb-brand{border:none;margin:0;padding:0 10px 0 0}
-  .sb-nav{flex-direction:row;overflow-x:auto}
+  .sidebar{position:fixed;left:0;top:0;bottom:0;width:245px;height:100vh;transform:translateX(-105%);transition:transform .25s ease;z-index:90;padding-top:20px;flex-direction:column !important;overflow-y:auto;overflow-x:hidden}
+  .sidebar.open{transform:translateX(0)}
+  .sb-brand{display:flex !important}
   .sb-item{white-space:nowrap}
-  .sb-logout{display:none}
-  .main{padding:18px 16px}
+  .sb-logout{display:flex !important;margin-top:auto}
+  .main{padding:16px 14px}
 }
 @media(max-width:640px){
-  .main{padding:14px 12px}
+  .main{padding:14px 11px}
   .vh{flex-direction:column;align-items:stretch}
   .vh .date-inp{width:100%}
   .cards{grid-template-columns:repeat(2,1fr);gap:10px}
@@ -188,6 +195,8 @@ tbody tr:hover{background:#fafafa}
 </div>
 
 <div class="app" id="app">
+  <div class="topbar"><button class="ham" onclick="toggleSb()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button><b>Delish Dish Admin</b></div>
+  <div class="sb-overlay" id="sbOverlay" onclick="toggleSb()"></div>
   <div class="sidebar">
     <div class="sb-brand">
       <div class="sb-badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2"/><path d="M7 2v20"/><path d="M21 15V2a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3z"/><path d="M21 15v7"/></svg></div>
@@ -299,47 +308,63 @@ tbody tr:hover{background:#fafafa}
 
     <!-- STATEMENTS -->
     <div class="view" id="v-rep">
-      <div class="vh"><div><h2>Statements &amp; Reports</h2><p>Any range — daily, weekly, monthly — plus day detail and product performance</p></div></div>
-      <div class="panel">
-        <div class="panel-head"><span class="t"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg> Report Period</span></div>
-        <div class="frm">
-          <div class="frm-row">
-            <div class="fg"><label>From</label><input type="date" class="inp" id="rpFrom"></div>
-            <div class="fg"><label>To</label><input type="date" class="inp" id="rpTo"></div>
-            <div class="fg"><label>Group By</label><select class="inp" id="rpGroup"><option value="day">Day</option><option value="week">Week</option><option value="month">Month</option></select></div>
-            <button class="btn btn-blue" onclick="runReport()">Generate</button>
-          </div>
-          <div class="preset-row" id="rpPresets">
-            <button class="preset" data-p="today" onclick="presetRange('today')">Today</button>
-            <button class="preset" data-p="yesterday" onclick="presetRange('yesterday')">Yesterday</button>
-            <button class="preset" data-p="week" onclick="presetRange('week')">This Week</button>
-            <button class="preset" data-p="lastweek" onclick="presetRange('lastweek')">Last Week</button>
-            <button class="preset" data-p="month" onclick="presetRange('month')">This Month</button>
-            <button class="preset" data-p="lastmonth" onclick="presetRange('lastmonth')">Last Month</button>
-          </div>
-        </div>
+      <div class="vh"><div><h2>Statements</h2><p>Every order and the totals made for a selected day</p></div>
+        <span style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+          <input type="date" class="date-inp" id="stmtDate">
+          <button class="btn btn-blue" onclick="loadStatement()">View Day</button>
+        </span>
       </div>
-      <div class="cards" id="rpCards"></div>
-      <div class="panel">
-        <div class="panel-head"><span class="t"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg> Sales Statement — <span class="num" id="rpRangeLbl" style="font-weight:600"></span></span></div>
-        <div class="tbl-wrap"><table><thead><tr><th>Period</th><th>Orders</th><th>Items</th><th>Revenue</th><th>Cost</th><th>Profit</th></tr></thead><tbody id="rpRows"></tbody></table></div>
+      <div class="preset-row" id="stmtPresets" style="margin-bottom:16px">
+        <button class="preset" onclick="stmtPreset('today')">Today</button>
+        <button class="preset" onclick="stmtPreset('yesterday')">Yesterday</button>
+        <button class="preset" onclick="pickDow(0)">Mon</button>
+        <button class="preset" onclick="pickDow(1)">Tue</button>
+        <button class="preset" onclick="pickDow(2)">Wed</button>
+        <button class="preset" onclick="pickDow(3)">Thu</button>
+        <button class="preset" onclick="pickDow(4)">Fri</button>
+        <button class="preset" onclick="pickDow(5)">Sat</button>
+        <button class="preset" onclick="pickDow(6)">Sun</button>
       </div>
+      <div class="cards" id="stmtCards"></div>
+      <div class="panel">
+        <div class="panel-head"><span class="t"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg> Orders — <span id="stmtLbl" class="num" style="font-weight:600"></span></span></div>
+        <div class="tbl-wrap"><table><thead><tr><th>Time</th><th>Order</th><th>Waiter</th><th>Table</th><th>Items</th><th>Amount</th></tr></thead><tbody id="stmtRows"></tbody></table></div>
+      </div>
+      <div class="panel">
+        <div class="panel-head"><span class="t"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg> Products Sold</span></div>
+        <div class="tbl-wrap"><table><thead><tr><th>Product</th><th>Qty</th><th>Revenue</th><th>Cost</th><th>Profit</th></tr></thead><tbody id="stmtProdRows"></tbody></table></div>
+      </div>
+      <div class="panel">
+        <div class="panel-head"><span class="t"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg> Spoilage &amp; Remainder</span></div>
+        <div class="tbl-wrap"><table><thead><tr><th>Type</th><th>Item</th><th>Qty</th><th>Value</th><th>By</th></tr></thead><tbody id="stmtSrRows"></tbody></table></div>
+      </div>
+    </div>
 
+    <!-- PERFORMANCE -->
+    <div class="view" id="v-perf">
+      <div class="vh"><div><h2>Performance</h2><p>Per-product sales across the days of the week — set a range</p></div></div>
       <div class="panel">
-        <div class="panel-head"><span class="t"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg> Day Detail — everything that happened on one day</span>
+        <div class="panel-head"><span class="t"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg> Range</span>
           <span style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
-            <input type="date" class="date-inp" id="ddDate">
-            <button class="btn btn-blue" onclick="loadDayDetail()">View Day</button>
+            <input type="date" class="date-inp" id="pfFrom">
+            <input type="date" class="date-inp" id="pfTo">
+            <button class="btn btn-blue" onclick="loadPerformance()">Generate</button>
           </span>
         </div>
-        <div id="ddBody"><div style="padding:20px;color:var(--faint);font-weight:600">Pick a date above to see products sold, spoilage, remainder and profit for that day.</div></div>
-      </div>
-
-      <div class="panel">
-        <div class="panel-head"><span class="t"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg> Performance — products sold per day (uses the report range)</span>
-          <button class="btn btn-ghost" onclick="loadPerformance()">Refresh</button>
+        <div class="preset-row" style="padding:14px 20px">
+          <button class="preset" onclick="perfRange('week')">This Week (Mon–today)</button>
+          <button class="preset" onclick="perfRange('7')">Last 7 Days</button>
+          <button class="preset" onclick="perfRange('today')">Today</button>
         </div>
-        <div class="tbl-wrap" id="perfWrap"><div style="padding:20px;color:var(--faint);font-weight:600">Set a range above (e.g. 7–12 of this month) and the matrix of products × days appears here.</div></div>
+      </div>
+      <div class="panel">
+        <div class="panel-head"><span class="t"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg> Products × Days</span>
+          <span style="display:flex;gap:8px">
+            <button class="preset on" id="pfMost" onclick="setPfSort('most')">Most Sold</button>
+            <button class="preset" id="pfLeast" onclick="setPfSort('least')">Least Sold</button>
+          </span>
+        </div>
+        <div class="tbl-wrap" id="perfWrap"><div style="padding:20px;color:var(--faint);font-weight:600">Set a range to see each product's daily quantities.</div></div>
       </div>
     </div>
 
@@ -388,7 +413,7 @@ const NAV = [
   ['dash', 'CHART', 'P&L Dashboard'], ['waiters', 'USERS', 'Waiter Sales'],
   ['stock', 'BOX', 'Stock Control'], ['spoil', 'WARN', 'Spoilage'],
   ['remain', 'CLIP', 'Remainder'], ['exp', 'MONEY', 'Expenses'],
-  ['menu', 'FOOD', 'Menu & Prices'], ['rep', 'TREND', 'Statements'], ['staff', 'LOCK', 'Staff']
+  ['menu', 'FOOD', 'Menu & Prices'], ['rep', 'DOC', 'Statements'], ['perf', 'TREND', 'Performance'], ['staff', 'LOCK', 'Staff']
 ];
 const ICONS = {
   CHART: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="M18 17V9"/><path d="M13 17V5"/><path d="M8 17v-3"/></svg>',
@@ -436,7 +461,10 @@ function go(k) {
   if (k === 'remain') loadRemainder();
   if (k === 'exp') loadExpenses();
   if (k === 'menu') renderMenu();
-  if (k === 'rep') { initReportDates(); runReport(); }
+  if (k === 'rep') loadStatement();
+  if (k === 'perf') loadPerformance();
+  document.getElementById('sidebar').classList.remove('open');
+  document.getElementById('sbOverlay').classList.remove('open');
   if (k === 'staff') loadStaff();
 }
 
@@ -444,8 +472,7 @@ function go(k) {
 document.addEventListener('DOMContentLoaded', () => {
   buildNav();
   const t = new Date().toISOString().substring(0, 10);
-  ['dashDate', 'wDate'].forEach(id => document.getElementById(id).value = t);
-  document.getElementById('ddDate').value = t;
+  ['dashDate', 'wDate', 'stmtDate', 'pfFrom', 'pfTo'].forEach(id => document.getElementById(id).value = t);
   if (localStorage.getItem('dd_admin_auth') === '1') enterApp();
 });
 
@@ -792,133 +819,131 @@ async function seedMenu() {
   } catch (e) { console.error(e); }
 }
 
-/* ===== STATEMENTS ===== */
-function initReportDates() {
-  if (!document.getElementById('rpFrom').value) {
-    const t = new Date().toISOString().substring(0, 10);
-    document.getElementById('rpFrom').value = t;
-    document.getElementById('rpTo').value = t;
-  }
+/* ===== STATEMENTS (single day: orders + totals made) ===== */
+function toggleSb() {
+  document.getElementById('sidebar').classList.toggle('open');
+  document.getElementById('sbOverlay').classList.toggle('open');
 }
 
-function presetRange(p) {
-  document.querySelectorAll('#rpPresets .preset').forEach(b => b.classList.toggle('on', b.dataset.p === p));
+function isoOf(d) { return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'); }
+function mondayOf(d) { const m = new Date(d); m.setDate(m.getDate() - ((m.getDay() + 6) % 7)); return m; }
+
+function stmtPreset(p) {
   const now = new Date();
-  const iso = d => d.toISOString().substring(0, 10);
-  const monday = new Date(now); monday.setDate(monday.getDate() - ((monday.getDay() + 6) % 7));
-  let from, to;
-  if (p === 'today') { from = now; to = now; }
-  else if (p === 'yesterday') { const y = new Date(now); y.setDate(y.getDate() - 1); from = y; to = y; }
-  else if (p === 'week') { from = monday; to = now; }
-  else if (p === 'lastweek') { const s = new Date(monday); s.setDate(s.getDate() - 7); const e = new Date(monday); e.setDate(e.getDate() - 1); from = s; to = e; }
-  else if (p === 'month') { from = new Date(now.getFullYear(), now.getMonth(), 1); to = now; }
-  else if (p === 'lastmonth') { from = new Date(now.getFullYear(), now.getMonth() - 1, 1); to = new Date(now.getFullYear(), now.getMonth(), 0); }
-  document.getElementById('rpFrom').value = iso(from);
-  document.getElementById('rpTo').value = iso(to);
-  document.getElementById('rpGroup').value = 'day';
-  runReport();
+  if (p === 'yesterday') now.setDate(now.getDate() - 1);
+  document.getElementById('stmtDate').value = isoOf(now);
+  loadStatement();
 }
 
-async function runReport() {
-  initReportDates();
-  const from = document.getElementById('rpFrom').value;
-  const to = document.getElementById('rpTo').value;
-  const group = document.getElementById('rpGroup').value;
-  document.getElementById('rpRangeLbl').textContent = from + ' → ' + to;
+function pickDow(n) { // 0=Mon .. 6=Sun — that weekday of the current week (falls back to last week if future)
+  const day = mondayOf(new Date());
+  day.setDate(day.getDate() + n);
+  const endOfToday = new Date(); endOfToday.setHours(23, 59, 59, 999);
+  if (day > endOfToday) day.setDate(day.getDate() - 7);
+  document.getElementById('stmtDate').value = isoOf(day);
+  loadStatement();
+}
+
+async function loadStatement() {
+  const date = document.getElementById('stmtDate').value;
+  if (!date) return toast('Pick a date', 'warn');
+  document.getElementById('stmtLbl').textContent = date;
   try {
-    const r = await fetch(API_URL + '/api/reports/sales?from=' + from + '&to=' + to + '&group=' + group);
-    const s = await r.json();
-    if (!s.success) return;
-    const t = s.totals;
-    document.getElementById('rpCards').innerHTML =
-      card('b', 'Revenue', KES(t.revenue), t.orders + ' orders · ' + t.items + ' items') +
-      card('r', 'Food Cost', KES(t.cost)) + card('p', 'Gross Profit', KES(t.profit));
-    const tb = document.getElementById('rpRows');
+    const [sRes, dRes] = await Promise.all([
+      fetch(API_URL + '/api/sales/today?date=' + date),
+      fetch(API_URL + '/api/reports/day?date=' + date)
+    ]);
+    const s = await sRes.json();
+    const d = await dRes.json();
+    if (!s.success || !d.success) return toast('Failed to load', 'err');
+
+    document.getElementById('stmtCards').innerHTML =
+      card('b', 'Revenue', KES(d.revenue), d.orderCount + ' orders') +
+      card('g', 'TOTAL MADE', d.totalMade !== null ? KES(d.totalMade) : '—', 'closing − yesterday − expenses') +
+      card('p', 'Sales Profit', KES(d.salesProfit), 'after food cost') +
+      card('r', 'Expenses', KES(d.expenseTotal)) +
+      card('r', 'Spoilage', KES(d.spoilageCost)) +
+      card('o', 'Remainder Value', KES(d.remainderValue));
+
+    const tb = document.getElementById('stmtRows');
     tb.innerHTML = '';
-    if (!s.rows.length) tb.innerHTML = '<tr><td colspan="6" style="text-align:center;color:var(--faint);padding:22px;font-weight:600">No sales in this period</td></tr>';
-    s.rows.forEach(rw => {
+    if (!s.orders.length) tb.innerHTML = '<tr><td colspan="6" style="text-align:center;color:var(--faint);padding:22px;font-weight:600">No orders this day</td></tr>';
+    s.orders.forEach(o => {
       const tr = document.createElement('tr');
-      tr.innerHTML = '<td style="font-weight:700">' + rw.period + '</td><td class="num">' + rw.orders + '</td><td class="num">' + rw.items + '</td>' +
-        '<td class="num" style="color:var(--brand);font-weight:700">' + KES(rw.revenue) + '</td>' +
-        '<td class="num" style="color:var(--red)">' + KES(rw.cost) + '</td>' +
-        '<td class="num" style="color:var(--purple);font-weight:700">' + KES(rw.profit) + '</td>';
+      tr.innerHTML = '<td style="color:var(--faint)">' + new Date(o.createdAt).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }) + '</td>' +
+        '<td class="num">#' + o._id.substring(0, 6).toUpperCase() + '</td>' +
+        '<td style="text-transform:uppercase;font-size:12px;font-weight:700;color:var(--muted)">' + o.served_by + '</td>' +
+        '<td>' + (o.table_number || 'Counter') + '</td>' +
+        '<td style="font-size:12px;color:var(--muted);max-width:220px">' + o.items.map(i => i.quantity + 'x ' + i.name).join(', ') + '</td>' +
+        '<td class="num" style="font-weight:700;color:var(--green)">' + KES(o.total_amount) + '</td>';
       tb.appendChild(tr);
     });
-    loadPerformance();
+
+    const pb = document.getElementById('stmtProdRows');
+    pb.innerHTML = '';
+    if (!d.products.length) pb.innerHTML = '<tr><td colspan="5" style="text-align:center;color:var(--faint);padding:20px;font-weight:600">No products sold</td></tr>';
+    d.products.forEach(p => {
+      const tr = document.createElement('tr');
+      tr.innerHTML = '<td style="font-weight:700">' + p.name + '</td><td class="num">' + p.qty + '</td>' +
+        '<td class="num" style="color:var(--brand)">' + KES(p.revenue) + '</td>' +
+        '<td class="num" style="color:var(--red)">' + KES(p.cost) + '</td>' +
+        '<td class="num" style="color:var(--purple);font-weight:700">' + KES(p.profit) + '</td>';
+      pb.appendChild(tr);
+    });
+
+    const sb = document.getElementById('stmtSrRows');
+    sb.innerHTML = '';
+    let rows = '';
+    d.spoilage.forEach(x => {
+      rows += '<tr><td>' + chip('Spoilt', 'r') + '</td><td style="font-weight:700">' + x.item_name + '</td>' +
+        '<td class="num" style="color:var(--red)">−' + x.qty + '</td>' +
+        '<td class="num" style="color:var(--red)">' + KES(x.value) + '</td>' +
+        '<td style="text-transform:uppercase;font-size:12px;color:var(--muted)">' + (x.recorded_by || 'Staff') + '</td></tr>';
+    });
+    d.remainder.forEach(x => {
+      rows += '<tr><td>' + chip('Remainder', 'b') + '</td><td style="font-weight:700">' + x.item_name + '</td>' +
+        '<td class="num">' + x.qty + '</td>' +
+        '<td class="num" style="color:var(--brand)">' + (x.value ? KES(x.value) : '—') + '</td>' +
+        '<td style="text-transform:uppercase;font-size:12px;color:var(--muted)">' + (x.recorded_by || 'Staff') + '</td></tr>';
+    });
+    sb.innerHTML = rows || '<tr><td colspan="5" style="text-align:center;color:var(--faint);padding:20px;font-weight:600">No spoilage or remainder recorded</td></tr>';
   } catch (e) { console.error(e); }
 }
 
-/* ===== DAY DETAIL ===== */
-async function loadDayDetail() {
-  const date = document.getElementById('ddDate').value;
-  if (!date) return toast('Pick a date', 'warn');
-  const box = document.getElementById('ddBody');
-  box.innerHTML = '<div style="padding:20px;color:var(--faint);font-weight:600">Loading…</div>';
-  try {
-    const r = await fetch(API_URL + '/api/reports/day?date=' + date);
-    const d = await r.json();
-    if (!d.success) { box.innerHTML = '<div style="padding:20px;color:var(--red);font-weight:600">Failed to load</div>'; return; }
+/* ===== PERFORMANCE (per product x days) ===== */
+let pfSort = 'most';
 
-    let html = '<div class="stat-row">' +
-      '<div class="stat-pill"><span>Revenue</span><b class="num" style="color:var(--green)">' + KES(d.revenue) + '</b></div>' +
-      '<div class="stat-pill"><span>Sales Profit</span><b class="num" style="color:var(--purple)">' + KES(d.salesProfit) + '</b></div>' +
-      '<div class="stat-pill"><span>Expenses</span><b class="num" style="color:var(--red)">' + KES(d.expenseTotal) + '</b></div>' +
-      '<div class="stat-pill"><span>Spoilage</span><b class="num" style="color:var(--red)">' + KES(d.spoilageCost) + '</b></div>' +
-      '<div class="stat-pill"><span>Remainder Value</span><b class="num" style="color:var(--blue)">' + KES(d.remainderValue) + '</b></div>' +
-      '<div class="stat-pill"><span>Closing Total</span><b class="num">' + (d.closingMpesa !== null ? KES(d.closingMpesa + d.closingCash) : '—') + '</b></div>' +
-      '<div class="stat-pill"><span>TOTAL MADE</span><b class="num" style="color:var(--green)">' + (d.totalMade !== null ? KES(d.totalMade) : '—') + '</b></div>' +
-      '</div>';
-
-    html += '<div class="panel-head" style="border-top:1px solid var(--border)">Products Sold (' + d.products.length + ')</div>' +
-      '<div class="tbl-wrap"><table><thead><tr><th>Product</th><th>Qty</th><th>Revenue</th><th>Cost</th><th>Profit</th></tr></thead><tbody>';
-    if (!d.products.length) html += '<tr><td colspan="5" style="text-align:center;color:var(--faint);padding:18px;font-weight:600">No products sold</td></tr>';
-    d.products.forEach(p => {
-      html += '<tr><td style="font-weight:700">' + p.name + '</td><td class="num">' + p.qty + '</td>' +
-        '<td class="num" style="color:var(--brand)">' + KES(p.revenue) + '</td>' +
-        '<td class="num" style="color:var(--red)">' + KES(p.cost) + '</td>' +
-        '<td class="num" style="color:var(--purple);font-weight:700">' + KES(p.profit) + '</td></tr>';
-    });
-    html += '</tbody></table></div>';
-
-    html += '<div class="panel-head" style="border-top:1px solid var(--border)">Spoilage (' + d.spoilage.length + ')</div>' +
-      '<div class="tbl-wrap"><table><thead><tr><th>Item</th><th>Qty</th><th>Reason</th><th>Loss</th><th>By</th></tr></thead><tbody>';
-    if (!d.spoilage.length) html += '<tr><td colspan="5" style="text-align:center;color:var(--faint);padding:18px;font-weight:600">No spoilage</td></tr>';
-    d.spoilage.forEach(s => {
-      html += '<tr><td style="font-weight:700">' + s.item_name + '</td><td class="num" style="color:var(--red)">−' + s.qty + '</td>' +
-        '<td>' + (s.reason || '—') + '</td><td class="num" style="color:var(--red)">' + KES(s.value) + '</td>' +
-        '<td style="text-transform:uppercase;font-size:12px;color:var(--muted)">' + (s.recorded_by || 'Staff') + '</td></tr>';
-    });
-    html += '</tbody></table></div>';
-
-    html += '<div class="panel-head" style="border-top:1px solid var(--border)">Remainder (' + d.remainder.length + ')</div>' +
-      '<div class="tbl-wrap"><table><thead><tr><th>Item</th><th>Qty Left</th><th>Price</th><th>Value</th><th>By</th></tr></thead><tbody>';
-    if (!d.remainder.length) html += '<tr><td colspan="5" style="text-align:center;color:var(--faint);padding:18px;font-weight:600">No remainder recorded</td></tr>';
-    d.remainder.forEach(x => {
-      html += '<tr><td style="font-weight:700">' + x.item_name + '</td><td class="num">' + x.qty + '</td>' +
-        '<td class="num">' + (x.price ? KES(x.price) : '—') + '</td><td class="num" style="color:var(--brand)">' + (x.value ? KES(x.value) : '—') + '</td>' +
-        '<td style="text-transform:uppercase;font-size:12px;color:var(--muted)">' + (x.recorded_by || 'Staff') + '</td></tr>';
-    });
-    html += '</tbody></table></div>';
-
-    box.innerHTML = html;
-  } catch (e) {
-    box.innerHTML = '<div style="padding:20px;color:var(--red);font-weight:600">Failed to load day detail</div>';
-  }
+function perfRange(k) {
+  const now = new Date();
+  let from, to = now;
+  if (k === 'week') { from = mondayOf(now); }
+  else if (k === '7') { from = new Date(now); from.setDate(from.getDate() - 6); }
+  else { from = now; to = now; }
+  document.getElementById('pfFrom').value = isoOf(from);
+  document.getElementById('pfTo').value = isoOf(to);
+  loadPerformance();
 }
 
-/* ===== PERFORMANCE MATRIX ===== */
+function setPfSort(s) {
+  pfSort = s;
+  document.getElementById('pfMost').classList.toggle('on', s === 'most');
+  document.getElementById('pfLeast').classList.toggle('on', s === 'least');
+  loadPerformance();
+}
+
 async function loadPerformance() {
-  const from = document.getElementById('rpFrom').value;
-  const to = document.getElementById('rpTo').value;
+  const from = document.getElementById('pfFrom').value;
+  const to = document.getElementById('pfTo').value;
   const wrap = document.getElementById('perfWrap');
-  if (!from || !to) { wrap.innerHTML = '<div style="padding:20px;color:var(--faint);font-weight:600">Set the report range first.</div>'; return; }
+  if (!from || !to) { wrap.innerHTML = '<div style="padding:20px;color:var(--faint);font-weight:600">Set a range first.</div>'; return; }
   wrap.innerHTML = '<div style="padding:20px;color:var(--faint);font-weight:600">Loading…</div>';
   try {
     const r = await fetch(API_URL + '/api/reports/daily-products?from=' + from + '&to=' + to);
     const d = await r.json();
     if (!d.success) return;
     const dates = d.dates;
-    const products = d.products;
+    let products = [...d.products];
+    if (pfSort === 'least') products.reverse();
     if (!dates.length || !products.length) {
       wrap.innerHTML = '<div style="padding:20px;color:var(--faint);font-weight:600">No product sales in this range.</div>';
       return;
@@ -926,7 +951,8 @@ async function loadPerformance() {
     let html = '<table><thead><tr><th>Product</th>';
     dates.forEach(dt => {
       const dd = new Date(dt + 'T00:00:00');
-      html += '<th style="text-align:center">' + dd.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' }) + '</th>';
+      const isWk = dd.toLocaleDateString('en-GB', { weekday: 'short' });
+      html += '<th style="text-align:center">' + isWk + '<br>' + dd.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' }) + '</th>';
     });
     html += '<th style="text-align:center">Total</th><th>Revenue</th><th>Profit</th></tr></thead><tbody>';
     products.forEach(p => {
