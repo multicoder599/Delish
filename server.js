@@ -55,6 +55,17 @@ const Expenditure = mongoose.model('Expenditure', ExpenditureSchema);
 // 1. Connect to Database
 connectDB();
 
+// Self-heal legacy documents: barcode:null breaks the unique index (null is indexed as a value).
+// Unset it so the field is truly absent — the sparse index then ignores those docs.
+mongoose.connection.once('open', async () => {
+    try {
+        const res = await Product.updateMany({ barcode: null }, { $unset: { barcode: '' } });
+        if (res.modifiedCount > 0) console.log(`Migration: cleared barcode on ${res.modifiedCount} legacy product(s)`);
+    } catch (e) {
+        console.error('Barcode migration error:', e.message);
+    }
+});
+
 // ==========================================
 // 2. CENTRAL API & WAITER SERVER (PORT 4027)
 // ==========================================
@@ -515,7 +526,7 @@ apiApp.get('/api/pl/:date', async (req, res) => {
         const closingCash = balToday ? balToday.cash : null;
         const closingTotal = balToday ? (balToday.mpesa + balToday.cash) : null;
         const prevClosing = balPrev ? (balPrev.mpesa + balPrev.cash) : null;
-        const totalMade = (closingTotal === null || prevClosing === null) ? null : closingTotal - prevClosing - expenseTotal;
+        const totalMade = (closingTotal === null || prevClosing === null) ? null : closingTotal + expenseTotal - prevClosing;
 
         res.json({
             success: true, revenue, cogs, grossProfit, expenses: expenseTotal, spoilageCost, netProfit: grossProfit - expenseTotal - spoilageCost,
@@ -701,7 +712,7 @@ apiApp.post('/api/daily-balance', async (req, res) => {
         const bal = await DailyBalance.findOneAndUpdate(
             { date: dateStr },
             { mpesa: Number(mpesa) || 0, cash: Number(cash) || 0, recorded_by: recorded_by || 'Staff' },
-            { upsert: true, new: true }
+            { upsert: true, returnDocument: 'after' }
         );
         res.json({ success: true, balance: bal });
     } catch (error) {
@@ -743,7 +754,7 @@ apiApp.get('/api/reports/day', async (req, res) => {
         const balPrev = await DailyBalance.findOne({ date: localDateStr(dPrev) });
         const closingTotal = balToday ? (balToday.mpesa + balToday.cash) : null;
         const prevTotal = balPrev ? (balPrev.mpesa + balPrev.cash) : 0;
-        const totalMade = closingTotal === null ? null : closingTotal - prevTotal - expenseTotal;
+        const totalMade = closingTotal === null ? null : closingTotal + expenseTotal - prevTotal;
 
         res.json({
             success: true, date: dateStr,
