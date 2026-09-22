@@ -309,6 +309,12 @@ apiApp.post('/api/stock-takes', async (req, res) => {
 // ==========================================
 apiApp.get('/api/spoilage', async (req, res) => {
     try {
+        if (req.query.date) {
+            const { start, end } = dayRange(req.query.date);
+            const list = await Spoilage.find({ date: { $gte: start, $lte: end } }).sort({ date: -1 });
+            const dayCost = list.reduce((sum, x) => sum + (x.value || 0), 0);
+            return res.json({ success: true, list, dayCost });
+        }
         const start = new Date(); start.setHours(0,0,0,0);
         const end = new Date(); end.setHours(23,59,59,999);
         const today = await Spoilage.find({ date: { $gte: start, $lte: end } }).sort({ date: -1 });
@@ -356,6 +362,11 @@ apiApp.delete('/api/spock-logs/:id', async (req, res) => {
 // ==========================================
 apiApp.get('/api/expenditures', async (req, res) => {
     try {
+        if (req.query.date) {
+            const { start, end } = dayRange(req.query.date);
+            const list = await Expenditure.find({ date: { $gte: start, $lte: end } }).sort({ date: -1 });
+            return res.json({ success: true, expenses: list });
+        }
         const expenses = await Expenditure.find({}).sort({ date: -1 });
         res.json({ success: true, expenses });
     } catch (error) {

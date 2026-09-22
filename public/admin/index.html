@@ -222,7 +222,7 @@ tbody tr:hover{background:#fafafa}
       </div>
       <div class="panel">
         <div class="panel-head"><span class="t"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg> Itemized Orders</span></div>
-        <div class="tbl-wrap"><table><thead><tr><th>Order</th><th>Waiter</th><th>Table</th><th>Items</th><th>Revenue</th><th>Profit</th></tr></thead><tbody id="dashRows"></tbody></table></div>
+        <div class="tbl-wrap"><table><thead><tr><th>Order</th><th>Waiter</th><th>Table</th><th>Items</th><th>Amount</th></tr></thead><tbody id="dashRows"></tbody></table></div>
       </div>
     </div>
 
@@ -232,7 +232,7 @@ tbody tr:hover{background:#fafafa}
       <div class="cards" id="wCards"></div>
       <div class="panel">
         <div class="panel-head"><span class="t"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg> Per-Waiter Breakdown</span></div>
-        <div class="tbl-wrap"><table><thead><tr><th>Waiter</th><th>Orders</th><th>Items</th><th>Revenue</th><th>Est. Profit</th></tr></thead><tbody id="wRows"></tbody></table></div>
+        <div class="tbl-wrap"><table><thead><tr><th>Waiter</th><th>Orders</th><th>Items</th><th>Sales</th></tr></thead><tbody id="wRows"></tbody></table></div>
       </div>
     </div>
 
@@ -261,7 +261,7 @@ tbody tr:hover{background:#fafafa}
       <div class="vh"><div><h2>Spoilage</h2><p>Recorded by staff — view only. Staff deducts stock when recording.</p></div></div>
       <div class="cards" id="spCards"></div>
       <div class="panel">
-        <div class="panel-head"><span class="t"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg> Spoilage Log</span></div>
+        <div class="panel-head"><span class="t"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg> Spoilage Log</span><span style="display:flex;gap:8px;align-items:center;flex-wrap:wrap"><input type="date" class="date-inp" id="spoilDate"><button class="btn btn-blue mini" onclick="spoilFilter('day')">View Day</button><button class="btn btn-ghost mini" onclick="spoilFilter('all')">All Records</button></span></div>
         <div class="tbl-wrap"><table><thead><tr><th>Date</th><th>Item</th><th>Qty</th><th>Reason</th><th>Loss (Cost)</th><th>By</th></tr></thead><tbody id="spRows"></tbody></table></div>
       </div>
     </div>
@@ -271,7 +271,7 @@ tbody tr:hover{background:#fafafa}
       <div class="vh"><div><h2>Remainder</h2><p>Food left over at day end, recorded by staff — view only</p></div></div>
       <div class="cards" id="rmCards"></div>
       <div class="panel">
-        <div class="panel-head"><span class="t"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1"/></svg> Remainder Log</span></div>
+        <div class="panel-head"><span class="t"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1"/></svg> Remainder Log</span><span style="display:flex;gap:8px;align-items:center;flex-wrap:wrap"><input type="date" class="date-inp" id="rmDate"><button class="btn btn-blue mini" onclick="rmFilter('day')">View Day</button><button class="btn btn-ghost mini" onclick="rmFilter('all')">All Records</button></span></div>
         <div class="tbl-wrap"><table><thead><tr><th>Date</th><th>Item</th><th>Qty Left</th><th>Price</th><th>Value</th><th>By</th></tr></thead><tbody id="rmRows"></tbody></table></div>
       </div>
     </div>
@@ -280,7 +280,7 @@ tbody tr:hover{background:#fafafa}
     <div class="view" id="v-exp">
       <div class="vh"><div><h2>Expenses</h2><p>Recorded by staff when they buy with business cash — view only</p></div></div>
       <div class="panel">
-        <div class="panel-head"><span class="t"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg> Expense History</span><b class="num" id="expTotalLbl" style="color:var(--red)"></b></div>
+        <div class="panel-head"><span class="t"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg> Expense History</span><span style="display:flex;gap:8px;align-items:center;flex-wrap:wrap"><input type="date" class="date-inp" id="expDate"><button class="btn btn-blue mini" onclick="expFilter('day')">View Day</button><button class="btn btn-ghost mini" onclick="expFilter('all')">All Records</button></span><b class="num" id="expTotalLbl" style="color:var(--red)"></b></div>
         <div class="tbl-wrap"><table><thead><tr><th>Date</th><th>Description</th><th>Amount</th><th>By</th></tr></thead><tbody id="exRows"></tbody></table></div>
       </div>
     </div>
@@ -332,7 +332,7 @@ tbody tr:hover{background:#fafafa}
       </div>
       <div class="panel">
         <div class="panel-head"><span class="t"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg> Products Sold</span></div>
-        <div class="tbl-wrap"><table><thead><tr><th>Product</th><th>Qty</th><th>Revenue</th><th>Cost</th><th>Profit</th></tr></thead><tbody id="stmtProdRows"></tbody></table></div>
+        <div class="tbl-wrap"><table><thead><tr><th>Product</th><th>Qty</th><th>Revenue</th></tr></thead><tbody id="stmtProdRows"></tbody></table></div>
       </div>
       <div class="panel">
         <div class="panel-head"><span class="t"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg> Spoilage &amp; Remainder</span></div>
@@ -472,7 +472,7 @@ function go(k) {
 document.addEventListener('DOMContentLoaded', () => {
   buildNav();
   const t = new Date().toISOString().substring(0, 10);
-  ['dashDate', 'wDate', 'stmtDate', 'pfFrom', 'pfTo'].forEach(id => document.getElementById(id).value = t);
+  ['dashDate', 'wDate', 'stmtDate', 'pfFrom', 'pfTo', 'spoilDate', 'rmDate', 'expDate'].forEach(id => document.getElementById(id).value = t);
   if (localStorage.getItem('dd_admin_auth') === '1') enterApp();
 });
 
@@ -527,8 +527,8 @@ async function loadDash() {
         card('b', 'Closing M-Pesa', p.closingMpesa !== null ? KES(p.closingMpesa) : '—', 'recorded at day end') +
         card('t', 'Closing Cash', p.closingCash !== null ? KES(p.closingCash) : '—', 'recorded at day end') +
         card('g', 'TOTAL MADE', p.totalMade !== null ? KES(p.totalMade) : '—', 'today + expenses − yesterday') +
-        card('o', 'Sales Revenue', KES(s.totalSales), s.orderCount + ' orders') +
-        card('p', 'Sales Gross Profit', KES(s.grossProfit), 'after food cost') +
+        card('o', 'Total Sales', KES(s.totalSales), s.orderCount + ' orders') +
+        card('b', 'Orders', s.orderCount) +
         card('r', 'Expenses', KES(p.expenses)) +
         card('r', 'Spoilage Loss', KES(p.spoilageCost));
 
@@ -547,23 +547,19 @@ async function loadDash() {
         box = '<div style="padding:8px 0;color:var(--faint);font-weight:600;font-size:13px">Cashier has not recorded the day-end balance yet.</div>';
       }
       box += '<div style="border-top:1px dashed var(--border);margin-top:10px;padding-top:10px">' +
-        plr('Sales revenue (reference)', KES(p.revenue), 'var(--green)') +
-        plr('Food cost (reference)', KES(p.cogs), 'var(--red)') +
-        plr('Sales gross profit (reference)', KES(p.grossProfit), 'var(--purple)') + '</div>';
+        plr('Total sales (reference)', KES(p.revenue), 'var(--green)') + '</div>';
       document.getElementById('plBox').innerHTML = box;
 
       const tb = document.getElementById('dashRows');
       tb.innerHTML = '';
-      if (!s.orders.length) tb.innerHTML = '<tr><td colspan="6" style="text-align:center;color:var(--faint);padding:22px;font-weight:600">No orders this day</td></tr>';
+      if (!s.orders.length) tb.innerHTML = '<tr><td colspan="5" style="text-align:center;color:var(--faint);padding:22px;font-weight:600">No orders this day</td></tr>';
       s.orders.forEach(o => {
         const tr = document.createElement('tr');
-        const profit = (o.total_amount || 0) - (o.total_cost || 0);
         tr.innerHTML = '<td><b class="num">#' + o._id.substring(0, 6).toUpperCase() + '</b><br><small style="color:var(--faint)">' + new Date(o.createdAt).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }) + '</small></td>' +
           '<td style="text-transform:uppercase;font-weight:700;font-size:12px;color:var(--muted)">' + o.served_by + '</td>' +
           '<td>' + (o.table_number || 'Counter') + '</td>' +
           '<td style="font-size:12px;color:var(--muted);max-width:220px">' + o.items.map(i => i.quantity + 'x ' + i.name).join(', ') + '</td>' +
-          '<td class="num" style="color:var(--green);font-weight:700">' + KES(o.total_amount) + '</td>' +
-          '<td class="num" style="color:var(--purple);font-weight:700">' + KES(profit) + '</td>';
+          '<td class="num" style="color:var(--green);font-weight:700">' + KES(o.total_amount) + '</td>';
         tb.appendChild(tr);
       });
     }
@@ -577,18 +573,18 @@ async function loadWaiters() {
     const r = await fetch(API_URL + '/api/sales/today?date=' + date);
     const d = await r.json();
     if (!d.success) return;
+    const itemsSold = d.waiters.reduce((sum, w) => sum + (w.items || 0), 0);
     document.getElementById('wCards').innerHTML =
-      card('b', 'Total Revenue', KES(d.totalSales)) + card('o', 'Active Waiters', d.waiters.length) +
-      card('p', 'Gross Profit', KES(d.grossProfit)) + card('r', 'Orders', d.orderCount);
+      card('b', 'Total Sales', KES(d.totalSales)) + card('o', 'Active Waiters', d.waiters.length) +
+      card('p', 'Items Sold', itemsSold) + card('r', 'Orders', d.orderCount);
     const tb = document.getElementById('wRows');
     tb.innerHTML = '';
-    if (!d.waiters.length) { tb.innerHTML = '<tr><td colspan="5" style="text-align:center;color:var(--faint);padding:22px;font-weight:600">No waiter sales this day</td></tr>'; return; }
+    if (!d.waiters.length) { tb.innerHTML = '<tr><td colspan="4" style="text-align:center;color:var(--faint);padding:22px;font-weight:600">No waiter sales this day</td></tr>'; return; }
     d.waiters.forEach(w => {
       const tr = document.createElement('tr');
       tr.innerHTML = '<td style="text-transform:uppercase;font-weight:800">' + w.waiter + '</td>' +
         '<td class="num">' + w.orders + '</td><td class="num">' + w.items + '</td>' +
-        '<td class="num" style="color:var(--brand);font-weight:700">' + KES(w.revenue) + '</td>' +
-        '<td class="num" style="color:var(--purple);font-weight:700">' + KES(w.revenue - w.cost) + '</td>';
+        '<td class="num" style="color:var(--brand);font-weight:700">' + KES(w.revenue) + '</td>';
       tb.appendChild(tr);
     });
   } catch (e) { console.error(e); }
@@ -677,19 +673,41 @@ async function restock(id) {
   } catch (e) { console.error(e); }
 }
 
-/* ===== SPOILAGE (view only) ===== */
-async function loadSpoilage() {
+/* ===== SPOILAGE (view only, filterable by day, grouped by day) ===== */
+async function loadSpoilage() { spoilFilter('all'); }
+
+async function spoilFilter(mode) {
+  const date = document.getElementById('spoilDate').value;
   try {
-    const r = await fetch(API_URL + '/api/spoilage');
-    const d = await r.json();
+    let list = [];
+    if (mode === 'day' && date) {
+      const r = await fetch(API_URL + '/api/spoilage?date=' + date);
+      const d = await r.json();
+      list = d.list || [];
+    } else {
+      const r = await fetch(API_URL + '/api/spoilage');
+      const d = await r.json();
+      list = d.all || [];
+    }
+    const totalCost = list.reduce((sum, x) => sum + (x.value || 0), 0);
     document.getElementById('spCards').innerHTML =
-      card('r', "Today's Loss", KES(d.todayCost)) + card('o', 'Records Today', d.today.length) + card('p', 'All-Time Records', d.all.length);
+      card('r', 'Loss (shown)', KES(totalCost)) +
+      card('o', 'Records', list.length);
     const tb = document.getElementById('spRows');
     tb.innerHTML = '';
-    if (!d.all.length) { tb.innerHTML = '<tr><td colspan="6" style="text-align:center;color:var(--faint);padding:22px;font-weight:600">No spoilage recorded</td></tr>'; return; }
-    d.all.forEach(s => {
+    if (!list.length) { tb.innerHTML = '<tr><td colspan="6" style="text-align:center;color:var(--faint);padding:22px;font-weight:600">No records</td></tr>'; return; }
+    let lastDay = '';
+    list.forEach(s => {
+      const dk = dayKeyOf(s.date);
+      if (dk !== lastDay) {
+        lastDay = dk;
+        const hdr = document.createElement('tr');
+        hdr.innerHTML = '<td colspan="6" style="background:var(--blue-soft);font-weight:800;color:var(--blue);font-size:12px;padding:8px 15px">' +
+          new Date(dk + 'T00:00:00').toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }) + '</td>';
+        tb.appendChild(hdr);
+      }
       const tr = document.createElement('tr');
-      tr.innerHTML = '<td style="color:var(--faint)">' + new Date(s.date).toLocaleString('en-GB') + '</td>' +
+      tr.innerHTML = '<td style="color:var(--faint)">' + new Date(s.date).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }) + '</td>' +
         '<td style="font-weight:700">' + s.item_name + '</td>' +
         '<td class="num" style="color:var(--red);font-weight:700">−' + s.qty + '</td>' +
         '<td style="color:var(--muted)">' + (s.reason || '—') + '</td>' +
@@ -700,19 +718,41 @@ async function loadSpoilage() {
   } catch (e) { console.error(e); }
 }
 
-/* ===== REMAINDER (view only) ===== */
-async function loadRemainder() {
+/* ===== REMAINDER (view only, filterable by day, grouped by day) ===== */
+async function loadRemainder() { rmFilter('all'); }
+
+async function rmFilter(mode) {
+  const date = document.getElementById('rmDate').value;
   try {
-    const r = await fetch(API_URL + '/api/remainder');
-    const d = await r.json();
+    let list = [];
+    if (mode === 'day' && date) {
+      const r = await fetch(API_URL + '/api/remainder?date=' + date);
+      const d = await r.json();
+      list = d.list || [];
+    } else {
+      const r = await fetch(API_URL + '/api/remainder');
+      const d = await r.json();
+      list = d.all || [];
+    }
+    const totalValue = list.reduce((sum, x) => sum + (x.value || 0), 0);
     document.getElementById('rmCards').innerHTML =
-      card('b', "Today's Value", KES(d.todayValue)) + card('o', 'Records Today', d.today.length) + card('p', 'All-Time Records', d.all.length);
+      card('b', 'Value (shown)', KES(totalValue)) +
+      card('o', 'Records', list.length);
     const tb = document.getElementById('rmRows');
     tb.innerHTML = '';
-    if (!d.all.length) { tb.innerHTML = '<tr><td colspan="6" style="text-align:center;color:var(--faint);padding:22px;font-weight:600">No remainder recorded</td></tr>'; return; }
-    d.all.forEach(x => {
+    if (!list.length) { tb.innerHTML = '<tr><td colspan="6" style="text-align:center;color:var(--faint);padding:22px;font-weight:600">No records</td></tr>'; return; }
+    let lastDay = '';
+    list.forEach(x => {
+      const dk = dayKeyOf(x.date);
+      if (dk !== lastDay) {
+        lastDay = dk;
+        const hdr = document.createElement('tr');
+        hdr.innerHTML = '<td colspan="6" style="background:var(--blue-soft);font-weight:800;color:var(--blue);font-size:12px;padding:8px 15px">' +
+          new Date(dk + 'T00:00:00').toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }) + '</td>';
+        tb.appendChild(hdr);
+      }
       const tr = document.createElement('tr');
-      tr.innerHTML = '<td style="color:var(--faint)">' + new Date(x.date).toLocaleString('en-GB') + '</td>' +
+      tr.innerHTML = '<td style="color:var(--faint)">' + new Date(x.date).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }) + '</td>' +
         '<td style="font-weight:700">' + x.item_name + '</td>' +
         '<td class="num">' + x.qty + '</td>' +
         '<td class="num">' + (x.price ? KES(x.price) : '—') + '</td>' +
@@ -723,19 +763,39 @@ async function loadRemainder() {
   } catch (e) { console.error(e); }
 }
 
-/* ===== EXPENSES (view only) ===== */
-async function loadExpenses() {
+/* ===== EXPENSES (view only, filterable by day, grouped by day) ===== */
+async function loadExpenses() { expFilter('all'); }
+
+async function expFilter(mode) {
+  const date = document.getElementById('expDate').value;
   try {
-    const r = await fetch(API_URL + '/api/expenditures');
-    const d = await r.json();
-    const list = d.expenses || [];
-    document.getElementById('expTotalLbl').textContent = 'Total: ' + KES(list.reduce((s, x) => s + x.amount, 0));
+    let list = [];
+    if (mode === 'day' && date) {
+      const r = await fetch(API_URL + '/api/expenditures?date=' + date);
+      const d = await r.json();
+      list = d.expenses || [];
+    } else {
+      const r = await fetch(API_URL + '/api/expenditures');
+      const d = await r.json();
+      list = d.expenses || [];
+    }
+    const total = list.reduce((sum, x) => sum + (x.amount || 0), 0);
+    document.getElementById('expTotalLbl').textContent = 'Total (shown): ' + KES(total);
     const tb = document.getElementById('exRows');
     tb.innerHTML = '';
     if (!list.length) { tb.innerHTML = '<tr><td colspan="4" style="text-align:center;color:var(--faint);padding:22px;font-weight:600">No expenses recorded</td></tr>'; return; }
+    let lastDay = '';
     list.forEach(x => {
+      const dk = dayKeyOf(x.date);
+      if (dk !== lastDay) {
+        lastDay = dk;
+        const hdr = document.createElement('tr');
+        hdr.innerHTML = '<td colspan="4" style="background:var(--blue-soft);font-weight:800;color:var(--blue);font-size:12px;padding:8px 15px">' +
+          new Date(dk + 'T00:00:00').toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }) + '</td>';
+        tb.appendChild(hdr);
+      }
       const tr = document.createElement('tr');
-      tr.innerHTML = '<td style="color:var(--faint)">' + new Date(x.date).toLocaleString('en-GB') + '</td>' +
+      tr.innerHTML = '<td style="color:var(--faint)">' + new Date(x.date).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }) + '</td>' +
         '<td style="font-weight:700">' + x.description + '</td>' +
         '<td class="num" style="color:var(--red);font-weight:700">' + KES(x.amount) + '</td>' +
         '<td style="text-transform:uppercase;font-size:12px;font-weight:700;color:var(--muted)">' + (x.added_by || 'Staff') + '</td>';
@@ -826,6 +886,7 @@ function toggleSb() {
 }
 
 function isoOf(d) { return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'); }
+function dayKeyOf(ds) { return isoOf(new Date(ds)); }
 function mondayOf(d) { const m = new Date(d); m.setDate(m.getDate() - ((m.getDay() + 6) % 7)); return m; }
 
 function stmtPreset(p) {
@@ -858,9 +919,8 @@ async function loadStatement() {
     if (!s.success || !d.success) return toast('Failed to load', 'err');
 
     document.getElementById('stmtCards').innerHTML =
-      card('b', 'Revenue', KES(d.revenue), d.orderCount + ' orders') +
+      card('b', 'Total Sales', KES(d.revenue), d.orderCount + ' orders') +
       card('g', 'TOTAL MADE', d.totalMade !== null ? KES(d.totalMade) : '—', 'today + expenses − yesterday') +
-      card('p', 'Sales Profit', KES(d.salesProfit), 'after food cost') +
       card('r', 'Expenses', KES(d.expenseTotal)) +
       card('r', 'Spoilage', KES(d.spoilageCost)) +
       card('o', 'Remainder Value', KES(d.remainderValue));
@@ -881,13 +941,11 @@ async function loadStatement() {
 
     const pb = document.getElementById('stmtProdRows');
     pb.innerHTML = '';
-    if (!d.products.length) pb.innerHTML = '<tr><td colspan="5" style="text-align:center;color:var(--faint);padding:20px;font-weight:600">No products sold</td></tr>';
+    if (!d.products.length) pb.innerHTML = '<tr><td colspan="3" style="text-align:center;color:var(--faint);padding:20px;font-weight:600">No products sold</td></tr>';
     d.products.forEach(p => {
       const tr = document.createElement('tr');
       tr.innerHTML = '<td style="font-weight:700">' + p.name + '</td><td class="num">' + p.qty + '</td>' +
-        '<td class="num" style="color:var(--brand)">' + KES(p.revenue) + '</td>' +
-        '<td class="num" style="color:var(--red)">' + KES(p.cost) + '</td>' +
-        '<td class="num" style="color:var(--purple);font-weight:700">' + KES(p.profit) + '</td>';
+        '<td class="num" style="color:var(--brand)">' + KES(p.revenue) + '</td>';
       pb.appendChild(tr);
     });
 
@@ -954,7 +1012,7 @@ async function loadPerformance() {
       const isWk = dd.toLocaleDateString('en-GB', { weekday: 'short' });
       html += '<th style="text-align:center">' + isWk + '<br>' + dd.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' }) + '</th>';
     });
-    html += '<th style="text-align:center">Total</th><th>Revenue</th><th>Profit</th></tr></thead><tbody>';
+    html += '<th style="text-align:center">Total</th><th>Revenue</th></tr></thead><tbody>';
     products.forEach(p => {
       html += '<tr><td style="font-weight:700;white-space:nowrap">' + p.name + '</td>';
       dates.forEach(dt => {
@@ -962,8 +1020,7 @@ async function loadPerformance() {
         html += '<td class="num" style="text-align:center;' + (q ? 'font-weight:800;color:var(--brand)' : 'color:var(--faint)') + '">' + (q || '—') + '</td>';
       });
       html += '<td class="num" style="text-align:center;font-weight:800">' + p.qty + '</td>' +
-        '<td class="num" style="color:var(--brand)">' + KES(p.revenue) + '</td>' +
-        '<td class="num" style="color:var(--purple);font-weight:700">' + KES(p.profit) + '</td></tr>';
+        '<td class="num" style="color:var(--brand)">' + KES(p.revenue) + '</td></tr>';
     });
     html += '</tbody></table>';
     wrap.innerHTML = html;
