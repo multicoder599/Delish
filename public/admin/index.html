@@ -526,7 +526,7 @@ async function loadDash() {
       document.getElementById('dashCards').innerHTML =
         card('b', 'Closing M-Pesa', p.closingMpesa !== null ? KES(p.closingMpesa) : '—', 'recorded at day end') +
         card('t', 'Closing Cash', p.closingCash !== null ? KES(p.closingCash) : '—', 'recorded at day end') +
-        card('g', 'TOTAL MADE', p.totalMade !== null ? KES(p.totalMade) : '—', 'today − yesterday − expenses') +
+        card('g', 'TOTAL MADE', p.totalMade !== null ? KES(p.totalMade) : '—', 'today + expenses − yesterday') +
         card('o', 'Sales Revenue', KES(s.totalSales), s.orderCount + ' orders') +
         card('p', 'Sales Gross Profit', KES(s.grossProfit), 'after food cost') +
         card('r', 'Expenses', KES(p.expenses)) +
@@ -537,8 +537,8 @@ async function loadDash() {
       if (p.closingTotal !== null && p.prevClosing !== null) {
         box =
           plr("Today's closing (M-Pesa " + KES(p.closingMpesa) + ' + Cash ' + KES(p.closingCash) + ')', KES(p.closingTotal), 'var(--blue)') +
-          plr("Yesterday's closing", '− ' + KES(p.prevClosing), 'var(--red)') +
-          plr("Today's expenses", '− ' + KES(p.expenses), 'var(--red)') +
+          plr("Add back today's expenses", '+ ' + KES(p.expenses), 'var(--green)') +
+          plr("Less yesterday's closing", '− ' + KES(p.prevClosing), 'var(--red)') +
           '<div class="plr pl-total"><span class="l">TOTAL MADE</span><span class="v num" style="color:' + (p.totalMade >= 0 ? 'var(--green)' : 'var(--red)') + '">' + KES(p.totalMade) + '</span></div>';
       } else if (p.closingTotal !== null) {
         box = plr("Today's closing", KES(p.closingTotal), 'var(--blue)') +
@@ -859,7 +859,7 @@ async function loadStatement() {
 
     document.getElementById('stmtCards').innerHTML =
       card('b', 'Revenue', KES(d.revenue), d.orderCount + ' orders') +
-      card('g', 'TOTAL MADE', d.totalMade !== null ? KES(d.totalMade) : '—', 'closing − yesterday − expenses') +
+      card('g', 'TOTAL MADE', d.totalMade !== null ? KES(d.totalMade) : '—', 'today + expenses − yesterday') +
       card('p', 'Sales Profit', KES(d.salesProfit), 'after food cost') +
       card('r', 'Expenses', KES(d.expenseTotal)) +
       card('r', 'Spoilage', KES(d.spoilageCost)) +
