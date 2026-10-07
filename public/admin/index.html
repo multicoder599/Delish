@@ -294,6 +294,7 @@ tbody tr:hover{background:#fafafa}
           <div class="fg" style="flex:2"><label>Name</label><input type="text" class="inp" id="nmName" placeholder="e.g. Pilau"></div>
           <div class="fg"><label>Category</label><select class="inp" id="nmType"><option value="meals">Meals</option><option value="drinks">Drinks</option><option value="snacks">Snacks</option></select></div>
           <div class="fg"><label>Sell Price</label><input type="number" class="inp num" id="nmPrice" placeholder="0"></div>
+          <div class="fg"><label>Food Cost</label><input type="number" class="inp num" id="nmCost" placeholder="0"></div>
           <div class="fg"><label>Stock</label><input type="number" class="inp num" id="nmStock" placeholder="0"></div>
           <button class="btn btn-blue" onclick="addItem()">Add Item</button>
         </div>
@@ -302,7 +303,7 @@ tbody tr:hover{background:#fafafa}
         <div class="panel-head"><span class="t">Full Menu</span>
           <div class="search"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg><input type="text" id="menuQ" placeholder="Search item..." oninput="renderMenu()"></div>
         </div>
-        <div class="tbl-wrap"><table><thead><tr><th>Item</th><th>Category</th><th>Stock</th><th>Sell Price</th><th></th></tr></thead><tbody id="menuRows"></tbody></table></div>
+        <div class="tbl-wrap"><table><thead><tr><th>Item</th><th>Category</th><th>Stock</th><th>Food Cost</th><th>Sell Price</th><th>Margin</th><th></th></tr></thead><tbody id="menuRows"></tbody></table></div>
       </div>
     </div>
 
@@ -310,8 +311,10 @@ tbody tr:hover{background:#fafafa}
     <div class="view" id="v-rep">
       <div class="vh"><div><h2>Statements</h2><p>Every order and the totals made for a selected day</p></div>
         <span style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
-          <input type="date" class="date-inp" id="stmtDate">
-          <button class="btn btn-blue" onclick="loadStatement()">View Day</button>
+          <input type="date" class="date-inp" id="stmtFrom">
+          <span style="color:var(--faint);font-weight:700">to</span>
+          <input type="date" class="date-inp" id="stmtTo">
+          <button class="btn btn-blue" onclick="loadStatement()">View</button>
         </span>
       </div>
       <div class="preset-row" id="stmtPresets" style="margin-bottom:16px">
@@ -328,11 +331,11 @@ tbody tr:hover{background:#fafafa}
       <div class="cards" id="stmtCards"></div>
       <div class="panel">
         <div class="panel-head"><span class="t"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg> Orders — <span id="stmtLbl" class="num" style="font-weight:600"></span></span></div>
-        <div class="tbl-wrap"><table><thead><tr><th>Time</th><th>Order</th><th>Waiter</th><th>Table</th><th>Items</th><th>Amount</th></tr></thead><tbody id="stmtRows"></tbody></table></div>
+        <div class="tbl-wrap"><table><thead><tr><th>Time</th><th>Order</th><th>Waiter</th><th>Table</th><th>Items</th><th>Amount</th><th>Payment</th></tr></thead><tbody id="stmtRows"></tbody></table></div>
       </div>
       <div class="panel">
         <div class="panel-head"><span class="t"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg> Products Sold</span></div>
-        <div class="tbl-wrap"><table><thead><tr><th>Product</th><th>Qty</th><th>Revenue</th></tr></thead><tbody id="stmtProdRows"></tbody></table></div>
+        <div class="tbl-wrap"><table><thead><tr><th>Product</th><th>Qty</th><th>Revenue</th><th>Profit</th></tr></thead><tbody id="stmtProdRows"></tbody></table></div>
       </div>
       <div class="panel">
         <div class="panel-head"><span class="t"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg> Spoilage &amp; Remainder</span></div>
@@ -357,6 +360,7 @@ tbody tr:hover{background:#fafafa}
           <button class="preset" onclick="perfRange('today')">Today</button>
         </div>
       </div>
+      <div class="cards" id="pfCards"></div>
       <div class="panel">
         <div class="panel-head"><span class="t"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg> Products × Days</span>
           <span style="display:flex;gap:8px">
@@ -472,7 +476,7 @@ function go(k) {
 document.addEventListener('DOMContentLoaded', () => {
   buildNav();
   const t = new Date().toISOString().substring(0, 10);
-  ['dashDate', 'wDate', 'stmtDate', 'pfFrom', 'pfTo', 'spoilDate', 'rmDate', 'expDate'].forEach(id => document.getElementById(id).value = t);
+  ['dashDate', 'wDate', 'stmtFrom', 'stmtTo', 'pfFrom', 'pfTo', 'spoilDate', 'rmDate', 'expDate'].forEach(id => document.getElementById(id).value = t);
   if (localStorage.getItem('dd_admin_auth') === '1') enterApp();
 });
 
@@ -810,14 +814,16 @@ function renderMenu() {
   const tb = document.getElementById('menuRows');
   tb.innerHTML = '';
   const items = menu.filter(p => p.name.toLowerCase().includes(q));
-  if (!items.length) { tb.innerHTML = '<tr><td colspan="5" style="text-align:center;color:var(--faint);padding:22px;font-weight:600">No items. Add above or load the default menu.</td></tr>'; return; }
+  if (!items.length) { tb.innerHTML = '<tr><td colspan="7" style="text-align:center;color:var(--faint);padding:22px;font-weight:600">No items. Add above or load the default menu.</td></tr>'; return; }
   items.forEach(p => {
     const safe = p.name.replace(/'/g, "\'");
     const tr = document.createElement('tr');
     tr.innerHTML = '<td><input class="inp" id="mn-' + p._id + '" value="' + safe + '"></td>' +
       '<td style="text-transform:capitalize;color:var(--muted)">' + p.type + '</td>' +
       '<td><input type="number" class="inp num w-s" id="ms-' + p._id + '" value="' + (p.stock || 0) + '"></td>' +
+      '<td><input type="number" class="inp num w-s" id="mb-' + p._id + '" value="' + (p.buying_price || 0) + '"></td>' +
       '<td><input type="number" class="inp num w-s" id="mp-' + p._id + '" value="' + (p.price || 0) + '" style="' + (!p.price ? 'border-color:var(--red);' : '') + '"></td>' +
+      '<td class="num" style="color:var(--purple);font-weight:700">' + ((p.buying_price > 0) ? Math.round(((p.price - p.buying_price) / p.buying_price) * 100) + '%' : '—') + '</td>' +
       '<td style="white-space:nowrap"><button class="btn btn-green mini" onclick="saveItem(\'' + p._id + '\')">Save</button> <button class="btn btn-red mini" onclick="delItem(\'' + p._id + '\', \'' + safe + '\')">×</button></td>';
     tb.appendChild(tr);
   });
@@ -832,12 +838,13 @@ async function addItem() {
       body: JSON.stringify({
         name, type: document.getElementById('nmType').value,
         price: document.getElementById('nmPrice').value,
+        buying_price: document.getElementById('nmCost').value,
         stock: document.getElementById('nmStock').value
       })
     });
     const d = await r.json();
     if (d.success) {
-      ['nmName', 'nmPrice', 'nmStock'].forEach(id => document.getElementById(id).value = '');
+      ['nmName', 'nmPrice', 'nmCost', 'nmStock'].forEach(id => document.getElementById(id).value = '');
       toast('"' + name + '" added', 'ok'); loadMenu();
     } else toast(d.message || 'Could not add item', 'err');
   } catch (e) { console.error(e); }
@@ -852,6 +859,7 @@ async function saveItem(id) {
       body: JSON.stringify({
         name,
         stock: document.getElementById('ms-' + id).value,
+        buying_price: document.getElementById('mb-' + id).value,
         price: document.getElementById('mp-' + id).value,
         recordedBy: 'Admin'
       })
@@ -892,7 +900,8 @@ function mondayOf(d) { const m = new Date(d); m.setDate(m.getDate() - ((m.getDay
 function stmtPreset(p) {
   const now = new Date();
   if (p === 'yesterday') now.setDate(now.getDate() - 1);
-  document.getElementById('stmtDate').value = isoOf(now);
+  document.getElementById('stmtFrom').value = isoOf(now);
+  document.getElementById('stmtTo').value = isoOf(now);
   loadStatement();
 }
 
@@ -901,71 +910,129 @@ function pickDow(n) { // 0=Mon .. 6=Sun — that weekday of the current week (fa
   day.setDate(day.getDate() + n);
   const endOfToday = new Date(); endOfToday.setHours(23, 59, 59, 999);
   if (day > endOfToday) day.setDate(day.getDate() - 7);
-  document.getElementById('stmtDate').value = isoOf(day);
+  document.getElementById('stmtFrom').value = isoOf(day);
+  document.getElementById('stmtTo').value = isoOf(day);
   loadStatement();
 }
 
 async function loadStatement() {
-  const date = document.getElementById('stmtDate').value;
-  if (!date) return toast('Pick a date', 'warn');
-  document.getElementById('stmtLbl').textContent = date;
+  const from = document.getElementById('stmtFrom').value;
+  const to = document.getElementById('stmtTo').value;
+  if (!from || !to) return toast('Pick the date range', 'warn');
+  const singleDay = from === to;
+  document.getElementById('stmtLbl').textContent = singleDay ? from : (from + ' → ' + to);
   try {
-    const [sRes, dRes] = await Promise.all([
-      fetch(API_URL + '/api/sales/today?date=' + date),
-      fetch(API_URL + '/api/reports/day?date=' + date)
-    ]);
-    const s = await sRes.json();
-    const d = await dRes.json();
-    if (!s.success || !d.success) return toast('Failed to load', 'err');
-
-    document.getElementById('stmtCards').innerHTML =
-      card('b', 'Total Sales', KES(d.revenue), d.orderCount + ' orders') +
-      card('g', 'TOTAL MADE', d.totalMade !== null ? KES(d.totalMade) : '—', 'today + expenses − yesterday') +
-      card('r', 'Expenses', KES(d.expenseTotal)) +
-      card('r', 'Spoilage', KES(d.spoilageCost)) +
-      card('o', 'Remainder Value', KES(d.remainderValue));
-
-    const tb = document.getElementById('stmtRows');
-    tb.innerHTML = '';
-    if (!s.orders.length) tb.innerHTML = '<tr><td colspan="6" style="text-align:center;color:var(--faint);padding:22px;font-weight:600">No orders this day</td></tr>';
-    s.orders.forEach(o => {
-      const tr = document.createElement('tr');
-      tr.innerHTML = '<td style="color:var(--faint)">' + new Date(o.createdAt).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }) + '</td>' +
-        '<td class="num">#' + o._id.substring(0, 6).toUpperCase() + '</td>' +
-        '<td style="text-transform:uppercase;font-size:12px;font-weight:700;color:var(--muted)">' + o.served_by + '</td>' +
-        '<td>' + (o.table_number || 'Counter') + '</td>' +
-        '<td style="font-size:12px;color:var(--muted);max-width:220px">' + o.items.map(i => i.quantity + 'x ' + i.name).join(', ') + '</td>' +
-        '<td class="num" style="font-weight:700;color:var(--green)">' + KES(o.total_amount) + '</td>';
-      tb.appendChild(tr);
-    });
-
-    const pb = document.getElementById('stmtProdRows');
-    pb.innerHTML = '';
-    if (!d.products.length) pb.innerHTML = '<tr><td colspan="3" style="text-align:center;color:var(--faint);padding:20px;font-weight:600">No products sold</td></tr>';
-    d.products.forEach(p => {
-      const tr = document.createElement('tr');
-      tr.innerHTML = '<td style="font-weight:700">' + p.name + '</td><td class="num">' + p.qty + '</td>' +
-        '<td class="num" style="color:var(--brand)">' + KES(p.revenue) + '</td>';
-      pb.appendChild(tr);
-    });
-
-    const sb = document.getElementById('stmtSrRows');
-    sb.innerHTML = '';
-    let rows = '';
-    d.spoilage.forEach(x => {
-      rows += '<tr><td>' + chip('Spoilt', 'r') + '</td><td style="font-weight:700">' + x.item_name + '</td>' +
-        '<td class="num" style="color:var(--red)">−' + x.qty + '</td>' +
-        '<td class="num" style="color:var(--red)">' + KES(x.value) + '</td>' +
-        '<td style="text-transform:uppercase;font-size:12px;color:var(--muted)">' + (x.recorded_by || 'Staff') + '</td></tr>';
-    });
-    d.remainder.forEach(x => {
-      rows += '<tr><td>' + chip('Remainder', 'b') + '</td><td style="font-weight:700">' + x.item_name + '</td>' +
-        '<td class="num">' + x.qty + '</td>' +
-        '<td class="num" style="color:var(--brand)">' + (x.value ? KES(x.value) : '—') + '</td>' +
-        '<td style="text-transform:uppercase;font-size:12px;color:var(--muted)">' + (x.recorded_by || 'Staff') + '</td></tr>';
-    });
-    sb.innerHTML = rows || '<tr><td colspan="5" style="text-align:center;color:var(--faint);padding:20px;font-weight:600">No spoilage or remainder recorded</td></tr>';
+    if (singleDay) { await renderDayStatement(from); return; }
+    await renderRangeStatement(from, to);
   } catch (e) { console.error(e); }
+}
+
+async function renderDayStatement(date) {
+  const [sRes, dRes] = await Promise.all([
+    fetch(API_URL + '/api/sales/today?date=' + date),
+    fetch(API_URL + '/api/reports/day?date=' + date)
+  ]);
+  const s = await sRes.json();
+  const d = await dRes.json();
+  if (!s.success || !d.success) return toast('Failed to load', 'err');
+
+  document.getElementById('stmtCards').innerHTML =
+    card('b', 'Total Sales', KES(d.revenue), d.orderCount + ' orders') +
+    card('g', 'TOTAL MADE', d.totalMade !== null ? KES(d.totalMade) : '—', 'today + expenses − yesterday') +
+    card('p', 'Sales Profit', KES(d.salesProfit), 'sales − food cost') +
+    card('r', 'Expenses', KES(d.expenseTotal)) +
+    card('r', 'Spoilage', KES(d.spoilageCost)) +
+    card('o', 'Remainder Value', KES(d.remainderValue));
+
+  fillOrderRows(s.orders, true);
+  fillProductRows(d.products);
+  fillSrRows(d.spoilage, d.remainder);
+}
+
+async function renderRangeStatement(from, to) {
+  const [sRes, pRes, oRes] = await Promise.all([
+    fetch(API_URL + '/api/reports/sales?from=' + from + '&to=' + to + '&group=day'),
+    fetch(API_URL + '/api/reports/products?from=' + from + '&to=' + to),
+    fetch(API_URL + '/api/orders?from=' + from + '&to=' + to)
+  ]);
+  const s = await sRes.json();
+  const pr = await pRes.json();
+  const o = await oRes.json();
+  if (!s.success) return toast('Failed to load', 'err');
+
+  document.getElementById('stmtCards').innerHTML =
+    card('b', 'Total Sales', KES(s.totals.revenue), s.totals.orders + ' orders') +
+    card('p', 'Sales Profit', KES(s.totals.profit), 'sales − food cost') +
+    card('r', 'Food Cost', KES(s.totals.cost)) +
+    card('g', 'Items Sold', s.totals.items);
+
+  // orders grouped by day with per-day header totals
+  const orders = (o.orders || []);
+  fillOrderRows(orders, true);
+
+  fillProductRows(pr.products || []);
+  document.getElementById('stmtSrRows').innerHTML = '<tr><td colspan="5" style="text-align:center;color:var(--faint);padding:20px;font-weight:600">Select a single day to see spoilage &amp; remainder details</td></tr>';
+}
+
+function fillOrderRows(orders, withStatus) {
+  const tb = document.getElementById('stmtRows');
+  tb.innerHTML = '';
+  if (!orders.length) { tb.innerHTML = '<tr><td colspan="7" style="text-align:center;color:var(--faint);padding:22px;font-weight:600">No orders in this period</td></tr>'; return; }
+  let lastDay = '';
+  orders.forEach(o => {
+    const dk = dayKeyOf(o.createdAt);
+    if (dk !== lastDay) {
+      lastDay = dk;
+      const dayOrders = orders.filter(x => dayKeyOf(x.createdAt) === dk);
+      const dayTotal = dayOrders.reduce((sum, x) => sum + x.total_amount, 0);
+      const hdr = document.createElement('tr');
+      hdr.innerHTML = '<td colspan="7" style="background:var(--blue-soft);font-weight:800;color:var(--blue);font-size:12px;padding:8px 15px">' +
+        new Date(dk + 'T00:00:00').toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }) +
+        ' &nbsp;—&nbsp; ' + dayOrders.length + ' orders · ' + KES(dayTotal) + '</td>';
+      tb.appendChild(hdr);
+    }
+    const tr = document.createElement('tr');
+    const paid = (o.payment_status || 'pending') === 'paid';
+    tr.innerHTML = '<td style="color:var(--faint)">' + new Date(o.createdAt).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }) + '</td>' +
+      '<td class="num">#' + o._id.substring(0, 6).toUpperCase() + '</td>' +
+      '<td style="text-transform:uppercase;font-size:12px;font-weight:700;color:var(--muted)">' + o.served_by + '</td>' +
+      '<td>' + (o.table_number || 'Counter') + '</td>' +
+      '<td style="font-size:12px;color:var(--muted);max-width:200px">' + o.items.map(i => i.quantity + 'x ' + i.name).join(', ') + '</td>' +
+      '<td class="num" style="font-weight:700;color:var(--green)">' + KES(o.total_amount) + '</td>' +
+      '<td>' + (paid ? chip('Paid', 'g') : chip('Pending', 'o')) + '</td>';
+    tb.appendChild(tr);
+  });
+}
+
+function fillProductRows(products) {
+  const pb = document.getElementById('stmtProdRows');
+  pb.innerHTML = '';
+  if (!products.length) { pb.innerHTML = '<tr><td colspan="4" style="text-align:center;color:var(--faint);padding:20px;font-weight:600">No products sold</td></tr>'; return; }
+  products.forEach(p => {
+    const tr = document.createElement('tr');
+    tr.innerHTML = '<td style="font-weight:700">' + p.name + '</td><td class="num">' + p.qty + '</td>' +
+      '<td class="num" style="color:var(--brand)">' + KES(p.revenue) + '</td>' +
+      '<td class="num" style="color:var(--purple);font-weight:700">' + KES(p.profit) + '</td>';
+    pb.appendChild(tr);
+  });
+}
+
+function fillSrRows(spoilage, remainder) {
+  const sb = document.getElementById('stmtSrRows');
+  let rows = '';
+  spoilage.forEach(x => {
+    rows += '<tr><td>' + chip('Spoilt', 'r') + '</td><td style="font-weight:700">' + x.item_name + '</td>' +
+      '<td class="num" style="color:var(--red)">−' + x.qty + '</td>' +
+      '<td class="num" style="color:var(--red)">' + KES(x.value) + '</td>' +
+      '<td style="text-transform:uppercase;font-size:12px;color:var(--muted)">' + (x.recorded_by || 'Staff') + '</td></tr>';
+  });
+  remainder.forEach(x => {
+    rows += '<tr><td>' + chip('Remainder', 'b') + '</td><td style="font-weight:700">' + x.item_name + '</td>' +
+      '<td class="num">' + x.qty + '</td>' +
+      '<td class="num" style="color:var(--brand)">' + (x.value ? KES(x.value) : '—') + '</td>' +
+      '<td style="text-transform:uppercase;font-size:12px;color:var(--muted)">' + (x.recorded_by || 'Staff') + '</td></tr>';
+  });
+  sb.innerHTML = rows || '<tr><td colspan="5" style="text-align:center;color:var(--faint);padding:20px;font-weight:600">No spoilage or remainder recorded</td></tr>';
 }
 
 /* ===== PERFORMANCE (per product x days) ===== */
@@ -996,8 +1063,18 @@ async function loadPerformance() {
   if (!from || !to) { wrap.innerHTML = '<div style="padding:20px;color:var(--faint);font-weight:600">Set a range first.</div>'; return; }
   wrap.innerHTML = '<div style="padding:20px;color:var(--faint);font-weight:600">Loading…</div>';
   try {
-    const r = await fetch(API_URL + '/api/reports/daily-products?from=' + from + '&to=' + to);
+    const [r, sRes] = await Promise.all([
+      fetch(API_URL + '/api/reports/daily-products?from=' + from + '&to=' + to),
+      fetch(API_URL + '/api/reports/sales?from=' + from + '&to=' + to + '&group=day')
+    ]);
     const d = await r.json();
+    const s = await sRes.json();
+    if (s.success) {
+      document.getElementById('pfCards').innerHTML =
+        card('b', 'Total Sales', KES(s.totals.revenue), s.totals.orders + ' orders') +
+        card('r', 'Food Cost', KES(s.totals.cost)) +
+        card('g', 'NET PROFIT', KES(s.totals.profit), 'sales − food cost · ' + from + ' → ' + to);
+    }
     if (!d.success) return;
     const dates = d.dates;
     let products = [...d.products];
@@ -1012,7 +1089,7 @@ async function loadPerformance() {
       const isWk = dd.toLocaleDateString('en-GB', { weekday: 'short' });
       html += '<th style="text-align:center">' + isWk + '<br>' + dd.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' }) + '</th>';
     });
-    html += '<th style="text-align:center">Total</th><th>Revenue</th></tr></thead><tbody>';
+    html += '<th style="text-align:center">Total</th><th>Revenue</th><th>Profit</th></tr></thead><tbody>';
     products.forEach(p => {
       html += '<tr><td style="font-weight:700;white-space:nowrap">' + p.name + '</td>';
       dates.forEach(dt => {
@@ -1020,7 +1097,8 @@ async function loadPerformance() {
         html += '<td class="num" style="text-align:center;' + (q ? 'font-weight:800;color:var(--brand)' : 'color:var(--faint)') + '">' + (q || '—') + '</td>';
       });
       html += '<td class="num" style="text-align:center;font-weight:800">' + p.qty + '</td>' +
-        '<td class="num" style="color:var(--brand)">' + KES(p.revenue) + '</td></tr>';
+        '<td class="num" style="color:var(--brand)">' + KES(p.revenue) + '</td>' +
+        '<td class="num" style="color:var(--purple);font-weight:700">' + KES(p.profit) + '</td></tr>';
     });
     html += '</tbody></table>';
     wrap.innerHTML = html;

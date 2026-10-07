@@ -47,6 +47,7 @@ const Spoilage = mongoose.model('Spoilage', SpoilageSchema);
 const ExpenditureSchema = new mongoose.Schema({
     description: String,
     amount: Number,
+    category: { type: String, enum: ['stock', 'operational'], default: 'operational' },
     added_by: String,
     date: { type: Date, default: Date.now }
 });
@@ -376,8 +377,8 @@ apiApp.get('/api/expenditures', async (req, res) => {
 
 apiApp.post('/api/expenditures', async (req, res) => {
     try {
-        const { description, amount, added_by } = req.body;
-        const newExpense = await Expenditure.create({ description, amount: Number(amount), added_by: added_by || 'Admin' });
+        const { description, amount, added_by, category } = req.body;
+        const newExpense = await Expenditure.create({ description, amount: Number(amount), added_by: added_by || 'Admin', category: ['stock', 'operational'].includes(category) ? category : 'operational' });
         res.json({ success: true, expense: newExpense });
     } catch (error) {
         res.status(500).json({ success: false, message: error.message });
@@ -398,10 +399,31 @@ apiApp.delete('/api/expenditures/:id', async (req, res) => {
 // ==========================================
 apiApp.get('/api/orders', async (req, res) => {
     try {
+        const { from, to } = req.query;
+        if (from || to) {
+            const q = {};
+            if (from) { const d = new Date(from); d.setHours(0,0,0,0); q.createdAt = { $gte: d }; }
+            if (to) { const d = new Date(to); d.setHours(23,59,59,999); q.createdAt = Object.assign({}, q.createdAt, { $lte: d }); }
+            const orders = await Order.find(q).sort({ createdAt: -1 }).limit(500);
+            return res.json({ success: true, orders });
+        }
         const orders = await Order.find({}).sort({ createdAt: -1 }).limit(300);
         res.json({ success: true, orders });
     } catch (error) {
         res.status(500).json({ success: false, message: 'Failed to fetch orders' });
+    }
+});
+
+// Mark an order as paid / pending (used by waiters to trace unpaid orders)
+apiApp.patch('/api/orders/:id/payment', async (req, res) => {
+    try {
+        const { status } = req.body;
+        if (!['pending', 'paid'].includes(status)) return res.status(400).json({ success: false, message: 'Invalid status' });
+        const order = await Order.findByIdAndUpdate(req.params.id, { payment_status: status }, { returnDocument: 'after' });
+        if (!order) return res.status(404).json({ success: false, message: 'Order not found' });
+        res.json({ success: true, order });
+    } catch (error) {
+        res.status(500).json({ success: false, message: error.message });
     }
 });
 

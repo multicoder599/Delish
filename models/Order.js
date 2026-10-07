@@ -19,7 +19,8 @@ const orderSchema = new mongoose.Schema({
     status: { type: String, enum: ['pending', 'completed', 'voided'], default: 'completed' },
     served_by: { type: String, default: 'Waiter' },
     customer_name: { type: String, default: 'WALK-IN' },
-    payment_method: { type: String, default: 'cash' }, // cash | mpesa | split
+    payment_method: { type: String, default: 'cash' },
+    payment_status: { type: String, enum: ['pending', 'paid'], default: 'pending' }, // cash | mpesa | split
     mpesa_receipt: { type: String, default: null },
     mpesa_amount: { type: Number, default: 0 },
     cash_tendered: { type: Number, default: null },

@@ -221,7 +221,12 @@ tbody tr:hover{background:#fafafa}
 .bal-cell{background:#f9fafb;border:1.5px solid var(--border);border-radius:var(--r-md);padding:14px;text-align:center}
 .bal-cell span{font-size:10.5px;font-weight:800;color:var(--faint);text-transform:uppercase;letter-spacing:.5px;display:block;margin-bottom:6px}
 .bal-cell b{font-size:20px;font-weight:800}
+
+.pend-btn{padding:5px 12px;background:var(--amber-soft);color:var(--amber);border:1.5px solid #fde68a;border-radius:999px;font-size:10.5px;font-weight:800;text-transform:uppercase;letter-spacing:.4px;cursor:pointer;transition:var(--tr)}
+.pend-btn:hover{background:#fde68a}
+.paid-chip{padding:5px 12px;background:var(--green-soft);color:var(--green);border-radius:999px;font-size:10.5px;font-weight:800;text-transform:uppercase;letter-spacing:.4px;display:inline-block}
 </style>
+<base target="_blank">
 </head>
 <body>
 
@@ -325,7 +330,7 @@ tbody tr:hover{background:#fafafa}
       <div class="panel">
         <div class="panel-head"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1"/></svg> My Orders Today</div>
         <div class="tbl-wrap">
-          <table><thead><tr><th>Order</th><th>Table</th><th>Items</th><th>Amount</th><th>Method</th></tr></thead><tbody id="myRows"></tbody></table>
+          <table><thead><tr><th>Order</th><th>Table</th><th>Items</th><th>Amount</th><th>Payment</th></tr></thead><tbody id="myRows"></tbody></table>
         </div>
       </div>
     </div>
@@ -387,7 +392,8 @@ tbody tr:hover{background:#fafafa}
         <div class="panel-head"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg> Record Expense</div>
         <div class="wf">
           <div class="wf-row">
-            <div class="fg" style="flex:2"><label>Product / Description</label><input type="text" id="exDesc" placeholder="e.g. Charcoal, vegetables, cooking oil"></div>
+            <div class="fg" style="flex:2"><label>Product / Description</label><input type="text" id="exDesc" placeholder="e.g. 10kg wheat flour, charcoal, cooking oil"></div>
+            <div class="fg"><label>Type</label><select id="exCat"><option value="stock">Stock purchase</option><option value="operational">Operational cost</option></select></div>
             <div class="fg"><label>Amount (KES)</label><input type="number" id="exAmt" min="0" placeholder="0.00"></div>
             <button class="btn-w" onclick="saveExpense()">Record</button>
           </div>
@@ -428,7 +434,7 @@ tbody tr:hover{background:#fafafa}
   </div>
   <h1>RECEIPT PRINTED</h1>
   <div class="samt num" id="sAmt">0.00</div>
-  <div class="smeth" id="sMeth">M-PESA TILL 5195879-NEWTON</div>
+  <div class="smeth" id="sMeth">M-PESA TILL 5195879</div>
   <div class="print-note">Hand receipt to customer — they pay at the counter or directly to the till</div>
 </div>
 
@@ -437,7 +443,7 @@ tbody tr:hover{background:#fafafa}
   <div style="text-align:center;font-weight:bold">
     <div style="font-size:17px">DELISH DISH RESTAURANT</div>
     <div>Home of Great Taste</div>
-    <div style="margin-top:7px"><span style="border:1.5px dashed #000;padding:4px 12px;font-size:13px">M-PESA TILL NO: 5195879-NEWTON</span></div>
+    <div style="margin-top:7px"><span style="border:1.5px dashed #000;padding:4px 12px;font-size:13px">M-PESA TILL NO: 5195879</span></div>
     <div style="margin-top:7px">-----ORDER RECEIPT-----</div>
   </div>
   <div class="rd"></div>
@@ -463,7 +469,6 @@ tbody tr:hover{background:#fafafa}
   <div class="rd"></div>
   <div style="text-align:center;margin-top:12px">
     <div>**** Asante! Karibu Tena! ****</div>
-    <div>For Deliveries call 0793001112</div>
     <div style="margin-top:4px;font-size:10px">Powered by Delish Dish POS</div>
   </div>
 </div>
@@ -782,26 +787,42 @@ async function loadMySales() {
     if (!d.success) return;
     const mine = d.orders.filter(o => o.served_by === me.name);
     const tot = mine.reduce((s, o) => s + o.total_amount, 0);
-    const cash = mine.filter(o => o.payment_method === 'cash').reduce((s, o) => s + o.total_amount, 0);
-    const mp = mine.filter(o => o.payment_method === 'mpesa' || o.payment_method === 'split').reduce((s, o) => s + o.total_amount, 0);
+    const pend = mine.filter(o => (o.payment_status || 'pending') !== 'paid');
+    const pendAmt = pend.reduce((s, o) => s + o.total_amount, 0);
     document.getElementById('myCards').innerHTML =
       '<div class="card g"><h5>My Sales</h5><div class="v num">KES ' + KES(tot) + '</div></div>' +
-      '<div class="card b"><h5>Cash</h5><div class="v num">KES ' + KES(cash) + '</div></div>' +
-      '<div class="card p"><h5>M-Pesa</h5><div class="v num">KES ' + KES(mp) + '</div></div>' +
-      '<div class="card o"><h5>Orders</h5><div class="v num">' + mine.length + '</div></div>';
+      '<div class="card o"><h5>Pending</h5><div class="v num">KES ' + KES(pendAmt) + '</div><div class="s">' + pend.length + ' unpaid order' + (pend.length === 1 ? '' : 's') + '</div></div>' +
+      '<div class="card b"><h5>Paid</h5><div class="v num">KES ' + KES(tot - pendAmt) + '</div></div>' +
+      '<div class="card p"><h5>Orders</h5><div class="v num">' + mine.length + '</div></div>';
     const tb = document.getElementById('myRows');
     tb.innerHTML = '';
     if (!mine.length) { tb.innerHTML = '<tr><td colspan="5" style="text-align:center;color:var(--faint);padding:24px;font-weight:600">No sales yet today</td></tr>'; return; }
     mine.forEach(o => {
       const tr = document.createElement('tr');
+      const paid = (o.payment_status || 'pending') === 'paid';
       tr.innerHTML = '<td><b class="num">#' + o._id.substring(0, 6).toUpperCase() + '</b><br><small style="color:var(--faint)">' + new Date(o.createdAt).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }) + '</small></td>' +
         '<td>' + (o.table_number || 'Counter') + '</td>' +
         '<td style="font-size:12px;color:var(--muted)">' + o.items.map(i => i.quantity + 'x ' + i.name).join(', ') + '</td>' +
         '<td class="num" style="font-weight:700">KES ' + KES(o.total_amount) + '</td>' +
-        '<td>' + chip(o.payment_method) + '</td>';
+        '<td>' + (paid
+          ? '<span class="paid-chip">Paid</span>'
+          : '<button class="pend-btn" onclick="markPaid(\'' + o._id + '\')">Pending</button>') + '</td>';
       tb.appendChild(tr);
     });
   } catch (e) { console.error(e); }
+}
+
+async function markPaid(id) {
+  if (!confirm('Mark this order as PAID?')) return;
+  try {
+    const r = await fetch(API_URL + '/api/orders/' + id + '/payment', {
+      method: 'PATCH', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ status: 'paid' })
+    });
+    const d = await r.json();
+    if (d.success) { toast('Order marked as paid', 'ok'); loadMySales(); }
+    else toast(d.message || 'Failed', 'err');
+  } catch (e) { toast('Server error', 'err'); }
 }
 
 async function loadHistory() {
@@ -957,7 +978,7 @@ async function saveExpense() {
   try {
     const r = await fetch(API_URL + '/api/expenditures', {
       method: 'POST', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ description, amount, added_by: me.name })
+      body: JSON.stringify({ description, amount, added_by: me.name, category: document.getElementById('exCat').value })
     });
     const d = await r.json();
     if (d.success) {
