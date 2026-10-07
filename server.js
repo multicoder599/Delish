@@ -310,6 +310,12 @@ apiApp.post('/api/stock-takes', async (req, res) => {
 // ==========================================
 apiApp.get('/api/spoilage', async (req, res) => {
     try {
+        if (req.query.from || req.query.to) {
+            const { start, end } = rangeOrDay(req.query);
+            const list = await Spoilage.find({ date: { $gte: start, $lte: end } }).sort({ date: -1 });
+            const totalCost = list.reduce((sum, x) => sum + (x.value || 0), 0);
+            return res.json({ success: true, list, totalCost });
+        }
         if (req.query.date) {
             const { start, end } = dayRange(req.query.date);
             const list = await Spoilage.find({ date: { $gte: start, $lte: end } }).sort({ date: -1 });
@@ -363,6 +369,11 @@ apiApp.delete('/api/spock-logs/:id', async (req, res) => {
 // ==========================================
 apiApp.get('/api/expenditures', async (req, res) => {
     try {
+        if (req.query.from || req.query.to) {
+            const { start, end } = rangeOrDay(req.query);
+            const list = await Expenditure.find({ date: { $gte: start, $lte: end } }).sort({ date: -1 });
+            return res.json({ success: true, expenses: list });
+        }
         if (req.query.date) {
             const { start, end } = dayRange(req.query.date);
             const list = await Expenditure.find({ date: { $gte: start, $lte: end } }).sort({ date: -1 });
@@ -481,8 +492,18 @@ function dayRange(dateStr) {
     return { start, end };
 }
 
+function rangeOrDay(query) {
+    if (query.from || query.to) {
+        let start, end;
+        if (query.from) { start = new Date(query.from); start.setHours(0,0,0,0); } else { start = new Date(2000, 0, 1); }
+        if (query.to) { end = new Date(query.to); end.setHours(23,59,59,999); } else { end = new Date(); end.setHours(23,59,59,999); }
+        return { start, end };
+    }
+    return dayRange(query.date);
+}
+
 apiApp.get('/api/sales/today', async (req, res) => {
-    const { start, end } = dayRange(req.query.date);
+    const { start, end } = rangeOrDay(req.query);
     try {
         const orders = await Order.find({ createdAt: { $gte: start, $lte: end }, status: 'completed' });
         const totalSales = orders.reduce((sum, o) => sum + (o.total_amount || 0), 0);
@@ -668,6 +689,12 @@ const Remainder = mongoose.model('Remainder', RemainderSchema);
 
 apiApp.get('/api/remainder', async (req, res) => {
     try {
+        if (req.query.from || req.query.to) {
+            const { start, end } = rangeOrDay(req.query);
+            const list = await Remainder.find({ date: { $gte: start, $lte: end } }).sort({ date: -1 });
+            const totalValue = list.reduce((sum, r) => sum + (r.value || 0), 0);
+            return res.json({ success: true, list, totalValue });
+        }
         if (req.query.date) {
             const { start, end } = dayRange(req.query.date);
             const list = await Remainder.find({ date: { $gte: start, $lte: end } }).sort({ date: -1 });
